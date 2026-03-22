@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "dev": "deno run -A src/index.ts",
+    "build": "deno emit src/index.ts --out-dir=dist",
+    "docs": "typedoc"
+  }
+}
