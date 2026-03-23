@@ -1,0 +1,28 @@
+/**
+ * Represents a single render controller loaded from a resource pack
+ * `render_controllers/` file. Render controllers define which geometry,
+ * materials, and textures are applied to an entity at runtime.
+ *
+ * @example
+ * ```ts
+ * const rc = addon.getRenderController("controller.render.zombie");
+ * console.log(rc?.data); // { geometry: "...", materials: [...], textures: [...] }
+ * ```
+ */
+export class RenderController {
+  /** The full controller ID, e.g. `"controller.render.zombie"`. */
+  readonly id: string;
+  /** The raw data for this render controller definition. */
+  readonly data: Record<string, unknown>;
+  /**
+   * Absolute path to the file this controller was loaded from.
+   * Empty string when loaded from browser `File[]`.
+   */
+  readonly filePath: string;
+
+  constructor(id: string, data: Record<string, unknown>, filePath: string) {
+    this.id = id;
+    this.data = data;
+    this.filePath = filePath;
+  }
+}
