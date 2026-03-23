@@ -816,6 +816,38 @@ export class TradingTable {
   }
 }
 
+// ─── ItemStack ───────────────────────────────────────────────────────────────
+
+/**
+ * Represents a recipe output — an item definition paired with the number of
+ * items produced. Bedrock recipes can yield more than one of an item, e.g.
+ * a shaped recipe for `minecraft:stick` produces 4.
+ *
+ * `item` is null when the result identifier exists in the recipe file but has
+ * no corresponding item definition in the behavior pack.
+ *
+ * @example
+ * ```ts
+ * const stack = addon.getRecipesFor("minecraft:stick")[0]?.getResultStack();
+ * console.log(stack?.item?.identifier); // "minecraft:stick"
+ * console.log(stack?.count);            // 4
+ * ```
+ */
+export class ItemStack {
+  /** The resolved item definition, or null if not found in the addon. */
+  readonly item: Item | null;
+  /** The raw identifier string from the recipe file, e.g. `"minecraft:stick"`. */
+  readonly identifier: string;
+  /** How many items this recipe produces. Always at least 1. */
+  readonly count: number;
+
+  constructor(identifier: string, count: number, addon: AddOn) {
+    this.identifier = identifier;
+    this.count = count;
+    this.item = addon.getItem(identifier);
+  }
+}
+
 // ─── Recipe ──────────────────────────────────────────────────────────────────
 
 /**
@@ -844,12 +876,6 @@ export class Recipe {
    * Prefer the typed resolve methods over reading this directly.
    */
   readonly ingredients: Record<string, string> | string[];
-  /**
-   * The output item identifier string, e.g. `"minecraft:copper_spear"`.
-   * Null for recipes without a `result` field.
-   */
-  readonly result: string | null;
-
   private readonly _addon: AddOn;
 
   constructor(data: Record<string, unknown>, addon: AddOn) {
@@ -860,7 +886,6 @@ export class Recipe {
     this.type = this._detectType(recipeKey ?? "");
     this.shape = Array.isArray(inner["pattern"]) ? inner["pattern"] as string[] : null;
     this.ingredients = this._extractIngredients(inner);
-    this.result = this._extractResult(inner);
   }
 
   private _detectType(key: string): RecipeType {
@@ -886,11 +911,43 @@ export class Recipe {
     return {};
   }
 
-  private _extractResult(inner: Record<string, unknown>): string | null {
+  private _parseResult(inner: Record<string, unknown>): { identifier: string; count: number } | null {
     if (!inner["result"]) return null;
-    if (typeof inner["result"] === "string") return inner["result"] as string;
+    if (typeof inner["result"] === "string")
+      return { identifier: inner["result"] as string, count: 1 };
     const r = inner["result"] as Record<string, unknown>;
-    return (r["item"] as string) ?? (r["block"] as string) ?? null;
+    const identifier = (r["item"] as string) ?? (r["block"] as string) ?? null;
+    if (!identifier) return null;
+    const count = typeof r["count"] === "number" ? (r["count"] as number) : 1;
+    return { identifier, count };
+  }
+
+  /**
+   * Returns the output of this recipe as an `ItemStack`, or null if the recipe
+   * has no result (e.g. some brewing recipes).
+   *
+   * `ItemStack.item` is null when the result identifier has no matching item
+   * definition in the behavior pack. `ItemStack.count` reflects the exact
+   * output quantity specified in the recipe file, defaulting to 1.
+   *
+   * @example
+   * ```ts
+   * const stack = addon.getRecipesFor("minecraft:stick")[0]?.getResultStack();
+   * console.log(stack?.count);            // 4
+   * console.log(stack?.item?.identifier); // "minecraft:stick"
+   * ```
+   */
+  getResultStack(): ItemStack | null {
+    const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
+    const inner = recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
+    const parsed = this._parseResult(inner);
+    if (!parsed) return null;
+    return new ItemStack(parsed.identifier, parsed.count, this._addon);
+  }
+
+  /** @deprecated Use `getResultStack()` instead. */
+  getResultItem(): Item | null {
+    return this.getResultStack()?.item ?? null;
   }
 
   /**
@@ -954,12 +1011,6 @@ export class Recipe {
     const output = this._resolveIngredientStr(parseIngredient(inner["output"]));
     if (!input || !reagent || !output) return null;
     return { input, reagent, output };
-  }
-
-  /** Returns the Item this recipe produces, or null if not in the addon. */
-  getResultItem(): Item | null {
-    if (!this.result) return null;
-    return this._addon.getItem(this.result);
   }
 
   /**
@@ -1060,7 +1111,7 @@ export class Item {
    * Returns all recipes in the addon whose result matches this item's identifier.
    */
   getRecipes(): Recipe[] {
-    return this._addon.getAllRecipes().filter((r) => r.result === this.identifier);
+    return this._addon.getAllRecipes().filter((r) => r.getResultStack()?.identifier === this.identifier);
   }
 
   private _getComponents(): Record<string, unknown> {
@@ -1750,7 +1801,7 @@ export class AddOn {
 
   /** Returns all recipes that produce the given item identifier. */
   getRecipesFor(identifier: string): Recipe[] {
-    return this._recipeStore.filter((r) => r.result === identifier);
+    return this._recipeStore.filter((r) => r.getResultStack()?.identifier === identifier);
   }
   /** Returns all recipes that use the given item identifier as an ingredient. */
   getRecipesUsingItem(identifier: string): Recipe[] {

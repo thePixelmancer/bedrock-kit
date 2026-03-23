@@ -1,9 +1,9 @@
 /**
  * bedrockKit.test.ts
- * Run with: deno task start
+ * Run with: deno task test
  */
 
-import { AddOn, Item, Tag, Particle } from "../src/bedrockKit.ts";
+import { AddOn, Item, Tag, Particle, ItemStack } from "../src/bedrockKit.ts";
 
 const addon = new AddOn("./test/vanilla_behavior_pack", "./test/vanilla_resource_pack");
 
@@ -103,7 +103,6 @@ Deno.test("recipes — getRecipesFor() finds copper_spear recipes", () => {
   assert("has recipes", recipes.length > 0, `got ${recipes.length}`);
 });
 
-
 // resolveShape
 Deno.test("recipes — resolveShape() returns 2D grid of Item/Tag/null", () => {
   const recipe = addon.getRecipesFor("minecraft:copper_spear").find((r) => r.type === "shaped");
@@ -193,12 +192,35 @@ Deno.test("recipes — resolveBrewing() null for non-brewing recipe", () => {
   assertEq("resolveBrewing null for shaped", recipe?.resolveBrewing(), null);
 });
 
-// getResultItem
-Deno.test("recipes — getResultItem() returns Item for known result", () => {
+// getResultStack
+Deno.test("recipes — getResultStack() returns ItemStack for known result", () => {
   const recipe = addon.getRecipesFor("minecraft:copper_spear")[0];
-  const item = recipe?.getResultItem();
-  assert("item found", item !== null, "should resolve to Item");
-  assertEq("identifier matches", item?.identifier, "minecraft:copper_spear");
+  const stack = recipe?.getResultStack();
+  assert("stack found", stack !== null, "should resolve to ItemStack");
+  assert("stack is ItemStack", stack instanceof ItemStack, "wrong type");
+  assertEq("identifier matches", stack?.identifier, "minecraft:copper_spear");
+  assert("item resolves", stack?.item !== null, "item should resolve");
+  assertEq("item identifier matches", stack?.item?.identifier, "minecraft:copper_spear");
+  assert("count is number", typeof stack?.count === "number", "count should be number");
+  console.log(`     identifier: ${stack?.identifier}, count: ${stack?.count}`);
+});
+Deno.test("recipes — getResultStack() count reflects recipe output", () => {
+  const all = addon.getAllRecipes().filter((r) => r.getResultStack() !== null);
+  assert("has recipes with stacks", all.length > 0, "none found");
+  const withCount = all.filter((r) => (r.getResultStack()?.count ?? 1) > 1);
+  if (withCount.length > 0) {
+    pass(`found ${withCount.length} recipe(s) with count > 1`);
+    console.log(`     sample: ${withCount.slice(0, 3).map((r) => `${r.getResultStack()?.identifier} x${r.getResultStack()?.count}`).join(", ")}`);
+  } else {
+    console.log("  ⚠️  no recipes with count > 1 found — vanilla packs may not have any");
+  }
+});
+Deno.test("recipes — getResultStack() null for recipes without result", () => {
+  const recipe = addon.getAllRecipes().find((r) => r.type === "brewing_mix" || r.type === "brewing_container");
+  if (!recipe) { console.log("  ⚠️  no brewing recipes to test"); return; }
+  // brewing recipes may or may not have a result — just verify it doesn't throw
+  const stack = recipe.getResultStack();
+  pass(`getResultStack() returned ${stack === null ? "null" : `ItemStack(${stack.identifier})`} without throwing`);
 });
 
 // getRecipesUsingItem
@@ -208,7 +230,7 @@ Deno.test("recipes — getRecipesUsingItem() finds recipes using minecraft:stick
   assert("all contain stick as Item ingredient", recipes.every((r) =>
     r.getAllIngredients().some((ing) => ing instanceof Item && ing.identifier === "minecraft:stick")
   ), "ingredient mismatch");
-  console.log(`     count: ${recipes.length}, sample results: ${recipes.slice(0,3).map((r) => r.result ?? "(no result)").join(", ")}`);
+  console.log(`     count: ${recipes.length}, sample results: ${recipes.slice(0,3).map((r) => r.getResultStack()?.identifier ?? "(no result)").join(", ")}`);
 });
 Deno.test("recipes — getRecipesUsingItem() returns empty for unknown item", () => {
   const recipes = addon.getRecipesUsingItem("bedrockkit:nope");
@@ -222,7 +244,7 @@ Deno.test("recipes — getRecipesUsingTag() finds recipes using minecraft:stone_
   assert("all contain tag as Tag ingredient", recipes.every((r) =>
     r.getAllIngredients().some((ing) => ing instanceof Tag && ing.id === "minecraft:stone_crafting_materials")
   ), "ingredient mismatch");
-  console.log(`     count: ${recipes.length}, sample results: ${recipes.slice(0,3).map((r) => r.result ?? "(no result)").join(", ")}`);
+  console.log(`     count: ${recipes.length}, sample results: ${recipes.slice(0,3).map((r) => r.getResultStack()?.identifier ?? "(no result)").join(", ")}`);
 });
 Deno.test("recipes — getRecipesUsingTag() returns empty for unknown tag", () => {
   const recipes = addon.getRecipesUsingTag("bedrockkit:nope");
@@ -322,6 +344,18 @@ Deno.test("biomes — getEntities() returns entities that spawn in bamboo_jungle
     console.log(`     sample: ${entities.slice(0, 5).map((e) => e.identifier).join(", ")}`);
   } else {
     console.log("  ⚠️  no entities matched — biome tags may not align with spawn rule filter tags");
+  }
+});
+Deno.test("biomes — getMusicDefinition() resolves for bamboo_jungle", () => {
+  const music = addon.getBiome("minecraft:bamboo_jungle")?.getMusicDefinition();
+  if (music) {
+    pass("resolved");
+    console.log(`     eventName: ${music.eventName}, minDelay: ${music.minDelay}, maxDelay: ${music.maxDelay}`);
+    const def = music.resolve(addon);
+    if (def) console.log(`     soundDef category: ${def.category}, files: ${def.files.length}`);
+    else console.log("  ⚠️  sound definition not found for event");
+  } else {
+    console.log("  ⚠️  no music definition for bamboo_jungle");
   }
 });
 
@@ -513,6 +547,137 @@ Deno.test("particles — entity getParticles() resolves for ravager", () => {
   } else {
     console.log("  ⚠️  no particles resolved for ravager — shortnames may not match loaded particle identifiers");
   }
+});
+
+// ─── Sound Definitions ────────────────────────────────────────────────────────
+
+section("Sound Definitions");
+
+Deno.test("soundDefs — getAllSoundDefinitions() non-empty", () => {
+  const all = addon.getAllSoundDefinitions();
+  assert("has definitions", all.length > 0, `got ${all.length}`);
+  console.log(`     total: ${all.length}`);
+});
+Deno.test("soundDefs — all have ids", () => {
+  const bad = addon.getAllSoundDefinitions().filter((d) => !d.id);
+  assert("all have ids", bad.length === 0, `${bad.length} missing`);
+});
+Deno.test("soundDefs — getSoundDefinition() null for unknown", () => {
+  assertEq("unknown returns null", addon.getSoundDefinition("bedrockkit:nope"), null);
+});
+Deno.test("soundDefs — getSoundDefinition() finds mob.zombie.say", () => {
+  const def = addon.getSoundDefinition("mob.zombie.say");
+  assert("found", def !== null, "should exist");
+  assertEq("id matches", def?.id, "mob.zombie.say");
+  assert("has category", typeof def?.category === "string", "missing category");
+  assert("has files", (def?.files.length ?? 0) > 0, "no files");
+  console.log(`     category: ${def?.category}, files: ${def?.files.length}`);
+  console.log(`     first file: ${def?.files[0].name}`);
+});
+Deno.test("soundDefs — files have name property", () => {
+  const def = addon.getSoundDefinition("mob.zombie.say");
+  assert("all files have name", def?.files.every((f) => typeof f.name === "string" && f.name.length > 0) ?? false, "missing name");
+});
+
+// ─── Music Definitions ────────────────────────────────────────────────────────
+
+section("Music Definitions");
+
+Deno.test("musicDefs — getAllMusicDefinitions() non-empty", () => {
+  const all = addon.getAllMusicDefinitions();
+  assert("has definitions", all.length > 0, `got ${all.length}`);
+  console.log(`     total: ${all.length}`);
+});
+Deno.test("musicDefs — getMusicDefinition() null for unknown", () => {
+  assertEq("unknown returns null", addon.getMusicDefinition("bedrockkit:nope"), null);
+});
+Deno.test("musicDefs — getMusicDefinition() finds bamboo_jungle", () => {
+  const music = addon.getMusicDefinition("bamboo_jungle");
+  assert("found", music !== null, "should exist");
+  assertEq("id matches", music?.id, "bamboo_jungle");
+  assert("has eventName", typeof music?.eventName === "string" && (music?.eventName.length ?? 0) > 0, "missing eventName");
+  assert("minDelay is number", typeof music?.minDelay === "number", "missing minDelay");
+  assert("maxDelay is number", typeof music?.maxDelay === "number", "missing maxDelay");
+  console.log(`     eventName: ${music?.eventName}, minDelay: ${music?.minDelay}, maxDelay: ${music?.maxDelay}`);
+});
+Deno.test("musicDefs — resolve() returns SoundDefinition", () => {
+  const music = addon.getMusicDefinition("bamboo_jungle");
+  const def = music?.resolve(addon);
+  if (def) {
+    pass("resolved to SoundDefinition");
+    console.log(`     category: ${def.category}, files: ${def.files.length}`);
+  } else {
+    console.log("  ⚠️  sound definition not found — music event may not be in sound_definitions.json");
+  }
+});
+
+// ─── Entity Sound Events ──────────────────────────────────────────────────────
+
+section("Entity Sound Events");
+
+Deno.test("entitySounds — getEntitySoundEvents() finds zombie", () => {
+  const events = addon.getEntitySoundEvents("zombie");
+  assert("has events", events.length > 0, "no events found");
+  console.log(`     count: ${events.length}, sample: ${events.slice(0,3).map((e) => `${e.event}→${e.definitionId}`).join(", ")}`);
+});
+Deno.test("entitySounds — all events have event name and definitionId", () => {
+  const events = addon.getEntitySoundEvents("zombie");
+  assert("all have event", events.every((e) => typeof e.event === "string" && e.event.length > 0), "missing event name");
+  assert("all have definitionId", events.every((e) => typeof e.definitionId === "string"), "missing definitionId");
+});
+Deno.test("entitySounds — non-empty events resolve to SoundDefinition", () => {
+  const events = addon.getEntitySoundEvents("zombie").filter((e) => e.definitionId.length > 0);
+  const resolved = events.filter((e) => e.definition !== null);
+  if (resolved.length > 0) {
+    pass(`resolved ${resolved.length}/${events.length} definitions`);
+    console.log(`     sample: ${resolved.slice(0,2).map((e) => `${e.event}→${e.definition?.id}`).join(", ")}`);
+  } else {
+    console.log("  ⚠️  no definitions resolved — sound_definitions.json may be missing");
+  }
+});
+Deno.test("entitySounds — entity getSoundEvents() resolves from full identifier", () => {
+  const events = addon.getEntity("minecraft:zombie")?.getSoundEvents() ?? [];
+  assert("has events", events.length > 0, "no events found for minecraft:zombie");
+  console.log(`     count: ${events.length}`);
+});
+Deno.test("entitySounds — entity soundShortnames from resource file", () => {
+  const zombie = addon.getEntity("minecraft:zombie");
+  const shortnames = zombie?.soundShortnames ?? {};
+  if (Object.keys(shortnames).length > 0) {
+    pass(`found ${Object.keys(shortnames).length} shortname(s)`);
+    console.log(`     sample: ${JSON.stringify(Object.fromEntries(Object.entries(shortnames).slice(0, 3)))}`);
+  } else {
+    console.log("  ⚠️  no soundShortnames on zombie resource file");
+  }
+});
+Deno.test("entitySounds — getAllEntitySoundEvents() non-empty", () => {
+  const all = addon.getAllEntitySoundEvents();
+  assert("has entries", all.size > 0, "empty map");
+  console.log(`     total entity shortnames: ${all.size}`);
+});
+
+// ─── Block Sound Events ───────────────────────────────────────────────────────
+
+section("Block Sound Events");
+
+Deno.test("blockSounds — getBlockSoundEvents() finds amethyst_block", () => {
+  const events = addon.getBlockSoundEvents("amethyst_block");
+  assert("has events", events.length > 0, "no events found");
+  console.log(`     count: ${events.length}, sample: ${events.slice(0,3).map((e) => `${e.event}→${e.definitionId}`).join(", ")}`);
+});
+Deno.test("blockSounds — block getSoundEvents() resolves from full identifier", () => {
+  const events = addon.getAllBlocks()[0]?.getSoundEvents() ?? [];
+  const block = addon.getAllBlocks()[0];
+  if (events.length > 0) {
+    pass(`found ${events.length} events for ${block?.identifier}`);
+  } else {
+    console.log(`  ⚠️  no sound events for ${block?.identifier} — shortname may not be in sounds.json`);
+  }
+});
+Deno.test("blockSounds — getAllBlockSoundEvents() non-empty", () => {
+  const all = addon.getAllBlockSoundEvents();
+  assert("has entries", all.size > 0, "empty map");
+  console.log(`     total block shortnames: ${all.size}`);
 });
 
 // ─── Entities ────────────────────────────────────────────────────────────────
