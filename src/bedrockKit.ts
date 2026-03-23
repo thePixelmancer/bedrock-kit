@@ -2,44 +2,73 @@
  * bedrockKit.ts
  *
  * A library for navigating Minecraft Bedrock addon files programmatically.
+ * Works in Deno, Node.js, and browsers.
+ *
+ * - Deno / Node.js: use `new AddOn(behaviorPackPath, resourcePackPath)`
+ * - Browser: use `await AddOn.fromFileList(bpFiles, rpFiles)` with File[] from
+ *   a folder picker (<input webkitdirectory> or showDirectoryPicker())
+ *
  * Reads behavior pack and resource pack directories, parses their JSON files
  * (including Bedrock's comment-bearing JSON dialect), and exposes a typed API
  * for querying items, blocks, entities, recipes, loot tables, biomes, animations,
  * attachables, trading tables, and spawn rules — with automatic cross-referencing
  * between them.
  *
- * @example
+ * @example Deno / Node.js
  * ```ts
  * import { AddOn } from "./bedrockKit.ts";
  *
  * const addon = new AddOn("./behavior_pack", "./resource_pack");
  *
  * const spear = addon.getItem("minecraft:copper_spear");
- * console.log(spear?.getTexturePath());       // textures/items/spear/copper_spear
- * console.log(spear?.getRecipes()[0].resolveShape());  // 2D grid of Item | Tag | null
+ * console.log(spear?.getTexturePath());              // textures/items/spear/copper_spear
+ * console.log(spear?.getRecipes()[0].resolveShape()); // 2D grid of Item | Tag | null
  *
  * const zombie = addon.getEntity("minecraft:zombie");
- * console.log(zombie?.getLootTables());       // LootTable[]
- * console.log(zombie?.getAnimations());       // [{ shortname, animation }]
+ * console.log(zombie?.getLootTables());  // LootTable[]
+ * console.log(zombie?.getAnimations()); // [{ shortname, animation }]
+ * ```
+ *
+ * @example Browser
+ * ```ts
+ * import { AddOn } from "bedrockKit";
+ *
+ * const bpInput  = document.getElementById("bp") as HTMLInputElement;
+ * const rpInput  = document.getElementById("rp") as HTMLInputElement;
+ *
+ * const addon = await AddOn.fromFileList(
+ *   Array.from(bpInput.files!),
+ *   Array.from(rpInput.files!),
+ * );
+ * console.log(addon.getItem("minecraft:copper_spear")?.getTexturePath());
  * ```
  *
  * @module
  */
 
-import { join, resolve } from "jsr:@std/path";
+import { join, resolve, relative, posix } from "node:path";
+import { readdirSync, statSync, readFileSync } from "node:fs";
 
-// ─── Utility ────────────────────────────────────────────────────────────────
+// ─── Utility — disk (Deno + Node) ────────────────────────────────────────────
 
 function walkDir(dir: string, filter?: (f: string) => boolean): string[] {
-  try { Deno.statSync(dir); } catch { return []; }
+  try { statSync(dir); } catch { return []; }
   const results: string[] = [];
-  for (const entry of Deno.readDirSync(dir)) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
-    if (entry.isDirectory) results.push(...walkDir(full, filter));
+    if (entry.isDirectory()) results.push(...walkDir(full, filter));
     else if (!filter || filter(full)) results.push(full);
   }
   return results;
 }
+
+function readJSONFromDisk<T = Record<string, unknown>>(filePath: string): T | null {
+  try {
+    return JSON.parse(stripComments(readFileSync(filePath, "utf8"))) as T;
+  } catch { return null; }
+}
+
+// ─── Utility — shared ────────────────────────────────────────────────────────
 
 function stripComments(raw: string): string {
   let result = "";
@@ -68,9 +97,9 @@ function stripComments(raw: string): string {
   return result;
 }
 
-function readJSON<T = Record<string, unknown>>(filePath: string): T | null {
+function parseJSONString<T = Record<string, unknown>>(text: string): T | null {
   try {
-    return JSON.parse(stripComments(Deno.readTextFileSync(filePath))) as T;
+    return JSON.parse(stripComments(text)) as T;
   } catch { return null; }
 }
 
@@ -88,6 +117,39 @@ function parseIngredient(raw: unknown): string {
   if (typeof r["tag"] === "string") return `tag:${r["tag"]}`;
   if (typeof r["item"] === "string") return r["item"] as string;
   return "";
+}
+
+// ─── Browser file loading ─────────────────────────────────────────────────────
+
+/**
+ * A parsed in-memory representation of a pack's files, keyed by their
+ * slash-normalised path relative to the pack root.
+ * e.g. `"textures/item_texture.json"` → `Record<string, unknown>`
+ *
+ * Used internally by `AddOn.fromFileList`.
+ */
+export type PackData = Map<string, Record<string, unknown>>;
+
+/**
+ * Read a `File[]` from a browser folder picker and return a `PackData` map.
+ * The relative path is taken from `file.webkitRelativePath`, which browsers
+ * set automatically when using `<input webkitdirectory>` or `showDirectoryPicker()`.
+ * The first path segment (the folder name itself) is stripped so all keys are
+ * relative to the pack root, matching what the disk loader produces.
+ */
+async function packDataFromFiles(files: File[]): Promise<PackData> {
+  const map: PackData = new Map();
+  await Promise.all(files.map(async (file) => {
+    // webkitRelativePath: "behavior_pack/items/copper_spear.json"
+    // → strip first segment → "items/copper_spear.json"
+    const rel = file.webkitRelativePath
+      ? file.webkitRelativePath.split("/").slice(1).join("/")
+      : file.name;
+    const text = await file.text();
+    const data = parseJSONString(text);
+    if (data) map.set(rel, data);
+  }));
+  return map;
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -210,7 +272,10 @@ export interface LootPool {
 export class LootTable {
   /** The raw parsed JSON of the loot table file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the loot table file on disk. */
+  /**
+   * Absolute path to the loot table file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
   /** Path relative to the behavior pack root, e.g. `"loot_tables/entities/zombie.json"`. */
   readonly relativePath: string;
@@ -281,7 +346,10 @@ export class SpawnRule {
   readonly identifier: string;
   /** The raw parsed JSON of the spawn rule file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the spawn rule file on disk. */
+  /**
+   * Absolute path to the spawn rule file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
   /**
    * The population control group that limits how many of this entity spawn together.
@@ -354,7 +422,10 @@ export class Biome {
   readonly identifier: string;
   /** The raw parsed JSON of the biome file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the biome file on disk. */
+  /**
+   * Absolute path to the biome file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
   private readonly _addon: AddOn;
 
@@ -399,7 +470,6 @@ export class Biome {
    * ```
    */
   getEntities(): Entity[] {
-    // Collect this biome's tag strings from its minecraft:tags component
     const tagsComp = this.components["minecraft:tags"] as Record<string, unknown> | undefined;
     const biomeTags: string[] = tagsComp
       ? (tagsComp["tags"] as string[] | undefined) ?? []
@@ -413,6 +483,27 @@ export class Biome {
       return ruleTags.some((tag) => biomeTags.includes(tag));
     });
   }
+
+  /**
+   * Returns the music definition for this biome from `sounds/music_definitions.json`.
+   *
+   * Looks up the biome's shortname (the part after the namespace, e.g.
+   * `"minecraft:bamboo_jungle"` → `"bamboo_jungle"`) in `music_definitions.json`.
+   * Returns null if no music definition exists for this biome.
+   *
+   * @example
+   * ```ts
+   * addon.getBiome("minecraft:bamboo_jungle")?.getMusicDefinition()?.eventName;
+   * // "music.overworld.bamboo_jungle"
+   * ```
+   */
+  getMusicDefinition(): MusicDefinition | null {
+    const shortname = this.identifier.includes(":")
+      ? this.identifier.split(":")[1]
+      : this.identifier;
+    return this._addon.getMusicDefinition(shortname);
+  }
+
 }
 
 // ─── Animation ───────────────────────────────────────────────────────────────
@@ -432,7 +523,10 @@ export class Animation {
   readonly id: string;
   /** The raw data for this animation definition. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the file this animation was loaded from. */
+  /**
+   * Absolute path to the file this animation was loaded from.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
 
   constructor(id: string, data: Record<string, unknown>, filePath: string) {
@@ -464,7 +558,10 @@ export class AnimationController {
   readonly id: string;
   /** The raw data for this controller definition. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the file this controller was loaded from. */
+  /**
+   * Absolute path to the file this controller was loaded from.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
 
   constructor(id: string, data: Record<string, unknown>, filePath: string) {
@@ -502,7 +599,10 @@ export class RenderController {
   readonly id: string;
   /** The raw data for this render controller definition. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the file this controller was loaded from. */
+  /**
+   * Absolute path to the file this controller was loaded from.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
 
   constructor(id: string, data: Record<string, unknown>, filePath: string) {
@@ -516,7 +616,6 @@ export class RenderController {
 
 /**
  * Represents a particle effect definition from the resource pack's `particles/` directory.
- * Particle files define visual effects such as smoke, sparks, and spell emitters.
  *
  * @example
  * ```ts
@@ -529,7 +628,10 @@ export class Particle {
   readonly identifier: string;
   /** The raw parsed JSON of the particle file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the particle file on disk. */
+  /**
+   * Absolute path to the particle file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
 
   constructor(identifier: string, data: Record<string, unknown>, filePath: string) {
@@ -545,8 +647,7 @@ export class Particle {
 
   /**
    * The texture path used by this particle effect, as defined in `basic_render_parameters.texture`.
-   * e.g. `"textures/particle/particles"`.
-   * Returns null if not specified.
+   * e.g. `"textures/particle/particles"`. Returns null if not specified.
    */
   get texturePath(): string | null {
     const params = this._description["basic_render_parameters"] as Record<string, unknown> | undefined;
@@ -555,8 +656,7 @@ export class Particle {
 
   /**
    * The material used by this particle effect, as defined in `basic_render_parameters.material`.
-   * e.g. `"particles_alpha"`.
-   * Returns null if not specified.
+   * e.g. `"particles_alpha"`. Returns null if not specified.
    */
   get material(): string | null {
     const params = this._description["basic_render_parameters"] as Record<string, unknown> | undefined;
@@ -574,12 +674,12 @@ export class Particle {
 
 /**
  * Represents an attachable definition from the resource pack's `attachables/` directory.
- * Attachables define how items are visually rendered when held or equipped by a player or entity.
+ * Attachables define how items are visually rendered when held or equipped.
  *
  * @example
  * ```ts
  * const att = addon.getAttachable("minecraft:bow");
- * console.log(att?.textures); // { default: "textures/items/bow_standby", ... }
+ * console.log(att?.textures);  // { default: "textures/items/bow_standby", ... }
  * console.log(att?.materials); // { default: "entity_alphatest", ... }
  * ```
  */
@@ -588,7 +688,10 @@ export class Attachable {
   readonly identifier: string;
   /** The raw parsed JSON of the attachable file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the attachable file on disk. */
+  /**
+   * Absolute path to the attachable file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
 
   constructor(identifier: string, data: Record<string, unknown>, filePath: string) {
@@ -620,13 +723,13 @@ export class Attachable {
 
 /** A single item entry in a villager trade — either wanted or given. */
 export interface TradeItem {
-  /** The namespaced item identifier, e.g. `"minecraft:emerald"`. May include data value e.g. `"minecraft:coal:0"`. */
+  /** The namespaced item identifier, e.g. `"minecraft:emerald"`. */
   item: string;
   /** How many of this item are required or given. Can be a fixed number or a min/max range. */
   quantity: number | { min: number; max: number };
 }
 
-/** A single villager trade exchange — items the villager wants in return for items it gives. */
+/** A single villager trade exchange. */
 export interface Trade {
   /** Items the player must provide. */
   wants: TradeItem[];
@@ -634,30 +737,31 @@ export interface Trade {
   gives: TradeItem[];
 }
 
-/** A single unlock tier in a villager trading table. Higher tiers unlock after enough trades. */
+/** A single unlock tier in a villager trading table. */
 export interface TradeTier {
   trades: Trade[];
 }
 
 /**
  * Represents a villager trading table from the behavior pack's `trading/` directory.
- * Trading tables define the tiers of trades available for a villager profession.
  *
  * @example
  * ```ts
  * const table = addon.getTradingTable("armorer_trades");
  * console.log(table?.tiers[0].trades[0]);
- * // { wants: [{ item: "minecraft:coal:0", quantity: { min: 16, max: 24 } }], gives: [...] }
  * ```
  */
 export class TradingTable {
   /** The raw parsed JSON of the trading table file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the trading table file on disk. */
+  /**
+   * Absolute path to the trading table file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
   /** The file name without extension, used as the lookup key. e.g. `"armorer_trades"`. */
   readonly name: string;
-  /** The ordered list of trade tiers. Players unlock higher tiers by completing trades. */
+  /** The ordered list of trade tiers. */
   readonly tiers: TradeTier[];
 
   constructor(data: Record<string, unknown>, filePath: string, name: string) {
@@ -670,12 +774,6 @@ export class TradingTable {
   /**
    * Returns a flat deduplicated list of every item identifier referenced
    * across all tiers and trades, including both wanted and given items.
-   *
-   * @example
-   * ```ts
-   * table.getAllItemIdentifiers();
-   * // ["minecraft:coal:0", "minecraft:emerald", "minecraft:iron_helmet", ...]
-   * ```
    */
   getAllItemIdentifiers(): string[] {
     const ids: string[] = [];
@@ -692,7 +790,6 @@ export class TradingTable {
     if (!Array.isArray(raw)) return [];
     return raw.map((t: unknown) => {
       const tier = t as Record<string, unknown>;
-      // Some trading files nest trades under "groups" instead of directly
       const tradeSource = Array.isArray(tier["trades"])
         ? (tier["trades"] as Record<string, unknown>[])
         : Array.isArray(tier["groups"])
@@ -713,7 +810,6 @@ export class TradingTable {
   private _parseTradeItems(raw: unknown): TradeItem[] {
     if (!Array.isArray(raw)) return [];
     return (raw as Record<string, unknown>[]).map((r) => ({
-      // Strip data value suffix e.g. "minecraft:coal:0" -> "minecraft:coal:0" (kept as-is, it's valid)
       item: (r["item"] as string) ?? "",
       quantity: (r["quantity"] as TradeItem["quantity"]) ?? 1,
     }));
@@ -724,11 +820,6 @@ export class TradingTable {
 
 /**
  * Represents a single recipe file from the behavior pack's `recipes/` directory.
- * Supports shaped, shapeless, furnace, and brewing recipe types.
- *
- * Use the `resolveShape()`, `resolveShapeless()`, `resolveFurnace()`, or
- * `resolveBrewing()` methods to get typed `Item | Tag | null` results instead
- * of raw identifier strings.
  *
  * @example
  * ```ts
@@ -736,7 +827,6 @@ export class TradingTable {
  * const shaped = recipes.find(r => r.type === "shaped");
  * const grid = shaped?.resolveShape();
  * // grid[0][2] instanceof Item -> true
- * // grid[1][1]?.identifier    -> "minecraft:stick"
  * ```
  */
 export class Recipe {
@@ -746,24 +836,17 @@ export class Recipe {
   readonly type: RecipeType;
   /**
    * Pattern rows for shaped recipes, e.g. `["X ", "X ", "X "]`.
-   * Each character in a row corresponds to one crafting grid cell.
-   * Null for non-shaped recipes. Use `resolveShape()` to get typed results.
+   * Null for non-shaped recipes.
    */
   readonly shape: string[] | null;
   /**
    * Raw ingredient data extracted from the recipe file.
-   * - For shaped recipes: a map of symbol → prefixed identifier string.
-   * - For shapeless recipes: an array of prefixed identifier strings.
-   * - For other types: an empty object.
-   *
-   * Prefer the typed resolve methods (`resolveShape`, `resolveShapeless`, etc.)
-   * over reading this directly.
+   * Prefer the typed resolve methods over reading this directly.
    */
   readonly ingredients: Record<string, string> | string[];
   /**
    * The output item identifier string, e.g. `"minecraft:copper_spear"`.
-   * Null for recipes without a `result` field (e.g. some brewing recipes).
-   * Use `getResultItem()` to get a typed `Item` object.
+   * Null for recipes without a `result` field.
    */
   readonly result: string | null;
 
@@ -881,14 +964,7 @@ export class Recipe {
 
   /**
    * Returns a flat array of all ingredients across the recipe as `Item | Tag` objects.
-   * Works for all recipe types — shaped key maps, shapeless arrays, furnace input, and brewing fields.
-   * Empty slots are excluded. Useful for searching recipes by ingredient.
-   *
-   * @example
-   * ```ts
-   * addon.getRecipesUsingItem("minecraft:stick");
-   * // Internally uses getAllIngredients() to find shaped + shapeless matches
-   * ```
+   * Empty slots are excluded.
    */
   getAllIngredients(): Array<Item | Tag> {
     const strs = this._allIngredientStrings();
@@ -898,29 +974,24 @@ export class Recipe {
     });
   }
 
-  /** Converts a "tag:x" or plain id string into Item | Tag | null. */
   private _resolveIngredientStr(raw: string): Item | Tag | null {
     if (!raw) return null;
     if (raw.startsWith("tag:")) return new Tag(raw.slice(4));
     return this._addon.getItem(raw) ?? new Tag(raw);
   }
 
-  /** Flat list of all raw ingredient strings across all recipe types. */
   private _allIngredientStrings(): string[] {
     const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
     const inner = recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
     const strs: string[] = [];
-    // shaped key map
     if (inner["key"] && typeof inner["key"] === "object" && !Array.isArray(inner["key"])) {
       for (const v of Object.values(inner["key"] as Record<string, unknown>))
         strs.push(parseIngredient(v));
     }
-    // shapeless ingredients array
     if (Array.isArray(inner["ingredients"])) {
       for (const v of inner["ingredients"] as unknown[])
         strs.push(parseIngredient(v));
     }
-    // furnace / brewing single fields
     for (const field of ["input", "reagent", "output"]) {
       if (inner[field]) strs.push(parseIngredient(inner[field]));
     }
@@ -946,7 +1017,10 @@ export class Item {
   readonly identifier: string;
   /** The raw parsed JSON of the item's behavior file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the item's behavior file on disk. */
+  /**
+   * Absolute path to the item's behavior file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
   private readonly _addon: AddOn;
 
@@ -963,12 +1037,6 @@ export class Item {
    *
    * @returns The texture file path (without extension), e.g. `"textures/items/iron_sword"`.
    * Returns null if the item has no icon component or the shortname isn't in item_texture.json.
-   *
-   * @example
-   * ```ts
-   * addon.getItem("minecraft:copper_spear")?.getTexturePath();
-   * // "textures/items/spear/copper_spear"
-   * ```
    */
   getTexturePath(): string | null {
     const textures = this._addon.itemTextures;
@@ -983,7 +1051,6 @@ export class Item {
 
   /**
    * Returns the attachable definition for this item, or null if no attachable exists.
-   * Attachables define how the item looks when held or worn by a player or entity.
    */
   getAttachable(): Attachable | null {
     return this._addon.getAttachable(this.identifier);
@@ -991,7 +1058,6 @@ export class Item {
 
   /**
    * Returns all recipes in the addon whose result matches this item's identifier.
-   * Includes shaped, shapeless, and furnace recipes.
    */
   getRecipes(): Recipe[] {
     return this._addon.getAllRecipes().filter((r) => r.result === this.identifier);
@@ -1033,7 +1099,10 @@ export class Block {
   readonly identifier: string;
   /** The raw parsed JSON of the block's behavior file. */
   readonly data: Record<string, unknown>;
-  /** Absolute path to the block's behavior file on disk. */
+  /**
+   * Absolute path to the block's behavior file on disk.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly filePath: string;
   private readonly _addon: AddOn;
 
@@ -1045,21 +1114,8 @@ export class Block {
   }
 
   /**
-   * Resolves the texture path for the given face of this block by reading its
-   * `minecraft:material_instances` component and looking up the shortname in
-   * the resource pack's `terrain_texture.json`.
-   *
-   * @param face - The face to look up. Matches Bedrock material instance keys:
-   *   `"up"`, `"down"`, `"side"`, or `"*"` for the wildcard/default face.
-   *   Defaults to `"*"`.
-   *
-   * @returns The texture file path (without extension), or null if unresolvable.
-   *
-   * @example
-   * ```ts
-   * block.getTexturePath("*"); // "textures/blocks/golem_heart"
-   * block.getTexturePath("up"); // null (if no specific "up" face defined)
-   * ```
+   * Resolves the texture path for the given face of this block.
+   * @param face - `"up"`, `"down"`, `"side"`, or `"*"` for the wildcard/default face.
    */
   getTexturePath(face: "up" | "down" | "side" | "*" = "*"): string | null {
     const textures = this._addon.terrainTextures;
@@ -1080,13 +1136,34 @@ export class Block {
 
   /**
    * Returns the loot table for this block by resolving the path in its
-   * `minecraft:loot` component against the behavior pack's loot tables.
-   * Returns null if the block has no loot component or the file doesn't exist.
+   * `minecraft:loot` component. Returns null if absent.
    */
   getLootTable(): LootTable | null {
     const lootPath = this._getComponents()["minecraft:loot"];
     if (typeof lootPath !== "string") return null;
     return this._addon.getLootTableByPath(lootPath);
+  }
+
+
+  /**
+   * Returns the sound events for this block from `sounds/sounds.json`.
+   *
+   * Looks up the block's shortname (the part after the namespace, e.g.
+   * `"minecraft:dirt"` → `"dirt"`) in `block_sounds`. Returns an empty array
+   * if no sound events are defined for this block shortname.
+   *
+   * @example
+   * ```ts
+   * addon.getBlock("minecraft:amethyst_block")?.getSoundEvents()
+   *   .find(e => e.event === "break")?.definitionId;
+   * // "break.amethyst_block"
+   * ```
+   */
+  getSoundEvents(): SoundEvent[] {
+    const shortname = this.identifier.includes(":")
+      ? this.identifier.split(":")[1]
+      : this.identifier;
+    return this._addon.getBlockSoundEvents(shortname);
   }
 
   private _getComponents(): Record<string, unknown> {
@@ -1101,16 +1178,13 @@ export class Block {
  * Represents an entity that exists across both packs — a behavior (server-side)
  * definition and optionally a resource (client-side) definition.
  *
- * Both sides are loaded and cross-referenced automatically. Use `behaviorData` and
- * `resourceData` for raw JSON access, or the typed methods for resolved cross-references.
- *
  * @example
  * ```ts
  * const zombie = addon.getEntity("minecraft:zombie");
- * zombie?.getLootTables();          // LootTable[]
- * zombie?.getSpawnRule();           // SpawnRule | null
- * zombie?.getAnimations();          // [{ shortname, animation }]
- * zombie?.getRenderControllers();   // RenderController[]
+ * zombie?.getLootTables();        // LootTable[]
+ * zombie?.getSpawnRule();         // SpawnRule | null
+ * zombie?.getAnimations();        // [{ shortname, animation }]
+ * zombie?.getRenderControllers(); // RenderController[]
  * ```
  */
 export class Entity {
@@ -1118,11 +1192,17 @@ export class Entity {
   readonly identifier: string;
   /** Raw parsed JSON of the behavior pack (server-side) entity file. */
   readonly behaviorData: Record<string, unknown>;
-  /** Absolute path to the behavior file on disk. Empty string if no behavior file exists. */
+  /**
+   * Absolute path to the behavior file on disk.
+   * Empty string if no behavior file exists or when loaded from browser `File[]`.
+   */
   readonly behaviorFilePath: string;
   /** Raw parsed JSON of the resource pack (client-side) entity file. Null if not present. */
   readonly resourceData: Record<string, unknown> | null;
-  /** Absolute path to the resource file on disk. Null if not present. */
+  /**
+   * Absolute path to the resource file on disk. Null if not present.
+   * Empty string when loaded from browser `File[]`.
+   */
   readonly resourceFilePath: string | null;
 
   private readonly _addon: AddOn;
@@ -1143,27 +1223,21 @@ export class Entity {
     this._addon = addon;
   }
 
-  // ── Resource entity helpers ──────────────────────────────────────────────
-
   private get _rpDescription(): Record<string, unknown> {
     const inner = (this.resourceData?.["minecraft:client_entity"] as Record<string, unknown>) ?? {};
     return (inner["description"] as Record<string, unknown>) ?? {};
   }
 
   /**
-   * The shortname → full animation ID map declared in the resource entity file's `description.animations`.
-   * Shortnames are local aliases used by animation controllers and scripts.
-   *
-   * @example `{ "move": "animation.humanoid.move", "attack": "animation.zombie.attack" }`
+   * The shortname → full animation ID map declared in the resource entity file.
+   * @example `{ "move": "animation.humanoid.move" }`
    */
   get animationShortnames(): Record<string, string> {
     return (this._rpDescription["animations"] as Record<string, string>) ?? {};
   }
 
   /**
-   * The shortname → full particle identifier map declared in the resource entity file's
-   * `description.particle_effects`. Shortnames are local aliases used in animation controllers.
-   *
+   * The shortname → full particle identifier map declared in the resource entity file.
    * @example `{ "stun_particles": "minecraft:stunned_emitter" }`
    */
   get particleShortnames(): Record<string, string> {
@@ -1171,9 +1245,7 @@ export class Entity {
   }
 
   /**
-   * The list of render controller IDs declared in the resource entity file's
-   * `description.render_controllers`. May include conditional entries — only
-   * the controller IDs themselves are extracted, not their conditions.
+   * The list of render controller IDs declared in the resource entity file.
    */
   get renderControllerIds(): string[] {
     const raw = this._rpDescription["render_controllers"];
@@ -1186,18 +1258,9 @@ export class Entity {
     });
   }
 
-  // ── Cross-references ─────────────────────────────────────────────────────
-
   /**
    * Returns all loot tables this entity can drop, by recursively searching
-   * its behavior data for `minecraft:loot` component entries across all
-   * component groups and permutations.
-   *
-   * @example
-   * ```ts
-   * addon.getEntity("minecraft:zombie")?.getLootTables().map(lt => lt.relativePath);
-   * // ["loot_tables/entities/zombie.json", "loot_tables/entities/zombie_rider.json"]
-   * ```
+   * its behavior data for `minecraft:loot` component entries.
    */
   getLootTables(): LootTable[] {
     return this._collectLootPaths(this.behaviorData).flatMap((p) => {
@@ -1206,26 +1269,14 @@ export class Entity {
     });
   }
 
-  /**
-   * Returns this entity's spawn rule, or null if no spawn rule file exists for it.
-   * Matched by identifier — e.g. `"minecraft:zombie"` maps to `spawn_rules/zombie.json`.
-   */
+  /** Returns this entity's spawn rule, or null if none exists. */
   getSpawnRule(): SpawnRule | null {
     return this._addon.getSpawnRule(this.identifier);
   }
 
   /**
    * Resolves this entity's animation shortnames into `Animation` instances.
-   * Only returns entries where the full animation ID exists in the addon's loaded animations.
-   * Animation controller references (IDs starting with `"controller."`) are excluded — use
-   * `getAnimationControllers()` for those.
-   *
-   * @returns Array of `{ shortname, animation }` pairs.
-   *
-   * @example
-   * ```ts
-   * zombie.getAnimations().find(a => a.shortname === "move")?.animation.loop; // true
-   * ```
+   * Animation controller references are excluded — use `getAnimationControllers()` for those.
    */
   getAnimations(): Array<{ shortname: string; animation: Animation }> {
     return Object.entries(this.animationShortnames).flatMap(([shortname, fullId]) => {
@@ -1237,9 +1288,6 @@ export class Entity {
 
   /**
    * Resolves this entity's animation controller shortnames into `AnimationController` instances.
-   * Only entries whose full ID starts with `"controller.animation."` and exists in the addon are returned.
-   *
-   * @returns Array of `{ shortname, controller }` pairs.
    */
   getAnimationControllers(): Array<{ shortname: string; controller: AnimationController }> {
     return Object.entries(this.animationShortnames).flatMap(([shortname, fullId]) => {
@@ -1249,10 +1297,7 @@ export class Entity {
     });
   }
 
-  /**
-   * Resolves this entity's render controller IDs into `RenderController` instances.
-   * Only IDs that exist in the addon's loaded render controllers are returned.
-   */
+  /** Resolves this entity's render controller IDs into `RenderController` instances. */
   getRenderControllers(): RenderController[] {
     return this.renderControllerIds.flatMap((id) => {
       const rc = this._addon.getRenderController(id);
@@ -1262,23 +1307,45 @@ export class Entity {
 
   /**
    * Resolves this entity's particle shortnames into `Particle` instances.
-   * Only entries whose full identifier exists in the addon's loaded particles are returned.
-   *
-   * @returns Array of `{ shortname, particle }` pairs.
-   *
-   * @example
-   * ```ts
-   * addon.getEntity("minecraft:ravager")
-   *   ?.getParticles()
-   *   .map(p => `${p.shortname} → ${p.particle.identifier}`);
-   * // ["stun_particles → minecraft:stunned_emitter"]
-   * ```
    */
   getParticles(): Array<{ shortname: string; particle: Particle }> {
     return Object.entries(this.particleShortnames).flatMap(([shortname, fullId]) => {
       const particle = this._addon.getParticle(fullId);
       return particle ? [{ shortname, particle }] : [];
     });
+  }
+
+
+  /**
+   * Returns the sound events for this entity from `sounds/sounds.json`.
+   *
+   * The entity identifier is stripped to its shortname for the lookup
+   * (e.g. `"minecraft:zombie"` → `"zombie"`), matching how `sounds.json` keys entities.
+   * Returns an empty array if no sound events are defined for this entity.
+   *
+   * @example
+   * ```ts
+   * addon.getEntity("minecraft:zombie")?.getSoundEvents()
+   *   .map(e => `${e.event} → ${e.definitionId}`);
+   * // ["ambient → mob.zombie.say", "death → mob.zombie.death", ...]
+   * ```
+   */
+  getSoundEvents(): SoundEvent[] {
+    const shortname = this.identifier.includes(":")
+      ? this.identifier.split(":")[1]
+      : this.identifier;
+    return this._addon.getEntitySoundEvents(shortname);
+  }
+
+  /**
+   * The shortname → sound event ID map declared in the resource entity file's
+   * `description.sounds`. These are additional sound bindings defined per-entity
+   * in the resource pack, separate from the global `sounds.json` mappings.
+   *
+   * @example `{ "hurt": "mob.zombie.hurt", "step": "mob.zombie.step" }`
+   */
+  get soundShortnames(): Record<string, string> {
+    return (this._rpDescription["sounds"] as Record<string, string>) ?? {};
   }
 
   private _collectLootPaths(obj: unknown): string[] {
@@ -1295,32 +1362,187 @@ export class Entity {
   }
 }
 
-// ─── AddOn ────────────────────────────────────────────────────────────────────
+// ─── Sound types ─────────────────────────────────────────────────────────────
 
 /**
- * The main entry point for bedrockKit. Represents a Minecraft Bedrock addon consisting
- * of a behavior pack and a resource pack.
- *
- * All collections are lazy-loaded on first access and cached for subsequent calls.
- * Texture maps (`item_texture.json` and `terrain_texture.json`) are loaded eagerly
- * at construction time since they are needed for cross-referencing.
+ * A single audio file entry within a sound definition.
+ * Entries in `sound_definitions.json` can be plain path strings or full objects.
+ */
+export interface SoundFile {
+  /** Path to the audio file relative to the resource pack root, no extension. */
+  name: string;
+  /** Relative playback volume. Absent means use the definition-level default. */
+  volume?: number;
+  /** Pitch multiplier. Absent means use the definition-level default. */
+  pitch?: number;
+  /** Relative selection weight. Higher = more likely to be chosen. */
+  weight?: number;
+  /** Whether this sound is positional (3D). */
+  is3D?: boolean;
+  /** Whether this sound streams from disk rather than loading into memory. */
+  stream?: boolean;
+  /** Whether this sound loads on low-memory devices. */
+  loadOnLowMemory?: boolean;
+}
+
+// ─── SoundDefinition ─────────────────────────────────────────────────────────
+
+/**
+ * Represents a single entry from `sounds/sound_definitions.json`.
+ * Each definition maps a sound event ID (e.g. `"mob.zombie.say"`) to a list of
+ * audio files and their playback properties.
  *
  * @example
  * ```ts
- * import { AddOn } from "./bedrockKit.ts";
- *
- * const addon = new AddOn("./vanilla_behavior_pack", "./vanilla_resource_pack");
- *
- * addon.getItem("minecraft:copper_spear")?.getTexturePath();
- * addon.getEntity("minecraft:zombie")?.getLootTables();
- * addon.getBiome("minecraft:bamboo_jungle")?.getEntities();
- * addon.getRecipesUsingTag("minecraft:planks");
+ * const def = addon.getSoundDefinition("mob.zombie.say");
+ * console.log(def?.category);       // "mob"
+ * console.log(def?.files[0].name);  // "sounds/mob/zombie/say1"
  * ```
  */
+export class SoundDefinition {
+  /** The sound event identifier, e.g. `"mob.zombie.say"`. */
+  readonly id: string;
+  /** The raw data for this sound definition entry. */
+  readonly data: Record<string, unknown>;
+  /**
+   * The audio category, e.g. `"ambient"`, `"block"`, `"mob"`, `"music"`, `"player"`, `"ui"`.
+   * Null if not specified.
+   */
+  readonly category: string | null;
+  /** The parsed list of audio files this definition can play. */
+  readonly files: SoundFile[];
+
+  constructor(id: string, data: Record<string, unknown>) {
+    this.id = id;
+    this.data = data;
+    this.category = (data["category"] as string) ?? null;
+    this.files = this._parseFiles(data["sounds"]);
+  }
+
+  private _parseFiles(raw: unknown): SoundFile[] {
+    if (!Array.isArray(raw)) return [];
+    return raw.map((entry) => {
+      if (typeof entry === "string") return { name: entry };
+      const e = entry as Record<string, unknown>;
+      const result: SoundFile = { name: (e["name"] as string) ?? "" };
+      if (typeof e["volume"] === "number") result.volume = e["volume"] as number;
+      if (typeof e["pitch"] === "number") result.pitch = e["pitch"] as number;
+      if (typeof e["weight"] === "number") result.weight = e["weight"] as number;
+      if (typeof e["is3D"] === "boolean") result.is3D = e["is3D"] as boolean;
+      if (typeof e["stream"] === "boolean") result.stream = e["stream"] as boolean;
+      if (typeof e["load_on_low_memory"] === "boolean") result.loadOnLowMemory = e["load_on_low_memory"] as boolean;
+      return result;
+    });
+  }
+}
+
+// ─── SoundEvent ───────────────────────────────────────────────────────────────
+
+/**
+ * A resolved sound event binding — the pairing of an event name with the
+ * `SoundDefinition` it maps to. Returned by `Entity.getSoundEvents()` and
+ * `Block.getSoundEvents()`.
+ *
+ * Event values in `sounds.json` can be plain strings (just a definition ID) or
+ * inline objects with overriding `sound`, `pitch`, and `volume` fields.
+ * Both forms are normalised into this shape.
+ *
+ * @example
+ * ```ts
+ * const events = addon.getEntity("minecraft:zombie")?.getSoundEvents() ?? [];
+ * for (const { event, definition } of events) {
+ *   console.log(event, "\u2192", definition?.files[0].name);
+ * }
+ * ```
+ */
+export interface SoundEvent {
+  /** The event name, e.g. `"ambient"`, `"death"`, `"hurt"`. */
+  event: string;
+  /**
+   * The sound definition ID this event resolves to, e.g. `"mob.zombie.say"`.
+   * Empty string means the event is intentionally silent.
+   */
+  definitionId: string;
+  /** The resolved `SoundDefinition`, or null if the ID is not in `sound_definitions.json`. */
+  definition: SoundDefinition | null;
+  /** Per-event volume override from `sounds.json`. Null if not specified. */
+  volume: number | null;
+  /** Per-event pitch override from `sounds.json`. Null if not specified. */
+  pitch: number | [number, number] | null;
+}
+
+// ─── MusicDefinition ─────────────────────────────────────────────────────────
+
+/**
+ * Represents a single entry from `sounds/music_definitions.json`.
+ * Maps a context key (biome shortname, `"game"`, `"menu"`, etc.) to the music
+ * event that plays there and its delay range.
+ *
+ * @example
+ * ```ts
+ * const music = addon.getMusicDefinition("bamboo_jungle");
+ * console.log(music?.eventName); // "music.overworld.bamboo_jungle"
+ * console.log(music?.minDelay);  // 60
+ * ```
+ */
+export class MusicDefinition {
+  /** The context key, e.g. `"bamboo_jungle"`, `"game"`, `"menu"`. */
+  readonly id: string;
+  /** The sound event ID to play, e.g. `"music.overworld.bamboo_jungle"`. */
+  readonly eventName: string;
+  /** Minimum seconds before music starts. */
+  readonly minDelay: number;
+  /** Maximum seconds before music starts. */
+  readonly maxDelay: number;
+
+  constructor(id: string, data: Record<string, unknown>) {
+    this.id = id;
+    this.eventName = (data["event_name"] as string) ?? "";
+    this.minDelay = (data["min_delay"] as number) ?? 0;
+    this.maxDelay = (data["max_delay"] as number) ?? 0;
+  }
+
+  /**
+   * Resolves the music event name to its `SoundDefinition` from `sound_definitions.json`.
+   * Returns null if the definition doesn't exist in the addon.
+   */
+  resolve(addon: AddOn): SoundDefinition | null {
+    return addon.getSoundDefinition(this.eventName);
+  }
+}
+
+// ─── AddOn ────────────────────────────────────────────────────────────────────
+
+/**
+ * The main entry point for bedrockKit. Represents a Minecraft Bedrock addon
+ * consisting of a behavior pack and a resource pack.
+ *
+ * **Deno / Node.js** — synchronous, reads from disk:
+ * ```ts
+ * const addon = new AddOn("./vanilla_behavior_pack", "./vanilla_resource_pack");
+ * ```
+ *
+ * **Browser** — async, reads from `File[]` supplied by a folder picker:
+ * ```ts
+ * const addon = await AddOn.fromFileList(
+ *   Array.from(bpInput.files!),
+ *   Array.from(rpInput.files!),
+ * );
+ * ```
+ *
+ * All collections are lazy-loaded on first access and cached for subsequent calls.
+ * Texture maps are loaded eagerly at construction time.
+ */
 export class AddOn {
-  /** Resolved absolute path to the behavior pack directory. */
+  /**
+   * Resolved absolute path to the behavior pack directory.
+   * Empty string when constructed from browser `File[]`.
+   */
   readonly behaviorPackPath: string;
-  /** Resolved absolute path to the resource pack directory. */
+  /**
+   * Resolved absolute path to the resource pack directory.
+   * Empty string when constructed from browser `File[]`.
+   */
   readonly resourcePackPath: string;
 
   // Internal stores — all lazy
@@ -1337,12 +1559,23 @@ export class AddOn {
   private _particles: Map<string, Particle> | null = null;
   private _attachables: Map<string, Attachable> | null = null;
   private _tradingTables: Map<string, TradingTable> | null = null;
+  private _soundDefinitions: Map<string, SoundDefinition> | null = null;
+  private _musicDefinitions: Map<string, MusicDefinition> | null = null;
+  private _entitySoundEvents: Map<string, SoundEvent[]> | null = null;
+  private _blockSoundEvents: Map<string, SoundEvent[]> | null = null;
   private _itemTextures: ItemTextureMap | null = null;
   private _terrainTextures: TerrainTextureMap | null = null;
 
+  // Browser PackData — populated only by fromFileList
+  private _bpData: PackData | null = null;
+  private _rpData: PackData | null = null;
+
+  // ── Constructors ─────────────────────────────────────────────────────────
+
   /**
-   * Creates a new AddOn instance pointing at the given pack directories.
-   * Paths are resolved to absolute on construction. Texture maps are loaded immediately.
+   * Creates a new AddOn instance that reads from disk.
+   * Works in Deno and Node.js. Paths are resolved to absolute on construction.
+   * Texture maps are loaded immediately; everything else is lazy.
    *
    * @param behaviorPackPath - Path to the behavior pack root directory.
    * @param resourcePackPath - Path to the resource pack root directory.
@@ -1350,27 +1583,127 @@ export class AddOn {
   constructor(behaviorPackPath: string, resourcePackPath: string) {
     this.behaviorPackPath = resolve(behaviorPackPath);
     this.resourcePackPath = resolve(resourcePackPath);
-    this._itemTextures = readJSON<ItemTextureMap>(
+    this._itemTextures = readJSONFromDisk<ItemTextureMap>(
       join(this.resourcePackPath, "textures", "item_texture.json")
     );
-    this._terrainTextures = readJSON<TerrainTextureMap>(
+    this._terrainTextures = readJSONFromDisk<TerrainTextureMap>(
       join(this.resourcePackPath, "textures", "terrain_texture.json")
     );
   }
 
+  /**
+   * Internal factory used by `fromFileList`. Bypasses disk I/O entirely.
+   */
+  private static _fromPackData(bpData: PackData, rpData: PackData): AddOn {
+    // Use Object.create to skip the public constructor's disk calls
+    const addon = Object.create(AddOn.prototype) as AddOn;
+    (addon as unknown as Record<string, unknown>).behaviorPackPath = "";
+    (addon as unknown as Record<string, unknown>).resourcePackPath = "";
+    addon._bpData = bpData;
+    addon._rpData = rpData;
+    addon._itemTextures =
+      (rpData.get("textures/item_texture.json") as unknown as ItemTextureMap | undefined) ?? null;
+    addon._terrainTextures =
+      (rpData.get("textures/terrain_texture.json") as unknown as TerrainTextureMap | undefined) ?? null;
+    addon._items = null;
+    addon._blocks = null;
+    addon._entities = null;
+    addon._recipes = null;
+    addon._lootTables = null;
+    addon._spawnRules = null;
+    addon._biomes = null;
+    addon._animations = null;
+    addon._animationControllers = null;
+    addon._renderControllers = null;
+    addon._particles = null;
+    addon._attachables = null;
+    addon._tradingTables = null;
+    addon._soundDefinitions = null;
+    addon._musicDefinitions = null;
+    addon._entitySoundEvents = null;
+    addon._blockSoundEvents = null;
+    return addon;
+  }
+
+  /**
+   * Creates an AddOn from two `File[]` arrays — one for the behavior pack,
+   * one for the resource pack. Designed for browser folder pickers.
+   *
+   * Files must have `webkitRelativePath` set (browsers set this automatically
+   * for `<input webkitdirectory>` and `showDirectoryPicker()`).
+   *
+   * @example
+   * ```ts
+   * const bpInput = document.getElementById("bp") as HTMLInputElement;
+   * const rpInput = document.getElementById("rp") as HTMLInputElement;
+   *
+   * const addon = await AddOn.fromFileList(
+   *   Array.from(bpInput.files!),
+   *   Array.from(rpInput.files!),
+   * );
+   * ```
+   */
+  static async fromFileList(bpFiles: File[], rpFiles: File[]): Promise<AddOn> {
+    const [bpData, rpData] = await Promise.all([
+      packDataFromFiles(bpFiles),
+      packDataFromFiles(rpFiles),
+    ]);
+    return AddOn._fromPackData(bpData, rpData);
+  }
+
+  // ── Internal helpers — pick disk vs PackData ──────────────────────────────
+
+  /** True when operating in browser mode (no filesystem). */
+  private get _isBrowser(): boolean {
+    return this._bpData !== null || this._rpData !== null;
+  }
+
+  private _bpEntries(subdir: string): Array<{ filePath: string; relativePath: string; data: Record<string, unknown> }> {
+    if (this._isBrowser) {
+      const prefix = subdir.endsWith("/") ? subdir : subdir + "/";
+      const out: Array<{ filePath: string; relativePath: string; data: Record<string, unknown> }> = [];
+      for (const [key, data] of this._bpData!) {
+        if (key.startsWith(prefix) && key.endsWith(".json"))
+          out.push({ filePath: "", relativePath: key, data });
+      }
+      return out;
+    }
+    return walkDir(join(this.behaviorPackPath, subdir), (f) => f.endsWith(".json")).flatMap((file) => {
+      const data = readJSONFromDisk(file);
+      if (!data) return [];
+      const relativePath = relative(this.behaviorPackPath, file).replace(/\\/g, "/");
+      return [{ filePath: file, relativePath, data }];
+    });
+  }
+
+  private _rpEntries(subdir: string): Array<{ filePath: string; relativePath: string; data: Record<string, unknown> }> {
+    if (this._isBrowser) {
+      const prefix = subdir.endsWith("/") ? subdir : subdir + "/";
+      const out: Array<{ filePath: string; relativePath: string; data: Record<string, unknown> }> = [];
+      for (const [key, data] of this._rpData!) {
+        if (key.startsWith(prefix) && key.endsWith(".json"))
+          out.push({ filePath: "", relativePath: key, data });
+      }
+      return out;
+    }
+    return walkDir(join(this.resourcePackPath, subdir), (f) => f.endsWith(".json")).flatMap((file) => {
+      const data = readJSONFromDisk(file);
+      if (!data) return [];
+      const relativePath = relative(this.resourcePackPath, file).replace(/\\/g, "/");
+      return [{ filePath: file, relativePath, data }];
+    });
+  }
+
   // ── Texture maps ─────────────────────────────────────────────────────────
 
-  /** The parsed `item_texture.json` from the resource pack. Used for item icon resolution. Null if the file is missing. */
+  /** The parsed `item_texture.json` from the resource pack. Null if missing. */
   get itemTextures(): ItemTextureMap | null { return this._itemTextures; }
-  /** The parsed `terrain_texture.json` from the resource pack. Used for block texture resolution. Null if the file is missing. */
+  /** The parsed `terrain_texture.json` from the resource pack. Null if missing. */
   get terrainTextures(): TerrainTextureMap | null { return this._terrainTextures; }
 
   // ── Items ─────────────────────────────────────────────────────────────────
 
-  /**
-   * Returns the item with the given namespaced identifier, or null if not found.
-   * @param identifier - e.g. `"minecraft:copper_spear"`
-   */
+  /** Returns the item with the given namespaced identifier, or null if not found. */
   getItem(identifier: string): Item | null {
     return this._itemStore.get(identifier) ?? null;
   }
@@ -1385,10 +1718,7 @@ export class AddOn {
 
   // ── Blocks ────────────────────────────────────────────────────────────────
 
-  /**
-   * Returns the block with the given namespaced identifier, or null if not found.
-   * @param identifier - e.g. `"minecraft:dirt"`
-   */
+  /** Returns the block with the given namespaced identifier, or null if not found. */
   getBlock(identifier: string): Block | null {
     return this._blockStore.get(identifier) ?? null;
   }
@@ -1403,11 +1733,7 @@ export class AddOn {
 
   // ── Entities ──────────────────────────────────────────────────────────────
 
-  /**
-   * Returns the entity with the given namespaced identifier, or null if not found.
-   * Merges behavior and resource pack definitions automatically.
-   * @param identifier - e.g. `"minecraft:zombie"`
-   */
+  /** Returns the entity with the given namespaced identifier, or null if not found. */
   getEntity(identifier: string): Entity | null {
     return this._entityStore.get(identifier) ?? null;
   }
@@ -1452,7 +1778,6 @@ export class AddOn {
   /**
    * Returns the loot table at the given path relative to the behavior pack root.
    * Normalises backslashes automatically.
-   * @param relativePath - e.g. `"loot_tables/entities/zombie.json"`
    */
   getLootTableByPath(relativePath: string): LootTable | null {
     const key = relativePath.replace(/\\/g, "/");
@@ -1469,10 +1794,7 @@ export class AddOn {
 
   // ── Spawn Rules ───────────────────────────────────────────────────────────
 
-  /**
-   * Returns the spawn rule for the given entity identifier, or null if none exists.
-   * @param identifier - e.g. `"minecraft:zombie"`
-   */
+  /** Returns the spawn rule for the given entity identifier, or null if none exists. */
   getSpawnRule(identifier: string): SpawnRule | null {
     return this._spawnStore.get(identifier) ?? null;
   }
@@ -1487,10 +1809,7 @@ export class AddOn {
 
   // ── Biomes ────────────────────────────────────────────────────────────────
 
-  /**
-   * Returns the biome with the given namespaced identifier, or null if not found.
-   * @param identifier - e.g. `"minecraft:bamboo_jungle"`
-   */
+  /** Returns the biome with the given namespaced identifier, or null if not found. */
   getBiome(identifier: string): Biome | null {
     return this._biomeStore.get(identifier) ?? null;
   }
@@ -1505,10 +1824,7 @@ export class AddOn {
 
   // ── Animations ────────────────────────────────────────────────────────────
 
-  /**
-   * Returns the animation with the given full ID, or null if not found.
-   * @param id - e.g. `"animation.humanoid.move"`
-   */
+  /** Returns the animation with the given full ID, or null if not found. */
   getAnimation(id: string): Animation | null {
     return this._animStore.get(id) ?? null;
   }
@@ -1523,10 +1839,7 @@ export class AddOn {
 
   // ── Animation Controllers ─────────────────────────────────────────────────
 
-  /**
-   * Returns the animation controller with the given full ID, or null if not found.
-   * @param id - e.g. `"controller.animation.zombie.move"`
-   */
+  /** Returns the animation controller with the given full ID, or null if not found. */
   getAnimationController(id: string): AnimationController | null {
     return this._animCtrlStore.get(id) ?? null;
   }
@@ -1541,10 +1854,7 @@ export class AddOn {
 
   // ── Render Controllers ────────────────────────────────────────────────────
 
-  /**
-   * Returns the render controller with the given full ID, or null if not found.
-   * @param id - e.g. `"controller.render.zombie"`
-   */
+  /** Returns the render controller with the given full ID, or null if not found. */
   getRenderController(id: string): RenderController | null {
     return this._renderCtrlStore.get(id) ?? null;
   }
@@ -1557,12 +1867,9 @@ export class AddOn {
     return this._renderControllers;
   }
 
-  // ── Attachables ───────────────────────────────────────────────────────────
+  // ── Particles ─────────────────────────────────────────────────────────────
 
-  /**
-   * Returns the particle effect with the given namespaced identifier, or null if not found.
-   * @param identifier - e.g. `"minecraft:stunned_emitter"`
-   */
+  /** Returns the particle effect with the given namespaced identifier, or null if not found. */
   getParticle(identifier: string): Particle | null {
     return this._particleStore.get(identifier) ?? null;
   }
@@ -1577,10 +1884,7 @@ export class AddOn {
 
   // ── Attachables ───────────────────────────────────────────────────────────
 
-  /**
-   * Returns the attachable for the given item identifier, or null if none exists.
-   * @param identifier - e.g. `"minecraft:bow"`
-   */
+  /** Returns the attachable for the given item identifier, or null if none exists. */
   getAttachable(identifier: string): Attachable | null {
     return this._attachableStore.get(identifier) ?? null;
   }
@@ -1595,10 +1899,7 @@ export class AddOn {
 
   // ── Trading Tables ────────────────────────────────────────────────────────
 
-  /**
-   * Returns the trading table with the given name (filename without extension), or null.
-   * @param name - e.g. `"armorer_trades"`
-   */
+  /** Returns the trading table with the given name (filename without extension), or null. */
   getTradingTable(name: string): TradingTable | null {
     return this._tradingStore.get(name) ?? null;
   }
@@ -1611,53 +1912,135 @@ export class AddOn {
     return this._tradingTables;
   }
 
+
+  // ── Sound Definitions ─────────────────────────────────────────────────────
+
+  /**
+   * Returns the sound definition with the given event ID, or null if not found.
+   * Event IDs come from `sounds/sound_definitions.json`, e.g. `"mob.zombie.say"`.
+   */
+  getSoundDefinition(id: string): SoundDefinition | null {
+    return this._soundDefStore.get(id) ?? null;
+  }
+  /** Returns all sound definitions from the resource pack's `sounds/sound_definitions.json`. */
+  getAllSoundDefinitions(): SoundDefinition[] {
+    return [...this._soundDefStore.values()];
+  }
+  private get _soundDefStore(): Map<string, SoundDefinition> {
+    if (!this._soundDefinitions) this._soundDefinitions = this._loadSoundDefinitions();
+    return this._soundDefinitions;
+  }
+
+  // ── Music Definitions ─────────────────────────────────────────────────────
+
+  /**
+   * Returns the music definition for the given context key, or null if not found.
+   * Context keys are biome shortnames or special keys like `"game"`, `"menu"`, `"credits"`.
+   *
+   * @example
+   * ```ts
+   * addon.getMusicDefinition("bamboo_jungle")?.eventName;
+   * // "music.overworld.bamboo_jungle"
+   * ```
+   */
+  getMusicDefinition(id: string): MusicDefinition | null {
+    return this._musicDefStore.get(id) ?? null;
+  }
+  /** Returns all music definitions from the resource pack's `sounds/music_definitions.json`. */
+  getAllMusicDefinitions(): MusicDefinition[] {
+    return [...this._musicDefStore.values()];
+  }
+  private get _musicDefStore(): Map<string, MusicDefinition> {
+    if (!this._musicDefinitions) this._musicDefinitions = this._loadMusicDefinitions();
+    return this._musicDefinitions;
+  }
+
+  // ── Entity sound events ───────────────────────────────────────────────────
+
+  /**
+   * Returns the sound events for the given entity shortname as defined in
+   * `sounds/sounds.json` → `entity_sounds.entities`.
+   *
+   * The shortname is the unnamespaced entity name used as the key in `sounds.json`,
+   * e.g. `"zombie"` not `"minecraft:zombie"`. Use `Entity.getSoundEvents()` to
+   * resolve automatically from a full entity identifier.
+   *
+   * @param shortname - e.g. `"zombie"`, `"allay"`, `"bat"`
+   */
+  getEntitySoundEvents(shortname: string): SoundEvent[] {
+    return this._entitySoundStore.get(shortname) ?? [];
+  }
+  /** Returns all entity sound event mappings keyed by entity shortname. */
+  getAllEntitySoundEvents(): Map<string, SoundEvent[]> {
+    return new Map(this._entitySoundStore);
+  }
+  private get _entitySoundStore(): Map<string, SoundEvent[]> {
+    if (!this._entitySoundEvents) this._entitySoundEvents = this._loadEntitySoundEvents();
+    return this._entitySoundEvents;
+  }
+
+  // ── Block sound events ────────────────────────────────────────────────────
+
+  /**
+   * Returns the sound events for the given block shortname as defined in
+   * `sounds/sounds.json` → `block_sounds`.
+   *
+   * The shortname is the key used in `sounds.json`, e.g. `"amethyst_block"`.
+   * Use `Block.getSoundEvents()` to resolve automatically.
+   *
+   * @param shortname - e.g. `"amethyst_block"`, `"dirt"`, `"wood"`
+   */
+  getBlockSoundEvents(shortname: string): SoundEvent[] {
+    return this._blockSoundStore.get(shortname) ?? [];
+  }
+  /** Returns all block sound event mappings keyed by block shortname. */
+  getAllBlockSoundEvents(): Map<string, SoundEvent[]> {
+    return new Map(this._blockSoundStore);
+  }
+  private get _blockSoundStore(): Map<string, SoundEvent[]> {
+    if (!this._blockSoundEvents) this._blockSoundEvents = this._loadBlockSoundEvents();
+    return this._blockSoundEvents;
+  }
+
   // ── Loaders ──────────────────────────────────────────────────────────────
 
   private _loadItems(): Map<string, Item> {
     const map = new Map<string, Item>();
-    for (const file of walkDir(join(this.behaviorPackPath, "items"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._bpEntries("items")) {
       const id = this._extractIdentifier(data, "minecraft:item");
       if (!id) continue;
-      map.set(id, new Item(id, data, file, this));
+      map.set(id, new Item(id, data, filePath, this));
     }
     return map;
   }
 
   private _loadBlocks(): Map<string, Block> {
     const map = new Map<string, Block>();
-    for (const file of walkDir(join(this.behaviorPackPath, "blocks"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._bpEntries("blocks")) {
       const id = this._extractIdentifier(data, "minecraft:block");
       if (!id) continue;
-      map.set(id, new Block(id, data, file, this));
+      map.set(id, new Block(id, data, filePath, this));
     }
     return map;
   }
 
   private _loadEntities(): Map<string, Entity> {
     const behaviorMap = new Map<string, { data: Record<string, unknown>; filePath: string }>();
-    for (const file of walkDir(join(this.behaviorPackPath, "entities"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._bpEntries("entities")) {
       const id =
         this._extractIdentifier(data, "minecraft:entity") ??
         this._extractIdentifier(data, "minecraft:npc");
       if (!id) continue;
-      behaviorMap.set(id, { data, filePath: file });
+      behaviorMap.set(id, { data, filePath });
     }
 
     const resourceMap = new Map<string, { data: Record<string, unknown>; filePath: string }>();
-    for (const file of walkDir(join(this.resourcePackPath, "entity"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._rpEntries("entity")) {
       const inner = data["minecraft:client_entity"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      resourceMap.set(id, { data, filePath: file });
+      resourceMap.set(id, { data, filePath });
     }
 
     const map = new Map<string, Entity>();
@@ -1673,129 +2056,197 @@ export class AddOn {
   }
 
   private _loadRecipes(): Recipe[] {
-    const recipes: Recipe[] = [];
-    for (const file of walkDir(join(this.behaviorPackPath, "recipes"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
-      recipes.push(new Recipe(data, this));
-    }
-    return recipes;
+    return this._bpEntries("recipes").map(({ data }) => new Recipe(data, this));
   }
 
   private _loadLootTables(): Map<string, LootTable> {
     const map = new Map<string, LootTable>();
-    for (const file of walkDir(join(this.behaviorPackPath, "loot_tables"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
-      const relativePath = file
-        .replace(this.behaviorPackPath, "")
-        .replace(/\\/g, "/")
-        .replace(/^\//, "");
-      map.set(relativePath, new LootTable(data, file, relativePath));
+    for (const { filePath, relativePath, data } of this._bpEntries("loot_tables")) {
+      const key = relativePath.replace(/\\/g, "/");
+      map.set(key, new LootTable(data, filePath, key));
     }
     return map;
   }
 
   private _loadSpawnRules(): Map<string, SpawnRule> {
     const map = new Map<string, SpawnRule>();
-    for (const file of walkDir(join(this.behaviorPackPath, "spawn_rules"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._bpEntries("spawn_rules")) {
       const inner = data["minecraft:spawn_rules"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      map.set(id, new SpawnRule(id, data, file));
+      map.set(id, new SpawnRule(id, data, filePath));
     }
     return map;
   }
 
   private _loadBiomes(): Map<string, Biome> {
     const map = new Map<string, Biome>();
-    for (const file of walkDir(join(this.behaviorPackPath, "biomes"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._bpEntries("biomes")) {
       const id = this._extractIdentifier(data, "minecraft:biome");
       if (!id) continue;
-      map.set(id, new Biome(id, data, file, this));
+      map.set(id, new Biome(id, data, filePath, this));
     }
     return map;
   }
 
   private _loadAnimations(): Map<string, Animation> {
     const map = new Map<string, Animation>();
-    for (const file of walkDir(join(this.resourcePackPath, "animations"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._rpEntries("animations")) {
       const animMap = data["animations"] as Record<string, unknown> | undefined;
       if (!animMap) continue;
       for (const [id, animData] of Object.entries(animMap))
-        map.set(id, new Animation(id, animData as Record<string, unknown>, file));
+        map.set(id, new Animation(id, animData as Record<string, unknown>, filePath));
     }
     return map;
   }
 
   private _loadAnimationControllers(): Map<string, AnimationController> {
     const map = new Map<string, AnimationController>();
-    for (const file of walkDir(join(this.resourcePackPath, "animation_controllers"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._rpEntries("animation_controllers")) {
       const ctrlMap = data["animation_controllers"] as Record<string, unknown> | undefined;
       if (!ctrlMap) continue;
       for (const [id, ctrlData] of Object.entries(ctrlMap))
-        map.set(id, new AnimationController(id, ctrlData as Record<string, unknown>, file));
+        map.set(id, new AnimationController(id, ctrlData as Record<string, unknown>, filePath));
     }
     return map;
   }
 
   private _loadRenderControllers(): Map<string, RenderController> {
     const map = new Map<string, RenderController>();
-    for (const file of walkDir(join(this.resourcePackPath, "render_controllers"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._rpEntries("render_controllers")) {
       const rcMap = data["render_controllers"] as Record<string, unknown> | undefined;
       if (!rcMap) continue;
       for (const [id, rcData] of Object.entries(rcMap))
-        map.set(id, new RenderController(id, rcData as Record<string, unknown>, file));
+        map.set(id, new RenderController(id, rcData as Record<string, unknown>, filePath));
     }
     return map;
   }
 
   private _loadParticles(): Map<string, Particle> {
     const map = new Map<string, Particle>();
-    for (const file of walkDir(join(this.resourcePackPath, "particles"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._rpEntries("particles")) {
       const inner = data["particle_effect"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      map.set(id, new Particle(id, data, file));
+      map.set(id, new Particle(id, data, filePath));
     }
     return map;
   }
 
   private _loadAttachables(): Map<string, Attachable> {
     const map = new Map<string, Attachable>();
-    for (const file of walkDir(join(this.resourcePackPath, "attachables"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
+    for (const { filePath, data } of this._rpEntries("attachables")) {
       const id = this._extractIdentifier(data, "minecraft:attachable");
       if (!id) continue;
-      map.set(id, new Attachable(id, data, file));
+      map.set(id, new Attachable(id, data, filePath));
     }
     return map;
   }
 
   private _loadTradingTables(): Map<string, TradingTable> {
     const map = new Map<string, TradingTable>();
-    for (const file of walkDir(join(this.behaviorPackPath, "trading"), (f) => f.endsWith(".json"))) {
-      const data = readJSON(file);
-      if (!data) continue;
-      const name = file.replace(/\\/g, "/").split("/").pop()!.replace(".json", "");
-      map.set(name, new TradingTable(data, file, name));
+    for (const { filePath, relativePath, data } of this._bpEntries("trading")) {
+      const name = posix.basename(relativePath, ".json");
+      map.set(name, new TradingTable(data, filePath, name));
     }
     return map;
+  }
+
+
+  private _loadSoundDefinitions(): Map<string, SoundDefinition> {
+    const map = new Map<string, SoundDefinition>();
+    const data = this._isBrowser
+      ? this._rpData?.get("sounds/sound_definitions.json")
+      : readJSONFromDisk(join(this.resourcePackPath, "sounds", "sound_definitions.json"));
+    if (!data) return map;
+    const defs = data["sound_definitions"] as Record<string, unknown> | undefined;
+    if (!defs) return map;
+    for (const [id, entry] of Object.entries(defs))
+      map.set(id, new SoundDefinition(id, entry as Record<string, unknown>));
+    return map;
+  }
+
+  private _loadMusicDefinitions(): Map<string, MusicDefinition> {
+    const map = new Map<string, MusicDefinition>();
+    const data = this._isBrowser
+      ? this._rpData?.get("sounds/music_definitions.json")
+      : readJSONFromDisk(join(this.resourcePackPath, "sounds", "music_definitions.json"));
+    if (!data) return map;
+    for (const [id, entry] of Object.entries(data))
+      map.set(id, new MusicDefinition(id, entry as Record<string, unknown>));
+    return map;
+  }
+
+  private _loadEntitySoundEvents(): Map<string, SoundEvent[]> {
+    const map = new Map<string, SoundEvent[]>();
+    const data = this._isBrowser
+      ? this._rpData?.get("sounds/sounds.json")
+      : readJSONFromDisk(join(this.resourcePackPath, "sounds", "sounds.json"));
+    if (!data) return map;
+    const entitySounds = data["entity_sounds"] as Record<string, unknown> | undefined;
+    const entities = entitySounds?.["entities"] as Record<string, unknown> | undefined;
+    if (!entities) return map;
+    for (const [shortname, entry] of Object.entries(entities)) {
+      const e = entry as Record<string, unknown>;
+      const events = e["events"] as Record<string, unknown> | undefined;
+      if (!events) continue;
+      map.set(shortname, this._parseSoundEventMap(events));
+    }
+    return map;
+  }
+
+  private _loadBlockSoundEvents(): Map<string, SoundEvent[]> {
+    const map = new Map<string, SoundEvent[]>();
+    const data = this._isBrowser
+      ? this._rpData?.get("sounds/sounds.json")
+      : readJSONFromDisk(join(this.resourcePackPath, "sounds", "sounds.json"));
+    if (!data) return map;
+    const blockSounds = data["block_sounds"] as Record<string, unknown> | undefined;
+    if (!blockSounds) return map;
+    for (const [shortname, entry] of Object.entries(blockSounds)) {
+      const e = entry as Record<string, unknown>;
+      const events = e["events"] as Record<string, unknown> | undefined;
+      if (!events) continue;
+      map.set(shortname, this._parseSoundEventMap(events));
+    }
+    return map;
+  }
+
+  /**
+   * Parses a `sounds.json` event map (event name → string ID or inline object)
+   * into `SoundEvent[]`, resolving each definition ID against `sound_definitions.json`.
+   */
+  private _parseSoundEventMap(events: Record<string, unknown>): SoundEvent[] {
+    const result: SoundEvent[] = [];
+    for (const [event, value] of Object.entries(events)) {
+      if (typeof value === "string") {
+        result.push({
+          event,
+          definitionId: value,
+          definition: value ? this.getSoundDefinition(value) : null,
+          volume: null,
+          pitch: null,
+        });
+      } else if (typeof value === "object" && value !== null) {
+        const v = value as Record<string, unknown>;
+        // Inline objects use "sound" for the def ID (block sounds sometimes use "sounds")
+        const defId = (v["sound"] as string) ?? (v["sounds"] as string) ?? "";
+        result.push({
+          event,
+          definitionId: defId,
+          definition: defId ? this.getSoundDefinition(defId) : null,
+          volume: typeof v["volume"] === "number" ? (v["volume"] as number) : null,
+          pitch: Array.isArray(v["pitch"])
+            ? (v["pitch"] as [number, number])
+            : typeof v["pitch"] === "number"
+              ? (v["pitch"] as number)
+              : null,
+        });
+      }
+    }
+    return result;
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────

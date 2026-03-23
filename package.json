@@ -1,25 +1,33 @@
 {
-  "name": "your-sdk",
-  "version": "1.0.0",
-  "description": "Minecraft Bedrock SDK",
+  "name": "bedrock-kit",
+  "version": "0.0.1",
+  "description": "A typed API for navigating Minecraft Bedrock addon files. Works in Deno, Node.js, and browsers.",
   "type": "module",
-
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-
+  "main": "./dist/bedrockKit.js",
+  "types": "./dist/bedrockKit.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/bedrockKit.js",
+      "types": "./dist/bedrockKit.d.ts"
+    },
+    "./min": {
+      "import": "./dist/bedrockKit.min.js",
+      "types": "./dist/bedrockKit.d.ts"
     }
   },
-
   "files": [
     "dist"
   ],
-
   "scripts": {
-    "build": "deno task build",
+    "build": "tsc",
     "docs": "typedoc"
-  }
+  },
+  "keywords": [
+    "minecraft",
+    "bedrock",
+    "addon",
+    "behavior-pack",
+    "resource-pack"
+  ],
+  "license": "MIT"
 }

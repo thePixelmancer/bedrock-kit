@@ -5,7 +5,7 @@
 
 import { AddOn, Item, Tag, Particle } from "../src/bedrockKit.ts";
 
-const addon = new AddOn("./vanilla_behavior_pack", "./vanilla_resource_pack");
+const addon = new AddOn("./test/vanilla_behavior_pack", "./test/vanilla_resource_pack");
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
