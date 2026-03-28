@@ -1,4 +1,4 @@
-import type { Item } from "./item.js";
+import type { Item } from "./item";
 
 /**
  * Represents a Bedrock tag ingredient in a recipe (e.g. "minecraft:planks").

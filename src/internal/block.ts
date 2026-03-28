@@ -1,7 +1,8 @@
-import type { AddOn } from "./addon.js";
-import type { LootTable } from "./lootTable.js";
-import type { SoundEvent } from "./sound.js";
-import { shortname } from "./utils.js";
+import { Asset } from "./asset";
+import type { AddOn } from "./addon";
+import type { LootTable } from "./lootTable";
+import type { SoundEvent } from "./sound";
+import { shortname } from "./utils";
 
 /**
  * Represents a block definition file from the behavior pack's `blocks/` directory.
@@ -13,7 +14,7 @@ import { shortname } from "./utils.js";
  * console.log(block?.getLootTable());      // LootTable | null
  * ```
  */
-export class Block {
+export class Block extends Asset {
   /** The namespaced block identifier, e.g. `"minecraft:dirt"`. */
   readonly identifier: string;
   /** The raw parsed JSON of the block's behavior file. */
@@ -25,7 +26,8 @@ export class Block {
   readonly filePath: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn) {
+  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn, rawText: string) {
+    super(rawText);
     this.identifier = identifier;
     this.data = data;
     this.filePath = filePath;
@@ -69,7 +71,7 @@ export class Block {
   /**
    * Returns the sound events for this block from `sounds/sounds.json`.
    *
-   * Looks up the block's shortname (e.g. `"minecraft:amethyst_block"` → `"amethyst_block"`)
+   * Looks up the block's shortname (e.g. `"minecraft:amethyst_block"` -> `"amethyst_block"`)
    * in `block_sounds`. Returns an empty array if no sound events are defined.
    *
    * @example

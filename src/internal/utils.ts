@@ -20,6 +20,11 @@ export function readJSONFromDisk<T = Record<string, unknown>>(filePath: string):
   } catch { return null; }
 }
 
+/** Reads a file as raw text from disk. Returns null if the file cannot be read. */
+export function readRawFromDisk(filePath: string): string | null {
+  try { return readFileSync(filePath, "utf8"); } catch { return null; }
+}
+
 // ─── JSON parsing ─────────────────────────────────────────────────────────────
 
 export function stripComments(raw: string): string {
@@ -78,16 +83,19 @@ export function parseIngredient(raw: unknown): string {
 /**
  * A parsed in-memory representation of a pack's files, keyed by their
  * slash-normalised path relative to the pack root.
- * e.g. `"textures/item_texture.json"` → `Record<string, unknown>`
+ * e.g. "textures/item_texture.json" -> { data, rawText }
  *
- * Used internally by `AddOn.fromFileList`.
+ * Stores both the parsed JSON object and the original raw file text so that
+ * comment-parser can extract any JSDoc blocks written in the file.
+ *
+ * Used internally by AddOn.fromFileList.
  */
-export type PackData = Map<string, Record<string, unknown>>;
+export type PackData = Map<string, { data: Record<string, unknown>; rawText: string }>;
 
 /**
- * Read a `File[]` from a browser folder picker and return a `PackData` map.
- * The relative path is taken from `file.webkitRelativePath`, which browsers
- * set automatically when using `<input webkitdirectory>` or `showDirectoryPicker()`.
+ * Read a File[] from a browser folder picker and return a PackData map.
+ * The relative path is taken from file.webkitRelativePath, which browsers
+ * set automatically when using <input webkitdirectory> or showDirectoryPicker().
  * The first path segment (the folder name itself) is stripped so all keys are
  * relative to the pack root, matching what the disk loader produces.
  */
@@ -97,32 +105,40 @@ export async function packDataFromFiles(files: File[]): Promise<PackData> {
     const rel = file.webkitRelativePath
       ? file.webkitRelativePath.split("/").slice(1).join("/")
       : file.name;
-    const text = await file.text();
-    const data = parseJSONString(text);
-    if (data) map.set(rel, data);
+    const rawText = await file.text();
+    const data = parseJSONString(rawText);
+    if (data) map.set(rel, { data, rawText });
   }));
   return map;
 }
 
 // ─── Pack entry helpers ───────────────────────────────────────────────────────
 
-export type PackEntry = { filePath: string; relativePath: string; data: Record<string, unknown> };
+export type PackEntry = {
+  filePath: string;
+  relativePath: string;
+  data: Record<string, unknown>;
+  /** The original raw file text, preserved for JSDoc extraction via comment-parser. */
+  rawText: string;
+};
 
 export function diskEntries(packRoot: string, subdir: string): PackEntry[] {
   return walkDir(join(packRoot, subdir), (f) => f.endsWith(".json")).flatMap((file) => {
-    const data = readJSONFromDisk(file);
+    const rawText = readRawFromDisk(file);
+    if (!rawText) return [];
+    const data = parseJSONString(rawText);
     if (!data) return [];
     const relativePath = relative(packRoot, file).replace(/\\/g, "/");
-    return [{ filePath: file, relativePath, data }];
+    return [{ filePath: file, relativePath, data, rawText }];
   });
 }
 
 export function browserEntries(packData: PackData, subdir: string): PackEntry[] {
   const prefix = subdir.endsWith("/") ? subdir : subdir + "/";
   const out: PackEntry[] = [];
-  for (const [key, data] of packData) {
+  for (const [key, { data, rawText }] of packData) {
     if (key.startsWith(prefix) && key.endsWith(".json"))
-      out.push({ filePath: "", relativePath: key, data });
+      out.push({ filePath: "", relativePath: key, data, rawText });
   }
   return out;
 }
@@ -138,7 +154,7 @@ export function extractIdentifier(data: Record<string, unknown>, rootKey: string
 
 // ─── Namespace stripping ──────────────────────────────────────────────────────
 
-/** Strips the namespace from an identifier, e.g. `"minecraft:zombie"` → `"zombie"`. */
+/** Strips the namespace from an identifier, e.g. "minecraft:zombie" -> "zombie". */
 export function shortname(identifier: string): string {
   return identifier.includes(":") ? identifier.split(":")[1] : identifier;
 }

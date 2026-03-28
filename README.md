@@ -1,4 +1,4 @@
-# bedrockKit
+# bedrock-kit
 
 > ⚠️ **Experimental:** Version 0.x.x is under active development. APIs may change between patch releases. Pin your version if stability matters.
 
@@ -8,7 +8,7 @@ Works in Deno, Node.js, and browsers.
 
 ## Documentation
 
-Full API documentation is available at [yourwebsite.com/docs](https://yourwebsite.com/docs).
+Full API documentation is available at [https://thepixelmancer.github.io/bedrock-kit/](https://thepixelmancer.github.io/bedrock-kit/).
 
 ## Installation
 

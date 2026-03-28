@@ -1,3 +1,5 @@
+import { Asset } from "./asset";
+
 /**
  * Represents a spawn rule file from the behavior pack's `spawn_rules/` directory.
  * Spawn rules define when and where an entity can naturally spawn in the world.
@@ -9,7 +11,7 @@
  * console.log(rule?.getBiomeTags());    // ["monster", "overworld"]
  * ```
  */
-export class SpawnRule {
+export class SpawnRule extends Asset {
   /** The namespaced entity identifier this spawn rule applies to, e.g. `"minecraft:zombie"`. */
   readonly identifier: string;
   /** The raw parsed JSON of the spawn rule file. */
@@ -28,7 +30,8 @@ export class SpawnRule {
   /** The raw condition objects from the spawn rule. Each condition defines spawn requirements. */
   readonly conditions: Record<string, unknown>[];
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string) {
+  constructor(identifier: string, data: Record<string, unknown>, filePath: string, rawText: string) {
+    super(rawText);
     this.identifier = identifier;
     this.data = data;
     this.filePath = filePath;

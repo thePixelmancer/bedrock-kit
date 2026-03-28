@@ -1,3 +1,5 @@
+import { Asset } from "./asset";
+
 /**
  * Represents a single render controller loaded from a resource pack
  * `render_controllers/` file. Render controllers define which geometry,
@@ -9,7 +11,7 @@
  * console.log(rc?.data); // { geometry: "...", materials: [...], textures: [...] }
  * ```
  */
-export class RenderController {
+export class RenderController extends Asset {
   /** The full controller ID, e.g. `"controller.render.zombie"`. */
   readonly id: string;
   /** The raw data for this render controller definition. */
@@ -20,7 +22,8 @@ export class RenderController {
    */
   readonly filePath: string;
 
-  constructor(id: string, data: Record<string, unknown>, filePath: string) {
+  constructor(id: string, data: Record<string, unknown>, filePath: string, rawText: string) {
+    super(rawText);
     this.id = id;
     this.data = data;
     this.filePath = filePath;

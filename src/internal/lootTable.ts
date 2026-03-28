@@ -1,4 +1,5 @@
-import type { LootEntry, LootPool } from "./types.js";
+import { Asset } from "./asset";
+import type { LootEntry, LootPool } from "./types";
 
 export type { LootEntry, LootPool };
 
@@ -12,7 +13,7 @@ export type { LootEntry, LootPool };
  * console.log(lt?.getItemIdentifiers()); // ["minecraft:rotten_flesh", ...]
  * ```
  */
-export class LootTable {
+export class LootTable extends Asset {
   /** The raw parsed JSON of the loot table file. */
   readonly data: Record<string, unknown>;
   /**
@@ -25,7 +26,8 @@ export class LootTable {
   /** The parsed list of loot pools. Each pool rolls independently. */
   readonly pools: LootPool[];
 
-  constructor(data: Record<string, unknown>, filePath: string, relativePath: string) {
+  constructor(data: Record<string, unknown>, filePath: string, relativePath: string, rawText: string) {
+    super(rawText);
     this.data = data;
     this.filePath = filePath;
     this.relativePath = relativePath;

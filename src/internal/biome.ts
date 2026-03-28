@@ -1,7 +1,8 @@
-import type { AddOn } from "./addon.js";
-import type { Entity } from "./entity.js";
-import type { MusicDefinition } from "./sound.js";
-import { shortname } from "./utils.js";
+import { Asset } from "./asset";
+import type { AddOn } from "./addon";
+import type { Entity } from "./entity";
+import type { MusicDefinition } from "./sound";
+import { shortname } from "./utils";
 
 /**
  * Represents a biome definition file from the behavior pack's `biomes/` directory.
@@ -13,7 +14,7 @@ import { shortname } from "./utils.js";
  * console.log(biome?.getEntities().map(e => e.identifier));
  * ```
  */
-export class Biome {
+export class Biome extends Asset {
   /** The namespaced biome identifier, e.g. `"minecraft:bamboo_jungle"`. */
   readonly identifier: string;
   /** The raw parsed JSON of the biome file. */
@@ -25,7 +26,8 @@ export class Biome {
   readonly filePath: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn) {
+  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn, rawText: string) {
+    super(rawText);
     this.identifier = identifier;
     this.data = data;
     this.filePath = filePath;
@@ -67,7 +69,7 @@ export class Biome {
       : [];
     if (biomeTags.length === 0) return [];
 
-    return this._addon.getAllEntities().filter((entity) => {
+    return this._addon.getAllEntities().toArray().filter((entity) => {
       const spawnRule = entity.getSpawnRule();
       if (!spawnRule) return false;
       return spawnRule.getBiomeTags().some((tag) => biomeTags.includes(tag));
@@ -77,7 +79,7 @@ export class Biome {
   /**
    * Returns the music definition for this biome from `sounds/music_definitions.json`.
    *
-   * Looks up the biome's shortname (e.g. `"minecraft:bamboo_jungle"` → `"bamboo_jungle"`).
+   * Looks up the biome's shortname (e.g. `"minecraft:bamboo_jungle"` -> `"bamboo_jungle"`).
    * Returns null if no music definition exists for this biome.
    *
    * @example

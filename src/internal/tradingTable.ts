@@ -1,4 +1,5 @@
-import type { Trade, TradeTier, TradeItem } from "./types.js";
+import { Asset } from "./asset";
+import type { Trade, TradeTier, TradeItem } from "./types";
 
 export type { Trade, TradeTier, TradeItem };
 
@@ -12,7 +13,7 @@ export type { Trade, TradeTier, TradeItem };
  * console.log(table?.tiers[0].trades[0]);
  * ```
  */
-export class TradingTable {
+export class TradingTable extends Asset {
   /** The raw parsed JSON of the trading table file. */
   readonly data: Record<string, unknown>;
   /**
@@ -25,7 +26,8 @@ export class TradingTable {
   /** The ordered list of trade tiers. Players unlock higher tiers by completing trades. */
   readonly tiers: TradeTier[];
 
-  constructor(data: Record<string, unknown>, filePath: string, name: string) {
+  constructor(data: Record<string, unknown>, filePath: string, name: string, rawText: string) {
+    super(rawText);
     this.data = data;
     this.filePath = filePath;
     this.name = name;

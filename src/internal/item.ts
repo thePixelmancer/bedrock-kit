@@ -1,8 +1,9 @@
-import type { AddOn } from "./addon.js";
-import type { Attachable } from "./attachable.js";
-import type { Recipe } from "./recipe.js";
-import type { Entity } from "./entity.js";
-import type { Block } from "./block.js";
+import { Asset } from "./asset";
+import type { AddOn } from "./addon";
+import type { Attachable } from "./attachable";
+import type { Recipe } from "./recipe";
+import type { Entity } from "./entity";
+import type { Block } from "./block";
 
 /**
  * Represents an item definition file from the behavior pack's `items/` directory.
@@ -17,7 +18,7 @@ import type { Block } from "./block.js";
  * console.log(spear?.getDroppedByBlocks());   // Block[]
  * ```
  */
-export class Item {
+export class Item extends Asset {
   /** The namespaced item identifier, e.g. `"minecraft:copper_spear"`. */
   readonly identifier: string;
   /** The raw parsed JSON of the item's behavior file. */
@@ -29,7 +30,8 @@ export class Item {
   readonly filePath: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn) {
+  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn, rawText: string) {
+    super(rawText);
     this.identifier = identifier;
     this.data = data;
     this.filePath = filePath;
@@ -79,7 +81,7 @@ export class Item {
    * ```
    */
   getDroppedByEntities(): Entity[] {
-    return this._addon.getAllEntities().filter((entity) => entity.getLootTables().some((lt) => lt.getItemIdentifiers().includes(this.identifier)));
+    return this._addon.getAllEntities().toArray().filter((entity) => entity.getLootTables().some((lt) => lt.getItemIdentifiers().includes(this.identifier)));
   }
 
   /**
@@ -93,7 +95,7 @@ export class Item {
    * ```
    */
   getDroppedByBlocks(): Block[] {
-    return this._addon.getAllBlocks().filter((block) => {
+    return this._addon.getAllBlocks().toArray().filter((block) => {
       const lt = block.getLootTable();
       return lt !== null && lt.getItemIdentifiers().includes(this.identifier);
     });

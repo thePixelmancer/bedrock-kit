@@ -1,3 +1,5 @@
+import { Asset } from "./asset";
+
 /**
  * Represents a single animation definition loaded from a resource pack animation file.
  * Multiple animations are defined per file; each is keyed by its full ID.
@@ -8,7 +10,7 @@
  * console.log(anim?.loop); // true
  * ```
  */
-export class Animation {
+export class Animation extends Asset {
   /** The full animation ID, e.g. `"animation.humanoid.move"`. */
   readonly id: string;
   /** The raw data for this animation definition. */
@@ -19,7 +21,8 @@ export class Animation {
    */
   readonly filePath: string;
 
-  constructor(id: string, data: Record<string, unknown>, filePath: string) {
+  constructor(id: string, data: Record<string, unknown>, filePath: string, rawText: string) {
+    super(rawText);
     this.id = id;
     this.data = data;
     this.filePath = filePath;
@@ -41,7 +44,7 @@ export class Animation {
  * console.log(ctrl?.states);       // ["default", "attacking"]
  * ```
  */
-export class AnimationController {
+export class AnimationController extends Asset {
   /** The full controller ID, e.g. `"controller.animation.zombie.move"`. */
   readonly id: string;
   /** The raw data for this controller definition. */
@@ -52,7 +55,8 @@ export class AnimationController {
    */
   readonly filePath: string;
 
-  constructor(id: string, data: Record<string, unknown>, filePath: string) {
+  constructor(id: string, data: Record<string, unknown>, filePath: string, rawText: string) {
+    super(rawText);
     this.id = id;
     this.data = data;
     this.filePath = filePath;

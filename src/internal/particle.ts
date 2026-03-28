@@ -1,3 +1,5 @@
+import { Asset } from "./asset";
+
 /**
  * Represents a particle effect definition from the resource pack's `particles/` directory.
  *
@@ -7,7 +9,7 @@
  * console.log(particle?.texturePath); // "textures/particle/particles"
  * ```
  */
-export class Particle {
+export class Particle extends Asset {
   /** The namespaced particle identifier, e.g. `"minecraft:stunned_emitter"`. */
   readonly identifier: string;
   /** The raw parsed JSON of the particle file. */
@@ -18,7 +20,8 @@ export class Particle {
    */
   readonly filePath: string;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string) {
+  constructor(identifier: string, data: Record<string, unknown>, filePath: string, rawText: string) {
+    super(rawText);
     this.identifier = identifier;
     this.data = data;
     this.filePath = filePath;

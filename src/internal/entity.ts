@@ -1,11 +1,12 @@
-import type { AddOn } from "./addon.js";
-import type { LootTable } from "./lootTable.js";
-import type { SpawnRule } from "./spawnRule.js";
-import type { Animation, AnimationController } from "./animation.js";
-import type { RenderController } from "./renderController.js";
-import type { Particle } from "./particle.js";
-import type { SoundEvent } from "./sound.js";
-import { shortname } from "./utils.js";
+import { Asset } from "./asset";
+import type { AddOn } from "./addon";
+import type { LootTable } from "./lootTable";
+import type { SpawnRule } from "./spawnRule";
+import type { Animation, AnimationController } from "./animation";
+import type { RenderController } from "./renderController";
+import type { Particle } from "./particle";
+import type { SoundEvent } from "./sound";
+import { shortname } from "./utils";
 
 /**
  * Represents an entity that exists across both packs — a behavior (server-side)
@@ -20,7 +21,7 @@ import { shortname } from "./utils.js";
  * zombie?.getRenderControllers(); // RenderController[]
  * ```
  */
-export class Entity {
+export class Entity extends Asset {
   /** The namespaced entity identifier, e.g. `"minecraft:zombie"`. */
   readonly identifier: string;
   /** Raw parsed JSON of the behavior pack (server-side) entity file. */
@@ -40,6 +41,10 @@ export class Entity {
 
   private readonly _addon: AddOn;
 
+  /**
+   * `rawText` is the raw text of the behavior file (for docData).
+   * When only a resource-side entity exists, pass the resource file raw text instead.
+   */
   constructor(
     identifier: string,
     behaviorData: Record<string, unknown>,
@@ -47,7 +52,9 @@ export class Entity {
     resourceData: Record<string, unknown> | null,
     resourceFilePath: string | null,
     addon: AddOn,
+    rawText: string,
   ) {
+    super(rawText);
     this.identifier = identifier;
     this.behaviorData = behaviorData;
     this.behaviorFilePath = behaviorFilePath;
@@ -62,7 +69,7 @@ export class Entity {
   }
 
   /**
-   * The shortname → full animation ID map declared in the resource entity file.
+   * The shortname -> full animation ID map declared in the resource entity file.
    * @example `{ "move": "animation.humanoid.move" }`
    */
   get animationShortnames(): Record<string, string> {
@@ -70,7 +77,7 @@ export class Entity {
   }
 
   /**
-   * The shortname → full particle identifier map declared in the resource entity file.
+   * The shortname -> full particle identifier map declared in the resource entity file.
    * @example `{ "stun_particles": "minecraft:stunned_emitter" }`
    */
   get particleShortnames(): Record<string, string> {
@@ -92,7 +99,7 @@ export class Entity {
   }
 
   /**
-   * The shortname → sound event ID map declared in the resource entity file's
+   * The shortname -> sound event ID map declared in the resource entity file's
    * `description.sounds`. These are per-entity sound bindings separate from
    * the global `sounds.json` mappings.
    *
@@ -161,12 +168,12 @@ export class Entity {
    * Returns the sound events for this entity from `sounds/sounds.json`.
    *
    * The entity identifier is stripped to its shortname for the lookup
-   * (e.g. `"minecraft:zombie"` → `"zombie"`).
+   * (e.g. `"minecraft:zombie"` -> `"zombie"`).
    *
    * @example
    * ```ts
    * addon.getEntity("minecraft:zombie")?.getSoundEvents()
-   *   .map(e => `${e.event} → ${e.definitionId}`);
+   *   .map(e => `${e.event} -> ${e.definitionId}`);
    * ```
    */
   getSoundEvents(): SoundEvent[] {

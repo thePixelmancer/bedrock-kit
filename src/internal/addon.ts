@@ -1,29 +1,22 @@
 import { join, resolve, posix } from "node:path";
-import {
-  PackData,
-  PackEntry,
-  diskEntries,
-  browserEntries,
-  packDataFromFiles,
-  readJSONFromDisk,
-  extractIdentifier,
-} from "./utils.js";
-import type { ItemTextureMap, TerrainTextureMap } from "./types.js";
-import { Tag } from "./tag.js";
-import { Item } from "./item.js";
-import { ItemStack } from "./itemStack.js";
-import { Block } from "./block.js";
-import { Entity } from "./entity.js";
-import { Recipe } from "./recipe.js";
-import { LootTable } from "./lootTable.js";
-import { SpawnRule } from "./spawnRule.js";
-import { Biome } from "./biome.js";
-import { Animation, AnimationController } from "./animation.js";
-import { RenderController } from "./renderController.js";
-import { Particle } from "./particle.js";
-import { Attachable } from "./attachable.js";
-import { TradingTable } from "./tradingTable.js";
-import { SoundDefinition, SoundEvent, MusicDefinition } from "./sound.js";
+import { PackData, PackEntry, diskEntries, browserEntries, packDataFromFiles, readJSONFromDisk, readRawFromDisk, extractIdentifier } from "./utils";
+import type { ItemTextureMap, TerrainTextureMap } from "./types";
+import { Tag } from "./tag";
+import { Item } from "./item";
+import { ItemStack } from "./itemStack";
+import { Block } from "./block";
+import { Entity } from "./entity";
+import { Recipe } from "./recipe";
+import { LootTable } from "./lootTable";
+import { SpawnRule } from "./spawnRule";
+import { Biome } from "./biome";
+import { Animation, AnimationController } from "./animation";
+import { RenderController } from "./renderController";
+import { Particle } from "./particle";
+import { Attachable } from "./attachable";
+import { TradingTable } from "./tradingTable";
+import { SoundDefinition, SoundEvent, MusicDefinition } from "./sound";
+import { AssetCollection } from "./asset";
 
 export type { PackData };
 
@@ -74,6 +67,7 @@ export class AddOn {
   private _particles: Map<string, Particle> | null = null;
   private _attachables: Map<string, Attachable> | null = null;
   private _tradingTables: Map<string, TradingTable> | null = null;
+
   /** The parsed `item_texture.json` from the resource pack. Null if missing. */
   readonly itemTextures: ItemTextureMap | null;
   /** The parsed `terrain_texture.json` from the resource pack. Null if missing. */
@@ -101,12 +95,8 @@ export class AddOn {
   constructor(behaviorPackPath: string, resourcePackPath: string) {
     this.behaviorPackPath = resolve(behaviorPackPath);
     this.resourcePackPath = resolve(resourcePackPath);
-    this.itemTextures = readJSONFromDisk<ItemTextureMap>(
-      join(this.resourcePackPath, "textures", "item_texture.json"),
-    );
-    this.terrainTextures = readJSONFromDisk<TerrainTextureMap>(
-      join(this.resourcePackPath, "textures", "terrain_texture.json"),
-    );
+    this.itemTextures = readJSONFromDisk<ItemTextureMap>(join(this.resourcePackPath, "textures", "item_texture.json"));
+    this.terrainTextures = readJSONFromDisk<TerrainTextureMap>(join(this.resourcePackPath, "textures", "terrain_texture.json"));
     this.soundDefinitions = this._loadSoundDefinitions();
     this.musicDefinitions = this._loadMusicDefinitions();
     this.entitySoundEvents = this._loadEntitySoundEvents();
@@ -120,10 +110,8 @@ export class AddOn {
     (addon as unknown as Record<string, unknown>).resourcePackPath = "";
     addon._bpData = bpData;
     addon._rpData = rpData;
-    (addon as any).itemTextures =
-      (rpData.get("textures/item_texture.json") as unknown as ItemTextureMap | undefined) ?? null;
-    (addon as any).terrainTextures =
-      (rpData.get("textures/terrain_texture.json") as unknown as TerrainTextureMap | undefined) ?? null;
+    (addon as any).itemTextures = (rpData.get("textures/item_texture.json")?.data as unknown as ItemTextureMap | undefined) ?? null;
+    (addon as any).terrainTextures = (rpData.get("textures/terrain_texture.json")?.data as unknown as TerrainTextureMap | undefined) ?? null;
     addon._items = null;
     addon._blocks = null;
     addon._entities = null;
@@ -156,10 +144,7 @@ export class AddOn {
    * ```
    */
   static async fromFileList(bpFiles: File[], rpFiles: File[]): Promise<AddOn> {
-    const [bpData, rpData] = await Promise.all([
-      packDataFromFiles(bpFiles),
-      packDataFromFiles(rpFiles),
-    ]);
+    const [bpData, rpData] = await Promise.all([packDataFromFiles(bpFiles), packDataFromFiles(rpFiles)]);
     return AddOn._fromPackData(bpData, rpData);
   }
 
@@ -170,20 +155,12 @@ export class AddOn {
   }
 
   private _bpEntries(subdir: string): PackEntry[] {
-    return this._isBrowser
-      ? browserEntries(this._bpData!, subdir)
-      : diskEntries(this.behaviorPackPath, subdir);
+    return this._isBrowser ? browserEntries(this._bpData!, subdir) : diskEntries(this.behaviorPackPath, subdir);
   }
 
   private _rpEntries(subdir: string): PackEntry[] {
-    return this._isBrowser
-      ? browserEntries(this._rpData!, subdir)
-      : diskEntries(this.resourcePackPath, subdir);
+    return this._isBrowser ? browserEntries(this._rpData!, subdir) : diskEntries(this.resourcePackPath, subdir);
   }
-
-  // ── Connective tissue ────────────────────────────────────────────────────
-  // itemTextures, terrainTextures, soundDefinitions, musicDefinitions,
-  // entitySoundEvents, blockSoundEvents are all declared as readonly properties above.
 
   // ── Items ─────────────────────────────────────────────────────────────────
 
@@ -192,7 +169,9 @@ export class AddOn {
     return this._itemStore.get(identifier) ?? null;
   }
   /** Returns all items loaded from the behavior pack's `items/` directory. */
-  getAllItems(): Item[] { return [...this._itemStore.values()]; }
+  getAllItems(): AssetCollection<Item> {
+    return new AssetCollection(this._itemStore);
+  }
   private get _itemStore(): Map<string, Item> {
     if (!this._items) this._items = this._loadItems();
     return this._items;
@@ -205,7 +184,9 @@ export class AddOn {
     return this._blockStore.get(identifier) ?? null;
   }
   /** Returns all blocks loaded from the behavior pack's `blocks/` directory. */
-  getAllBlocks(): Block[] { return [...this._blockStore.values()]; }
+  getAllBlocks(): AssetCollection<Block> {
+    return new AssetCollection(this._blockStore);
+  }
   private get _blockStore(): Map<string, Block> {
     if (!this._blocks) this._blocks = this._loadBlocks();
     return this._blocks;
@@ -218,7 +199,9 @@ export class AddOn {
     return this._entityStore.get(identifier) ?? null;
   }
   /** Returns all entities found across both packs, merged by identifier. */
-  getAllEntities(): Entity[] { return [...this._entityStore.values()]; }
+  getAllEntities(): AssetCollection<Entity> {
+    return new AssetCollection(this._entityStore);
+  }
   private get _entityStore(): Map<string, Entity> {
     if (!this._entities) this._entities = this._loadEntities();
     return this._entities;
@@ -236,12 +219,12 @@ export class AddOn {
   }
   /** Returns all recipes that use the given tag id as an ingredient. */
   getRecipesUsingTag(tagId: string): Recipe[] {
-    return this._recipeStore.filter((r) =>
-      r.getAllIngredients().some((ing) => ing instanceof Tag && ing.id === tagId)
-    );
+    return this._recipeStore.filter((r) => r.getAllIngredients().some((ing) => ing instanceof Tag && ing.id === tagId));
   }
   /** Returns all recipes loaded from the behavior pack's `recipes/` directory. */
-  getAllRecipes(): Recipe[] { return [...this._recipeStore]; }
+  getAllRecipes(): Recipe[] {
+    return [...this._recipeStore];
+  }
   private get _recipeStore(): Recipe[] {
     if (!this._recipes) this._recipes = this._loadRecipes();
     return this._recipes;
@@ -257,7 +240,9 @@ export class AddOn {
     return this._lootStore.get(relativePath.replace(/\\/g, "/")) ?? null;
   }
   /** Returns all loot tables loaded from the behavior pack's `loot_tables/` directory. */
-  getAllLootTables(): LootTable[] { return [...this._lootStore.values()]; }
+  getAllLootTables(): AssetCollection<LootTable> {
+    return new AssetCollection(this._lootStore);
+  }
   private get _lootStore(): Map<string, LootTable> {
     if (!this._lootTables) this._lootTables = this._loadLootTables();
     return this._lootTables;
@@ -270,7 +255,9 @@ export class AddOn {
     return this._spawnStore.get(identifier) ?? null;
   }
   /** Returns all spawn rules loaded from the behavior pack's `spawn_rules/` directory. */
-  getAllSpawnRules(): SpawnRule[] { return [...this._spawnStore.values()]; }
+  getAllSpawnRules(): AssetCollection<SpawnRule> {
+    return new AssetCollection(this._spawnStore);
+  }
   private get _spawnStore(): Map<string, SpawnRule> {
     if (!this._spawnRules) this._spawnRules = this._loadSpawnRules();
     return this._spawnRules;
@@ -283,7 +270,9 @@ export class AddOn {
     return this._biomeStore.get(identifier) ?? null;
   }
   /** Returns all biomes loaded from the behavior pack's `biomes/` directory. */
-  getAllBiomes(): Biome[] { return [...this._biomeStore.values()]; }
+  getAllBiomes(): AssetCollection<Biome> {
+    return new AssetCollection(this._biomeStore);
+  }
   private get _biomeStore(): Map<string, Biome> {
     if (!this._biomes) this._biomes = this._loadBiomes();
     return this._biomes;
@@ -296,7 +285,9 @@ export class AddOn {
     return this._animStore.get(id) ?? null;
   }
   /** Returns all animations loaded from the resource pack's `animations/` directory. */
-  getAllAnimations(): Animation[] { return [...this._animStore.values()]; }
+  getAllAnimations(): AssetCollection<Animation> {
+    return new AssetCollection(this._animStore);
+  }
   private get _animStore(): Map<string, Animation> {
     if (!this._animations) this._animations = this._loadAnimations();
     return this._animations;
@@ -309,7 +300,9 @@ export class AddOn {
     return this._animCtrlStore.get(id) ?? null;
   }
   /** Returns all animation controllers from the resource pack's `animation_controllers/` directory. */
-  getAllAnimationControllers(): AnimationController[] { return [...this._animCtrlStore.values()]; }
+  getAllAnimationControllers(): AssetCollection<AnimationController> {
+    return new AssetCollection(this._animCtrlStore);
+  }
   private get _animCtrlStore(): Map<string, AnimationController> {
     if (!this._animationControllers) this._animationControllers = this._loadAnimationControllers();
     return this._animationControllers;
@@ -322,7 +315,9 @@ export class AddOn {
     return this._renderCtrlStore.get(id) ?? null;
   }
   /** Returns all render controllers from the resource pack's `render_controllers/` directory. */
-  getAllRenderControllers(): RenderController[] { return [...this._renderCtrlStore.values()]; }
+  getAllRenderControllers(): AssetCollection<RenderController> {
+    return new AssetCollection(this._renderCtrlStore);
+  }
   private get _renderCtrlStore(): Map<string, RenderController> {
     if (!this._renderControllers) this._renderControllers = this._loadRenderControllers();
     return this._renderControllers;
@@ -335,7 +330,9 @@ export class AddOn {
     return this._particleStore.get(identifier) ?? null;
   }
   /** Returns all particle effects loaded from the resource pack's `particles/` directory. */
-  getAllParticles(): Particle[] { return [...this._particleStore.values()]; }
+  getAllParticles(): AssetCollection<Particle> {
+    return new AssetCollection(this._particleStore);
+  }
   private get _particleStore(): Map<string, Particle> {
     if (!this._particles) this._particles = this._loadParticles();
     return this._particles;
@@ -348,7 +345,9 @@ export class AddOn {
     return this._attachableStore.get(identifier) ?? null;
   }
   /** Returns all attachables loaded from the resource pack's `attachables/` directory. */
-  getAllAttachables(): Attachable[] { return [...this._attachableStore.values()]; }
+  getAllAttachables(): AssetCollection<Attachable> {
+    return new AssetCollection(this._attachableStore);
+  }
   private get _attachableStore(): Map<string, Attachable> {
     if (!this._attachables) this._attachables = this._loadAttachables();
     return this._attachables;
@@ -361,7 +360,9 @@ export class AddOn {
     return this._tradingStore.get(name) ?? null;
   }
   /** Returns all trading tables loaded from the behavior pack's `trading/` directory. */
-  getAllTradingTables(): TradingTable[] { return [...this._tradingStore.values()]; }
+  getAllTradingTables(): AssetCollection<TradingTable> {
+    return new AssetCollection(this._tradingStore);
+  }
   private get _tradingStore(): Map<string, TradingTable> {
     if (!this._tradingTables) this._tradingTables = this._loadTradingTables();
     return this._tradingTables;
@@ -393,182 +394,178 @@ export class AddOn {
 
   private _loadItems(): Map<string, Item> {
     const map = new Map<string, Item>();
-    for (const { filePath, data } of this._bpEntries("items")) {
+    for (const { filePath, data, rawText } of this._bpEntries("items")) {
       const id = extractIdentifier(data, "minecraft:item");
       if (!id) continue;
-      map.set(id, new Item(id, data, filePath, this));
+      map.set(id, new Item(id, data, filePath, this, rawText));
     }
     return map;
   }
 
   private _loadBlocks(): Map<string, Block> {
     const map = new Map<string, Block>();
-    for (const { filePath, data } of this._bpEntries("blocks")) {
+    for (const { filePath, data, rawText } of this._bpEntries("blocks")) {
       const id = extractIdentifier(data, "minecraft:block");
       if (!id) continue;
-      map.set(id, new Block(id, data, filePath, this));
+      map.set(id, new Block(id, data, filePath, this, rawText));
     }
     return map;
   }
 
   private _loadEntities(): Map<string, Entity> {
-    const behaviorMap = new Map<string, { data: Record<string, unknown>; filePath: string }>();
-    for (const { filePath, data } of this._bpEntries("entities")) {
-      const id =
-        extractIdentifier(data, "minecraft:entity") ??
-        extractIdentifier(data, "minecraft:npc");
+    const behaviorMap = new Map<string, { data: Record<string, unknown>; filePath: string; rawText: string }>();
+    for (const { filePath, data, rawText } of this._bpEntries("entities")) {
+      const id = extractIdentifier(data, "minecraft:entity") ?? extractIdentifier(data, "minecraft:npc");
       if (!id) continue;
-      behaviorMap.set(id, { data, filePath });
+      behaviorMap.set(id, { data, filePath, rawText });
     }
 
-    const resourceMap = new Map<string, { data: Record<string, unknown>; filePath: string }>();
-    for (const { filePath, data } of this._rpEntries("entity")) {
+    const resourceMap = new Map<string, { data: Record<string, unknown>; filePath: string; rawText: string }>();
+    for (const { filePath, data, rawText } of this._rpEntries("entity")) {
       const inner = data["minecraft:client_entity"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      resourceMap.set(id, { data, filePath });
+      resourceMap.set(id, { data, filePath, rawText });
     }
 
     const map = new Map<string, Entity>();
     for (const [id, bp] of behaviorMap) {
       const rp = resourceMap.get(id);
-      map.set(id, new Entity(id, bp.data, bp.filePath, rp?.data ?? null, rp?.filePath ?? null, this));
+      map.set(id, new Entity(id, bp.data, bp.filePath, rp?.data ?? null, rp?.filePath ?? null, this, bp.rawText));
     }
     for (const [id, rp] of resourceMap) {
-      if (!behaviorMap.has(id))
-        map.set(id, new Entity(id, {}, "", rp.data, rp.filePath, this));
+      if (!behaviorMap.has(id)) map.set(id, new Entity(id, {}, "", rp.data, rp.filePath, this, rp.rawText));
     }
     return map;
   }
 
   private _loadRecipes(): Recipe[] {
-    return this._bpEntries("recipes").map(({ data }) => new Recipe(data, this));
+    return this._bpEntries("recipes").map(({ data, rawText }) => new Recipe(data, this, rawText));
   }
 
   private _loadLootTables(): Map<string, LootTable> {
     const map = new Map<string, LootTable>();
-    for (const { filePath, relativePath, data } of this._bpEntries("loot_tables")) {
+    for (const { filePath, relativePath, data, rawText } of this._bpEntries("loot_tables")) {
       const key = relativePath.replace(/\\/g, "/");
-      map.set(key, new LootTable(data, filePath, key));
+      map.set(key, new LootTable(data, filePath, key, rawText));
     }
     return map;
   }
 
   private _loadSpawnRules(): Map<string, SpawnRule> {
     const map = new Map<string, SpawnRule>();
-    for (const { filePath, data } of this._bpEntries("spawn_rules")) {
+    for (const { filePath, data, rawText } of this._bpEntries("spawn_rules")) {
       const inner = data["minecraft:spawn_rules"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      map.set(id, new SpawnRule(id, data, filePath));
+      map.set(id, new SpawnRule(id, data, filePath, rawText));
     }
     return map;
   }
 
   private _loadBiomes(): Map<string, Biome> {
     const map = new Map<string, Biome>();
-    for (const { filePath, data } of this._bpEntries("biomes")) {
+    for (const { filePath, data, rawText } of this._bpEntries("biomes")) {
       const id = extractIdentifier(data, "minecraft:biome");
       if (!id) continue;
-      map.set(id, new Biome(id, data, filePath, this));
+      map.set(id, new Biome(id, data, filePath, this, rawText));
     }
     return map;
   }
 
   private _loadAnimations(): Map<string, Animation> {
     const map = new Map<string, Animation>();
-    for (const { filePath, data } of this._rpEntries("animations")) {
+    for (const { filePath, data, rawText } of this._rpEntries("animations")) {
       const animMap = data["animations"] as Record<string, unknown> | undefined;
       if (!animMap) continue;
-      for (const [id, animData] of Object.entries(animMap))
-        map.set(id, new Animation(id, animData as Record<string, unknown>, filePath));
+      for (const [id, animData] of Object.entries(animMap)) map.set(id, new Animation(id, animData as Record<string, unknown>, filePath, rawText));
     }
     return map;
   }
 
   private _loadAnimationControllers(): Map<string, AnimationController> {
     const map = new Map<string, AnimationController>();
-    for (const { filePath, data } of this._rpEntries("animation_controllers")) {
+    for (const { filePath, data, rawText } of this._rpEntries("animation_controllers")) {
       const ctrlMap = data["animation_controllers"] as Record<string, unknown> | undefined;
       if (!ctrlMap) continue;
       for (const [id, ctrlData] of Object.entries(ctrlMap))
-        map.set(id, new AnimationController(id, ctrlData as Record<string, unknown>, filePath));
+        map.set(id, new AnimationController(id, ctrlData as Record<string, unknown>, filePath, rawText));
     }
     return map;
   }
 
   private _loadRenderControllers(): Map<string, RenderController> {
     const map = new Map<string, RenderController>();
-    for (const { filePath, data } of this._rpEntries("render_controllers")) {
+    for (const { filePath, data, rawText } of this._rpEntries("render_controllers")) {
       const rcMap = data["render_controllers"] as Record<string, unknown> | undefined;
       if (!rcMap) continue;
-      for (const [id, rcData] of Object.entries(rcMap))
-        map.set(id, new RenderController(id, rcData as Record<string, unknown>, filePath));
+      for (const [id, rcData] of Object.entries(rcMap)) map.set(id, new RenderController(id, rcData as Record<string, unknown>, filePath, rawText));
     }
     return map;
   }
 
   private _loadParticles(): Map<string, Particle> {
     const map = new Map<string, Particle>();
-    for (const { filePath, data } of this._rpEntries("particles")) {
+    for (const { filePath, data, rawText } of this._rpEntries("particles")) {
       const inner = data["particle_effect"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      map.set(id, new Particle(id, data, filePath));
+      map.set(id, new Particle(id, data, filePath, rawText));
     }
     return map;
   }
 
   private _loadAttachables(): Map<string, Attachable> {
     const map = new Map<string, Attachable>();
-    for (const { filePath, data } of this._rpEntries("attachables")) {
+    for (const { filePath, data, rawText } of this._rpEntries("attachables")) {
       const id = extractIdentifier(data, "minecraft:attachable");
       if (!id) continue;
-      map.set(id, new Attachable(id, data, filePath));
+      map.set(id, new Attachable(id, data, filePath, rawText));
     }
     return map;
   }
 
   private _loadTradingTables(): Map<string, TradingTable> {
     const map = new Map<string, TradingTable>();
-    for (const { filePath, relativePath, data } of this._bpEntries("trading")) {
+    for (const { filePath, relativePath, data, rawText } of this._bpEntries("trading")) {
       const name = posix.basename(relativePath, ".json");
-      map.set(name, new TradingTable(data, filePath, name));
+      map.set(name, new TradingTable(data, filePath, name, rawText));
     }
     return map;
   }
 
   private _loadSoundDefinitions(): Map<string, SoundDefinition> {
     const map = new Map<string, SoundDefinition>();
-    const data = this._isBrowser
-      ? this._rpData?.get("sounds/sound_definitions.json")
+    const data =
+      this._isBrowser ?
+        this._rpData?.get("sounds/sound_definitions.json")?.data
       : readJSONFromDisk(join(this.resourcePackPath, "sounds", "sound_definitions.json"));
     if (!data) return map;
     const defs = data["sound_definitions"] as Record<string, unknown> | undefined;
     if (!defs) return map;
-    for (const [id, entry] of Object.entries(defs))
-      map.set(id, new SoundDefinition(id, entry as Record<string, unknown>));
+    for (const [id, entry] of Object.entries(defs)) map.set(id, new SoundDefinition(id, entry as Record<string, unknown>));
     return map;
   }
 
   private _loadMusicDefinitions(): Map<string, MusicDefinition> {
     const map = new Map<string, MusicDefinition>();
-    const data = this._isBrowser
-      ? this._rpData?.get("sounds/music_definitions.json")
+    const data =
+      this._isBrowser ?
+        this._rpData?.get("sounds/music_definitions.json")?.data
       : readJSONFromDisk(join(this.resourcePackPath, "sounds", "music_definitions.json"));
     if (!data) return map;
-    for (const [id, entry] of Object.entries(data))
-      map.set(id, new MusicDefinition(id, entry as Record<string, unknown>));
+    for (const [id, entry] of Object.entries(data)) map.set(id, new MusicDefinition(id, entry as Record<string, unknown>));
     return map;
   }
 
   private _loadEntitySoundEvents(): Map<string, SoundEvent[]> {
     const map = new Map<string, SoundEvent[]>();
-    const data = this._isBrowser
-      ? (this._rpData?.get("sounds.json") ?? this._rpData?.get("sounds/sounds.json"))
+    const data =
+      this._isBrowser ?
+        (this._rpData?.get("sounds.json")?.data ?? this._rpData?.get("sounds/sounds.json")?.data)
       : (readJSONFromDisk(join(this.resourcePackPath, "sounds.json")) ?? readJSONFromDisk(join(this.resourcePackPath, "sounds", "sounds.json")));
     if (!data) return map;
     const entitySounds = data["entity_sounds"] as Record<string, unknown> | undefined;
@@ -585,8 +582,9 @@ export class AddOn {
 
   private _loadBlockSoundEvents(): Map<string, SoundEvent[]> {
     const map = new Map<string, SoundEvent[]>();
-    const data = this._isBrowser
-      ? (this._rpData?.get("sounds.json") ?? this._rpData?.get("sounds/sounds.json"))
+    const data =
+      this._isBrowser ?
+        (this._rpData?.get("sounds.json")?.data ?? this._rpData?.get("sounds/sounds.json")?.data)
       : (readJSONFromDisk(join(this.resourcePackPath, "sounds.json")) ?? readJSONFromDisk(join(this.resourcePackPath, "sounds", "sounds.json")));
     if (!data) return map;
     const blockSounds = data["block_sounds"] as Record<string, unknown> | undefined;
@@ -619,11 +617,10 @@ export class AddOn {
           definitionId: defId,
           definition: defId ? this.getSoundDefinition(defId) : null,
           volume: typeof v["volume"] === "number" ? (v["volume"] as number) : null,
-          pitch: Array.isArray(v["pitch"])
-            ? (v["pitch"] as [number, number])
-            : typeof v["pitch"] === "number"
-              ? (v["pitch"] as number)
-              : null,
+          pitch:
+            Array.isArray(v["pitch"]) ? (v["pitch"] as [number, number])
+            : typeof v["pitch"] === "number" ? (v["pitch"] as number)
+            : null,
         });
       }
     }

@@ -1,15 +1,16 @@
-import type { AddOn } from "./addon.js";
-import type { RecipeType } from "./types.js";
-import { Tag } from "./tag.js";
-import { ItemStack } from "./itemStack.js";
-import { parseIngredient } from "./utils.js";
-import type { Item } from "./item.js";
+import { Asset } from "./asset";
+import type { AddOn } from "./addon";
+import type { RecipeType } from "./types";
+import { Tag } from "./tag";
+import { ItemStack } from "./itemStack";
+import { parseIngredient } from "./utils";
+import type { Item } from "./item";
 import type {
   Ingredient,
   ShapelessIngredient,
   FurnaceResolved,
   BrewingResolved,
-} from "./tag.js";
+} from "./tag";
 
 export type { RecipeType };
 
@@ -25,7 +26,7 @@ export type { RecipeType };
  * // grid[0][2] instanceof Item -> true
  * ```
  */
-export class Recipe {
+export class Recipe extends Asset {
   /** The raw parsed JSON of the recipe file. */
   readonly data: Record<string, unknown>;
   /** The recipe type as detected from the root JSON key. */
@@ -43,7 +44,8 @@ export class Recipe {
 
   private readonly _addon: AddOn;
 
-  constructor(data: Record<string, unknown>, addon: AddOn) {
+  constructor(data: Record<string, unknown>, addon: AddOn, rawText: string) {
+    super(rawText);
     this.data = data;
     this._addon = addon;
     const recipeKey = Object.keys(data).find((k) => k.startsWith("minecraft:recipe_"));
@@ -90,17 +92,6 @@ export class Recipe {
   /**
    * Returns the output of this recipe as an `ItemStack`, or null if the recipe
    * has no result (e.g. some brewing recipes).
-   *
-   * `ItemStack.item` is null when the result identifier has no matching item
-   * definition in the behavior pack. `ItemStack.count` reflects the exact
-   * output quantity specified in the recipe file, defaulting to 1.
-   *
-   * @example
-   * ```ts
-   * const stack = addon.getRecipesFor("minecraft:stick")[0]?.getResultStack();
-   * console.log(stack?.count);            // 4
-   * console.log(stack?.item?.identifier); // "minecraft:stick"
-   * ```
    */
   getResultStack(): ItemStack | null {
     const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
@@ -196,7 +187,7 @@ export class Recipe {
     return this._addon.getItem(raw) ?? new Tag(raw);
   }
 
-  /** Returns true if this recipe uses the given item identifier as an ingredient, regardless of whether it is in the addon's item store. */
+  /** Returns true if this recipe uses the given item identifier as an ingredient. */
   usesItem(identifier: string): boolean {
     return this._allIngredientStrings().some((s) => s === identifier);
   }

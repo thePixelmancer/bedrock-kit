@@ -21,8 +21,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "typescript": "^5.0.0",
-    "typedoc": "^0.28.0"
+    "typedoc": "^0.28.0",
+    "typescript": "^5.0.0"
   },
   "keywords": [
     "minecraft",
@@ -31,5 +31,8 @@
     "behavior-pack",
     "resource-pack"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "comment-parser": "^1.4.5"
+  }
 }

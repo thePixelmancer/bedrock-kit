@@ -1,58 +1,22 @@
-/**
- * bedrockKit
- *
- * A library for navigating Minecraft Bedrock addon files programmatically.
- * Works in Deno, Node.js, and browsers.
- *
- * - Deno / Node.js: `new AddOn(behaviorPackPath, resourcePackPath)`
- * - Browser: `await AddOn.fromFileList(bpFiles, rpFiles)`
- *
- * @module
- */
-
-// Core
-export { AddOn } from "./internal/addon.js";
-export type { PackData } from "./internal/addon.js";
-
-// Shared types
-export type {
-  ItemTextureMap,
-  TerrainTextureMap,
-  RecipeType,
-  LootEntry,
-  LootPool,
-  TradeItem,
-  Trade,
-  TradeTier,
-  SoundFile,
-} from "./internal/types.js";
-
-// Tag and recipe ingredient types
-export { Tag } from "./internal/tag.js";
-export type {
-  Ingredient,
-  ShapelessIngredient,
-  FurnaceResolved,
-  BrewingResolved,
-} from "./internal/tag.js";
-
-// Game classes — behavior pack
-export { LootTable } from "./internal/lootTable.js";
-export { SpawnRule } from "./internal/spawnRule.js";
-export { TradingTable } from "./internal/tradingTable.js";
-export { Item } from "./internal/item.js";
-export { ItemStack } from "./internal/itemStack.js";
-export { Block } from "./internal/block.js";
-export { Biome } from "./internal/biome.js";
-export { Entity } from "./internal/entity.js";
-export { Recipe } from "./internal/recipe.js";
-
-// Game classes — resource pack
-export { Animation, AnimationController } from "./internal/animation.js";
-export { RenderController } from "./internal/renderController.js";
-export { Particle } from "./internal/particle.js";
-export { Attachable } from "./internal/attachable.js";
-
-// Sound
-export { SoundDefinition, MusicDefinition } from "./internal/sound.js";
-export type { SoundEvent } from "./internal/sound.js";
+export { AddOn } from "./internal/addon";
+export type { PackData } from "./internal/addon";
+export { Asset, AssetCollection } from "./internal/asset";
+export type { CommentBlock } from "./internal/asset";
+export type { ItemTextureMap, TerrainTextureMap, RecipeType, LootEntry, LootPool, TradeItem, Trade, TradeTier, SoundFile } from "./internal/types";
+export { Tag } from "./internal/tag";
+export type { Ingredient, ShapelessIngredient, FurnaceResolved, BrewingResolved } from "./internal/tag";
+export { LootTable } from "./internal/lootTable";
+export { SpawnRule } from "./internal/spawnRule";
+export { TradingTable } from "./internal/tradingTable";
+export { Item } from "./internal/item";
+export { ItemStack } from "./internal/itemStack";
+export { Block } from "./internal/block";
+export { Biome } from "./internal/biome";
+export { Entity } from "./internal/entity";
+export { Recipe } from "./internal/recipe";
+export { Animation, AnimationController } from "./internal/animation";
+export { RenderController } from "./internal/renderController";
+export { Particle } from "./internal/particle";
+export { Attachable } from "./internal/attachable";
+export { SoundDefinition, MusicDefinition } from "./internal/sound";
+export type { SoundEvent } from "./internal/sound";
