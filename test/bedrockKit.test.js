@@ -23,8 +23,7 @@ function ok(name, condition, detail) {
 }
 
 function eq(name, actual, expected) {
-  ok(name, JSON.stringify(actual) === JSON.stringify(expected),
-    `expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
+  ok(name, JSON.stringify(actual) === JSON.stringify(expected), `expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
 }
 
 function section(title) {
@@ -48,7 +47,10 @@ ok("blockSoundEvents loaded", addon.blockSoundEvents.size > 0);
 
 section("Items");
 ok("getAllItems() non-empty", addon.getAllItems().length > 0);
-ok("all have identifiers", addon.getAllItems().every((i) => i.identifier.length > 0));
+ok(
+  "all have identifiers",
+  addon.getAllItems().every((i) => i.identifier.length > 0),
+);
 eq("getItem() null for unknown", addon.getItem("bedrockkit:nope"), null);
 ok("getItem() finds copper_spear", addon.getItem("minecraft:copper_spear")?.identifier === "minecraft:copper_spear");
 ok("data has minecraft:item key", "minecraft:item" in (addon.getItem("minecraft:copper_spear")?.data ?? {}));
@@ -59,16 +61,24 @@ ok("getRecipes() returns recipes", (addon.getItem("minecraft:copper_spear")?.get
 
 section("Recipes");
 ok("getAllRecipes() non-empty", addon.getAllRecipes().length > 0);
-ok("all have valid types", addon.getAllRecipes().every((r) =>
-  ["shaped","shapeless","furnace","brewing_mix","brewing_container","unknown"].includes(r.type)));
+ok(
+  "all have valid types",
+  addon.getAllRecipes().every((r) => ["shaped", "shapeless", "furnace", "brewing_mix", "brewing_container", "unknown"].includes(r.type)),
+);
 ok("getRecipesFor() finds copper_spear", addon.getRecipesFor("minecraft:copper_spear").length > 0);
 
 const shapedSpear = addon.getRecipesFor("minecraft:copper_spear").find((r) => r.type === "shaped");
 const grid = shapedSpear?.resolveShape();
 ok("resolveShape() returns 2D grid", Array.isArray(grid) && grid.length > 0 && grid.every((row) => Array.isArray(row)));
-ok("grid cells are Item/Tag/null", grid?.every((row) =>
-  row.every((c) => c === null || c instanceof Item || c instanceof Tag)) ?? false);
-eq("resolveShape() null for non-shaped", addon.getAllRecipes().find((r) => r.type === "furnace")?.resolveShape(), null);
+ok("grid cells are Item/Tag/null", grid?.every((row) => row.every((c) => c === null || c instanceof Item || c instanceof Tag)) ?? false);
+eq(
+  "resolveShape() null for non-shaped",
+  addon
+    .getAllRecipes()
+    .find((r) => r.type === "furnace")
+    ?.resolveShape(),
+  null,
+);
 eq("resolveShapeless() null for non-shapeless", shapedSpear?.resolveShapeless(), null);
 eq("resolveFurnace() null for non-furnace", shapedSpear?.resolveFurnace(), null);
 eq("resolveBrewing() null for non-brewing", shapedSpear?.resolveBrewing(), null);
@@ -158,7 +168,10 @@ ok("getAllItemIdentifiers() returns ids", (armorerTrades?.getAllItemIdentifiers(
 
 section("Particles");
 ok("getAllParticles() non-empty", addon.getAllParticles().length > 0);
-ok("all have identifiers", addon.getAllParticles().every((p) => p.identifier.length > 0));
+ok(
+  "all have identifiers",
+  addon.getAllParticles().every((p) => p.identifier.length > 0),
+);
 eq("getParticle() null for unknown", addon.getParticle("bedrockkit:nope"), null);
 const arrowSpell = addon.getParticle("minecraft:arrow_spell_emitter");
 ok("getParticle() finds arrow_spell_emitter", arrowSpell?.identifier === "minecraft:arrow_spell_emitter");
@@ -170,7 +183,10 @@ ok("components non-empty", Object.keys(arrowSpell?.components ?? {}).length > 0)
 
 section("Sound Definitions");
 ok("soundDefinitions non-empty", addon.soundDefinitions.size > 0);
-ok("all have ids", [...addon.soundDefinitions.values()].every((d) => d.id.length > 0));
+ok(
+  "all have ids",
+  [...addon.soundDefinitions.values()].every((d) => d.id.length > 0),
+);
 eq("getSoundDefinition() null for unknown", addon.getSoundDefinition("bedrockkit:nope"), null);
 const zombieSay = addon.getSoundDefinition("mob.zombie.say");
 ok("getSoundDefinition() finds mob.zombie.say", zombieSay?.id === "mob.zombie.say");
@@ -196,8 +212,10 @@ section("Entity Sound Events");
 ok("entitySoundEvents non-empty", addon.entitySoundEvents.size > 0);
 const zombieSounds = addon.getEntitySoundEvents("zombie");
 ok("getEntitySoundEvents() finds zombie", zombieSounds.length > 0);
-ok("events have name and definitionId", zombieSounds.every(
-  (e) => typeof e.event === "string" && e.event.length > 0 && typeof e.definitionId === "string"));
+ok(
+  "events have name and definitionId",
+  zombieSounds.every((e) => typeof e.event === "string" && e.event.length > 0 && typeof e.definitionId === "string"),
+);
 ok("entity getSoundEvents() resolves from identifier", (addon.getEntity("minecraft:zombie")?.getSoundEvents().length ?? 0) > 0);
 
 // ─── Block Sound Events ───────────────────────────────────────────────────────
@@ -228,7 +246,13 @@ const golemHeart = addon.getBlock("tsunami_dungeons:golem_heart");
 ok("getBlock() finds golem_heart", golemHeart?.identifier === "tsunami_dungeons:golem_heart");
 ok("data has minecraft:block key", "minecraft:block" in (golemHeart?.data ?? {}));
 ok("JSON comment stripping works", golemHeart !== null);
-ok("getLootTable() does not throw", (() => { golemHeart?.getLootTable(); return true; })());
+ok(
+  "getLootTable() does not throw",
+  (() => {
+    golemHeart?.getLootTable();
+    return true;
+  })(),
+);
 
 // ─── Summary ─────────────────────────────────────────────────────────────────
 

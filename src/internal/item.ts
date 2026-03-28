@@ -1,6 +1,8 @@
 import type { AddOn } from "./addon.js";
 import type { Attachable } from "./attachable.js";
 import type { Recipe } from "./recipe.js";
+import type { Entity } from "./entity.js";
+import type { Block } from "./block.js";
 
 /**
  * Represents an item definition file from the behavior pack's `items/` directory.
@@ -11,6 +13,8 @@ import type { Recipe } from "./recipe.js";
  * console.log(spear?.getTexturePath()); // "textures/items/spear/copper_spear"
  * console.log(spear?.getAttachable());  // Attachable | null
  * console.log(spear?.getRecipes());     // Recipe[]
+ * console.log(spear?.getDroppedByEntities()); // Entity[]
+ * console.log(spear?.getDroppedByBlocks());   // Block[]
  * ```
  */
 export class Item {
@@ -62,6 +66,37 @@ export class Item {
    */
   getRecipes(): Recipe[] {
     return this._addon.getAllRecipes().filter((r) => r.getResultStack()?.identifier === this.identifier);
+  }
+
+  /**
+   * Returns all entities that can drop this item, by searching every entity's
+   * loot tables for entries matching this item's identifier.
+   *
+   * @example
+   * ```ts
+   * addon.getItem("minecraft:rotten_flesh")?.getDroppedByEntities();
+   * // [Entity<"minecraft:zombie">, Entity<"minecraft:drowned">, ...]
+   * ```
+   */
+  getDroppedByEntities(): Entity[] {
+    return this._addon.getAllEntities().filter((entity) => entity.getLootTables().some((lt) => lt.getItemIdentifiers().includes(this.identifier)));
+  }
+
+  /**
+   * Returns all blocks that can drop this item, by resolving each block's
+   * `minecraft:loot` component and checking if this item appears in it.
+   *
+   * @example
+   * ```ts
+   * addon.getItem("minecraft:diamond")?.getDroppedByBlocks();
+   * // [Block<"minecraft:diamond_ore">, ...]
+   * ```
+   */
+  getDroppedByBlocks(): Block[] {
+    return this._addon.getAllBlocks().filter((block) => {
+      const lt = block.getLootTable();
+      return lt !== null && lt.getItemIdentifiers().includes(this.identifier);
+    });
   }
 
   private _getComponents(): Record<string, unknown> {
