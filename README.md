@@ -1,6 +1,6 @@
 # bedrockKit
 
-> ⚠️ **Experimental:** Version 1.0.x is under active development. APIs may change between patch releases. Pin your version if stability matters.
+> ⚠️ **Experimental:** Version 0.x.x is under active development. APIs may change between patch releases. Pin your version if stability matters.
 
 A library for navigating Minecraft Bedrock addon files programmatically.
 Works in Deno, Node.js, and browsers.
