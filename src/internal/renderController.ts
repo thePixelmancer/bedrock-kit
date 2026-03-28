@@ -1,4 +1,4 @@
-import { Asset } from "./asset";
+import { Asset } from "./asset.js";
 
 /**
  * Represents a single render controller loaded from a resource pack

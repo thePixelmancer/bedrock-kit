@@ -1,9 +1,9 @@
-import { Asset } from "./asset";
-import type { AddOn } from "./addon";
-import type { Attachable } from "./attachable";
-import type { Recipe } from "./recipe";
-import type { Entity } from "./entity";
-import type { Block } from "./block";
+import { Asset } from "./asset.js";
+import type { AddOn } from "./addon.js";
+import type { Attachable } from "./attachable.js";
+import type { Recipe } from "./recipe.js";
+import type { Entity } from "./entity.js";
+import type { Block } from "./block.js";
 
 /**
  * Represents an item definition file from the behavior pack's `items/` directory.

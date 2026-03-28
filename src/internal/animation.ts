@@ -1,4 +1,4 @@
-import { Asset } from "./asset";
+import { Asset } from "./asset.js";
 
 /**
  * Represents a single animation definition loaded from a resource pack animation file.

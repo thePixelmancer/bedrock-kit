@@ -1,4 +1,4 @@
-import { Asset } from "./asset";
+import { Asset } from "./asset.js";
 
 /**
  * Represents a spawn rule file from the behavior pack's `spawn_rules/` directory.

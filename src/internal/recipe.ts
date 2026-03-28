@@ -1,16 +1,16 @@
-import { Asset } from "./asset";
-import type { AddOn } from "./addon";
-import type { RecipeType } from "./types";
-import { Tag } from "./tag";
-import { ItemStack } from "./itemStack";
-import { parseIngredient } from "./utils";
-import type { Item } from "./item";
+import { Asset } from "./asset.js";
+import type { AddOn } from "./addon.js";
+import type { RecipeType } from "./types.js";
+import { Tag } from "./tag.js";
+import { ItemStack } from "./itemStack.js";
+import { parseIngredient } from "./utils.js";
+import type { Item } from "./item.js";
 import type {
   Ingredient,
   ShapelessIngredient,
   FurnaceResolved,
   BrewingResolved,
-} from "./tag";
+} from "./tag.js";
 
 export type { RecipeType };
 

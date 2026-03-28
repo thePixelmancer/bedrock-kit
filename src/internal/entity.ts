@@ -1,12 +1,12 @@
-import { Asset } from "./asset";
-import type { AddOn } from "./addon";
-import type { LootTable } from "./lootTable";
-import type { SpawnRule } from "./spawnRule";
-import type { Animation, AnimationController } from "./animation";
-import type { RenderController } from "./renderController";
-import type { Particle } from "./particle";
-import type { SoundEvent } from "./sound";
-import { shortname } from "./utils";
+import { Asset } from "./asset.js";
+import type { AddOn } from "./addon.js";
+import type { LootTable } from "./lootTable.js";
+import type { SpawnRule } from "./spawnRule.js";
+import type { Animation, AnimationController } from "./animation.js";
+import type { RenderController } from "./renderController.js";
+import type { Particle } from "./particle.js";
+import type { SoundEvent } from "./sound.js";
+import { shortname } from "./utils.js";
 
 /**
  * Represents an entity that exists across both packs — a behavior (server-side)

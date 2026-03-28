@@ -1,4 +1,4 @@
-import { Asset } from "./asset";
+import { Asset } from "./asset.js";
 
 /**
  * Represents an attachable definition from the resource pack's `attachables/` directory.

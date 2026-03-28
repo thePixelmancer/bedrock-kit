@@ -1,5 +1,5 @@
-import { Asset } from "./asset";
-import type { Trade, TradeTier, TradeItem } from "./types";
+import { Asset } from "./asset.js";
+import type { Trade, TradeTier, TradeItem } from "./types.js";
 
 export type { Trade, TradeTier, TradeItem };
 

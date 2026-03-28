@@ -1,8 +1,8 @@
-import { Asset } from "./asset";
-import type { AddOn } from "./addon";
-import type { Entity } from "./entity";
-import type { MusicDefinition } from "./sound";
-import { shortname } from "./utils";
+import { Asset } from "./asset.js";
+import type { AddOn } from "./addon.js";
+import type { Entity } from "./entity.js";
+import type { MusicDefinition } from "./sound.js";
+import { shortname } from "./utils.js";
 
 /**
  * Represents a biome definition file from the behavior pack's `biomes/` directory.

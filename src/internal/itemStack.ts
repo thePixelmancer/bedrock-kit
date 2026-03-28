@@ -1,5 +1,5 @@
-import type { Item } from "./item";
-import type { AddOn } from "./addon";
+import type { Item } from "./item.js";
+import type { AddOn } from "./addon.js";
 
 /**
  * Represents a recipe output — an item definition paired with the number of

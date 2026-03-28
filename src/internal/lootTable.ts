@@ -1,5 +1,5 @@
-import { Asset } from "./asset";
-import type { LootEntry, LootPool } from "./types";
+import { Asset } from "./asset.js";
+import type { LootEntry, LootPool } from "./types.js";
 
 export type { LootEntry, LootPool };
 

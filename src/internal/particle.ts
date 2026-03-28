@@ -1,4 +1,4 @@
-import { Asset } from "./asset";
+import { Asset } from "./asset.js";
 
 /**
  * Represents a particle effect definition from the resource pack's `particles/` directory.

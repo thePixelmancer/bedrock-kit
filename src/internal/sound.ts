@@ -1,4 +1,4 @@
-import type { SoundFile } from "./types";
+import type { SoundFile } from "./types.js";
 export type { SoundFile };
 
 /**
