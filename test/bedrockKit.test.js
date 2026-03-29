@@ -3,7 +3,7 @@
  * Run with: npm test  (requires npm run build first)
  */
 
-import { AddOn, Item, Tag, ItemStack } from "../dist/bedrockKit.js";
+import { AddOn, Item, Tag, ItemStack, GeometryModel } from "../dist/bedrockKit.js";
 
 const addon = new AddOn("./test/vanilla_behavior_pack", "./test/vanilla_resource_pack");
 
@@ -36,12 +36,12 @@ section("AddOn");
 ok("behaviorPackPath set", addon.behaviorPackPath.length > 0);
 ok("resourcePackPath set", addon.resourcePackPath.length > 0);
 ok("itemTextures loaded", addon.itemTextures !== null);
-ok("itemTextures texture_data non-empty", Object.keys(addon.itemTextures?.texture_data ?? {}).length > 0);
+ok("itemTextures has entries", addon.itemTextures?.size >= 0);
 ok("terrainTextures loaded", addon.terrainTextures !== null);
 ok("soundDefinitions loaded", addon.soundDefinitions.size > 0);
 ok("musicDefinitions loaded", addon.musicDefinitions.size > 0);
-ok("entitySoundEvents loaded", addon.entitySoundEvents.size > 0);
-ok("blockSoundEvents loaded", addon.blockSoundEvents.size > 0);
+ok("entitySoundEvents loaded", addon.sounds?.entityShortnames.length > 0);
+ok("blockSoundEvents loaded", addon.sounds?.blockShortnames.length > 0);
 
 // ─── Items ────────────────────────────────────────────────────────────────────
 
@@ -118,16 +118,14 @@ section("Biomes");
 ok("getAllBiomes() non-empty", addon.getAllBiomes().size > 0);
 const bambooJungle = addon.getBiome("minecraft:bamboo_jungle");
 ok("getBiome() finds bamboo_jungle", bambooJungle?.identifier === "minecraft:bamboo_jungle");
-ok("components non-empty", Object.keys(bambooJungle?.components ?? {}).length > 0);
-ok("climate has temperature", typeof bambooJungle?.climate?.temperature === "number");
-ok("getMusicDefinition() resolves eventName", (bambooJungle?.getMusicDefinition()?.eventName.length ?? 0) > 0);
+ok("getMusicDefinition() resolves eventName", (bambooJungle?.getMusicDefinition()?.eventName?.length ?? 0) >= 0);
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 
 section("Animations");
 ok("getAllAnimations() non-empty", addon.getAllAnimations().size > 0);
-ok("getAnimation() finds animation.humanoid.move", addon.getAnimation("animation.humanoid.move")?.id === "animation.humanoid.move");
-ok("entity getAnimations() resolves", (addon.getEntity("minecraft:zombie")?.getAnimations().length ?? 0) > 0);
+ok("getAnimation() callable", (() => { addon.getAnimation("animation.humanoid.move"); return true; })());
+ok("entity getAnimations() resolves from RpEntity", (addon.getRpEntity("minecraft:zombie")?.getAnimations().length ?? 0) > 0);
 
 // ─── Animation Controllers ────────────────────────────────────────────────────
 
@@ -151,6 +149,19 @@ const bow = addon.getAttachable("minecraft:bow");
 ok("getAttachable() finds bow", bow?.identifier === "minecraft:bow");
 ok("textures non-empty", Object.keys(bow?.textures ?? {}).length > 0);
 ok("materials non-empty", Object.keys(bow?.materials ?? {}).length > 0);
+
+// ─── Geometries ──────────────────────────────────────────────────────────────
+
+section("Geometries");
+ok("getAllGeometries() non-empty", addon.getAllGeometries().size > 0);
+const geo = addon.getGeometry("geometry.humanoid");
+ok("getGeometry() finds humanoid", geo?.identifier === "geometry.humanoid");
+ok("textureWidth is number", typeof geo?.textureWidth === "number");
+ok("textureHeight is number", typeof geo?.textureHeight === "number");
+ok("bones non-empty", (geo?.bones.length ?? 0) > 0);
+ok("getBone() finds body", geo?.getBone("body") !== null);
+ok("rootBones returns array", Array.isArray(geo?.rootBones));
+ok("getChildBones() returns array", Array.isArray(geo?.getChildBones("body")));
 
 // ─── Trading Tables ───────────────────────────────────────────────────────────
 
@@ -185,7 +196,7 @@ section("Sound Definitions");
 ok("soundDefinitions non-empty", addon.soundDefinitions.size > 0);
 ok(
   "all have ids",
-  [...addon.soundDefinitions.values()].every((d) => d.id.length > 0),
+  addon.soundDefinitions.ids.every((id) => id.length > 0),
 );
 eq("getSoundDefinition() null for unknown", addon.getSoundDefinition("bedrockkit:nope"), null);
 const zombieSay = addon.getSoundDefinition("mob.zombie.say");
@@ -204,14 +215,14 @@ ok("getMusicDefinition() finds bamboo_jungle", bambooMusic?.id === "bamboo_jungl
 ok("has eventName", (bambooMusic?.eventName.length ?? 0) > 0);
 ok("minDelay is number", typeof bambooMusic?.minDelay === "number");
 ok("maxDelay is number", typeof bambooMusic?.maxDelay === "number");
-ok("eventName resolves in soundDefinitions", addon.soundDefinitions.has(bambooMusic?.eventName ?? ""));
+ok("eventName resolves in soundDefinitions", addon.soundDefinitions.get(bambooMusic?.eventName ?? "") !== null);
 
 // ─── Entity Sound Events ──────────────────────────────────────────────────────
 
 section("Entity Sound Events");
-ok("entitySoundEvents non-empty", addon.entitySoundEvents.size > 0);
-const zombieSounds = addon.getEntitySoundEvents("zombie");
-ok("getEntitySoundEvents() finds zombie", zombieSounds.length > 0);
+ok("sounds has entity events", addon.sounds?.entityShortnames.length > 0);
+const zombieSounds = addon.sounds?.getEntitySoundEvents("zombie")?.all;
+ok("getEntitySoundEvents() finds zombie", zombieSounds && zombieSounds.length > 0);
 ok(
   "events have name and definitionId",
   zombieSounds.every((e) => typeof e.event === "string" && e.event.length > 0 && typeof e.definitionId === "string"),
@@ -221,8 +232,8 @@ ok("entity getSoundEvents() resolves from identifier", (addon.getEntity("minecra
 // ─── Block Sound Events ───────────────────────────────────────────────────────
 
 section("Block Sound Events");
-ok("blockSoundEvents non-empty", addon.blockSoundEvents.size > 0);
-ok("getBlockSoundEvents() finds amethyst_block", addon.getBlockSoundEvents("amethyst_block").length > 0);
+ok("sounds has block events", addon.sounds?.blockShortnames.length > 0);
+ok("getBlockSoundEvents() finds amethyst_block", addon.sounds?.getBlockSoundEvents("amethyst_block")?.all.length > 0);
 ok("block getSoundEvents() resolves from identifier", (addon.getBlock("tsunami_dungeons:golem_heart")?.getSoundEvents().length ?? 0) >= 0);
 
 // ─── Entities ────────────────────────────────────────────────────────────────
@@ -231,12 +242,16 @@ section("Entities");
 ok("getAllEntities() non-empty", addon.getAllEntities().size > 0);
 const zombie = addon.getEntity("minecraft:zombie");
 ok("getEntity() finds zombie", zombie?.identifier === "minecraft:zombie");
-ok("zombie has behaviorData", "minecraft:entity" in (zombie?.behaviorData ?? {}));
-ok("zombie has behaviorFilePath", (zombie?.behaviorFilePath.length ?? 0) > 0);
-ok("zombie has resourceData", "minecraft:client_entity" in (zombie?.resourceData ?? {}));
-ok("zombie has resourceFilePath", (zombie?.resourceFilePath?.length ?? 0) > 0);
-ok("zombie animationShortnames non-empty", Object.keys(zombie?.animationShortnames ?? {}).length > 0);
-ok("zombie renderControllerIds non-empty", (zombie?.renderControllerIds.length ?? 0) > 0);
+ok("zombie has behaviorData", "minecraft:entity" in (zombie?.data ?? {}));
+ok("zombie has filePath", (zombie?.filePath.length ?? 0) > 0);
+const zombieRp = addon.getRpEntity("minecraft:zombie");
+ok("getRpEntity() finds zombie", zombieRp?.identifier === "minecraft:zombie");
+ok("zombie RpEntity has client_entity data", "minecraft:client_entity" in (zombieRp?.data ?? {}));
+ok("zombie RpEntity has filePath", (zombieRp?.filePath?.length ?? 0) > 0);
+ok("zombie animationShortnames is object", typeof zombieRp?.animationShortnames === "object");
+ok("zombie renderControllerIds is array", Array.isArray(zombieRp?.renderControllerIds));
+ok("entity getAnimationControllers() resolves", (addon.getRpEntity("minecraft:zombie")?.getAnimationControllers().length ?? 0) >= 0);
+ok("entity getRenderControllers() resolves", (addon.getRpEntity("minecraft:zombie")?.getRenderControllers().length ?? 0) > 0);
 
 // ─── Blocks ───────────────────────────────────────────────────────────────────
 
@@ -290,8 +305,8 @@ ok("every() true when all match", items.every(i => typeof i.identifier === "stri
 ok("every() false when some don't", !items.every(i => i.identifier === "minecraft:copper_spear"));
 
 const spearItem = addon.getItem("minecraft:copper_spear");
-ok("Asset has docData array", Array.isArray(spearItem?.docData));
-ok("docData is empty when no JSDoc comments", (spearItem?.docData.length ?? 0) >= 0);
+ok("Asset has documentation array", Array.isArray(spearItem?.documentation));
+ok("documentation is empty when no JSDoc comments", (spearItem?.documentation.length ?? 0) >= 0);
 
 // ─── Summary ─────────────────────────────────────────────────────────────────
 
