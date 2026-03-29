@@ -14,19 +14,10 @@ import { Asset } from "./asset.js";
 export class Attachable extends Asset {
   /** The namespaced item identifier this attachable is for, e.g. `"minecraft:bow"`. */
   readonly identifier: string;
-  /** The raw parsed JSON of the attachable file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the attachable file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, rawText: string) {
-    super(rawText);
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string) {
+    super(filePath, data, rawText);
     this.identifier = identifier;
-    this.data = data;
-    this.filePath = filePath;
   }
 
   private get _description(): Record<string, unknown> {

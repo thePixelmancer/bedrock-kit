@@ -1,8 +1,8 @@
 import { Asset } from "./asset.js";
 import type { AddOn } from "./addon.js";
-import type { Entity } from "./entity.js";
-import type { MusicDefinition } from "./sound.js";
-import { shortname } from "./utils.js";
+import type { BpEntity } from "./entity.js";
+import type { MusicDefinitionEntry } from "./musicDefinitions.js";
+import { shortname } from "./identifiers.js";
 
 /**
  * Represents a biome definition file from the behavior pack's `biomes/` directory.
@@ -17,38 +17,12 @@ import { shortname } from "./utils.js";
 export class Biome extends Asset {
   /** The namespaced biome identifier, e.g. `"minecraft:bamboo_jungle"`. */
   readonly identifier: string;
-  /** The raw parsed JSON of the biome file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the biome file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn, rawText: string) {
-    super(rawText);
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+    super(filePath, data, rawText);
     this.identifier = identifier;
-    this.data = data;
-    this.filePath = filePath;
     this._addon = addon;
-  }
-
-  /**
-   * The full components object from the biome definition.
-   * Keys are Bedrock component names such as `"minecraft:climate"`, `"minecraft:tags"`, etc.
-   */
-  get components(): Record<string, unknown> {
-    const inner = (this.data["minecraft:biome"] as Record<string, unknown>) ?? {};
-    return (inner["components"] as Record<string, unknown>) ?? {};
-  }
-
-  /**
-   * The `minecraft:climate` component, which contains properties like
-   * `temperature`, `downfall`, and `snow_accumulation`. Returns null if absent.
-   */
-  get climate(): Record<string, unknown> | null {
-    return (this.components["minecraft:climate"] as Record<string, unknown>) ?? null;
   }
 
   /**
@@ -62,8 +36,10 @@ export class Biome extends Asset {
    * // ["minecraft:panda", "minecraft:ocelot", ...]
    * ```
    */
-  getEntities(): Entity[] {
-    const tagsComp = this.components["minecraft:tags"] as Record<string, unknown> | undefined;
+  getEntities(): BpEntity[] {
+    const inner = (this.data["minecraft:biome"] as Record<string, unknown>) ?? {};
+    const comps = (inner["components"] as Record<string, unknown>) ?? {};
+    const tagsComp = comps["minecraft:tags"] as Record<string, unknown> | undefined;
     const biomeTags: string[] = tagsComp
       ? (tagsComp["tags"] as string[] | undefined) ?? []
       : [];
@@ -88,7 +64,7 @@ export class Biome extends Asset {
    * // "music.overworld.bamboo_jungle"
    * ```
    */
-  getMusicDefinition(): MusicDefinition | null {
+  getMusicDefinition(): MusicDefinitionEntry | null {
     return this._addon.getMusicDefinition(shortname(this.identifier));
   }
 }

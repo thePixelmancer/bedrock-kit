@@ -14,23 +14,14 @@ export type { Trade, TradeTier, TradeItem };
  * ```
  */
 export class TradingTable extends Asset {
-  /** The raw parsed JSON of the trading table file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the trading table file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
-  /** The file name without extension, used as the lookup key. e.g. `"armorer_trades"`. */
+  /** The file name without extension, used as the lookup key. e.g. `"armorer_trades"`. Alias for `identifier`. */
   readonly name: string;
   /** The ordered list of trade tiers. Players unlock higher tiers by completing trades. */
   readonly tiers: TradeTier[];
 
-  constructor(data: Record<string, unknown>, filePath: string, name: string, rawText: string) {
-    super(rawText);
-    this.data = data;
-    this.filePath = filePath;
-    this.name = name;
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string) {
+    super(filePath, data, rawText);
+    this.name = identifier;
     this.tiers = this._parseTiers(data);
   }
 

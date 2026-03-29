@@ -14,13 +14,6 @@ import { Asset } from "./asset.js";
 export class SpawnRule extends Asset {
   /** The namespaced entity identifier this spawn rule applies to, e.g. `"minecraft:zombie"`. */
   readonly identifier: string;
-  /** The raw parsed JSON of the spawn rule file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the spawn rule file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
   /**
    * The population control group that limits how many of this entity spawn together.
    * Common values: `"animal"`, `"monster"`, `"ambient"`, `"water_animal"`.
@@ -30,11 +23,9 @@ export class SpawnRule extends Asset {
   /** The raw condition objects from the spawn rule. Each condition defines spawn requirements. */
   readonly conditions: Record<string, unknown>[];
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, rawText: string) {
-    super(rawText);
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string) {
+    super(filePath, data, rawText);
     this.identifier = identifier;
-    this.data = data;
-    this.filePath = filePath;
     const inner = (data["minecraft:spawn_rules"] as Record<string, unknown>) ?? {};
     const desc = (inner["description"] as Record<string, unknown>) ?? {};
     this.populationControl = (desc["population_control"] as string) ?? null;

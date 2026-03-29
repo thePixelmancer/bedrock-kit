@@ -3,7 +3,7 @@ import type { AddOn } from "./addon.js";
 import type { RecipeType } from "./types.js";
 import { Tag } from "./tag.js";
 import { ItemStack } from "./itemStack.js";
-import { parseIngredient } from "./utils.js";
+import { parseIngredient } from "./identifiers.js";
 import type { Item } from "./item.js";
 import type {
   Ingredient,
@@ -27,8 +27,8 @@ export type { RecipeType };
  * ```
  */
 export class Recipe extends Asset {
-  /** The raw parsed JSON of the recipe file. */
-  readonly data: Record<string, unknown>;
+  /** The recipe identifier derived from the result item, or the filename if no result. */
+  readonly identifier: string;
   /** The recipe type as detected from the root JSON key. */
   readonly type: RecipeType;
   /**
@@ -44,15 +44,17 @@ export class Recipe extends Asset {
 
   private readonly _addon: AddOn;
 
-  constructor(data: Record<string, unknown>, addon: AddOn, rawText: string) {
-    super(rawText);
-    this.data = data;
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+    super(filePath, data, rawText);
     this._addon = addon;
     const recipeKey = Object.keys(data).find((k) => k.startsWith("minecraft:recipe_"));
     const inner = recipeKey ? (data[recipeKey] as Record<string, unknown>) : {};
     this.type = this._detectType(recipeKey ?? "");
     this.shape = Array.isArray(inner["pattern"]) ? inner["pattern"] as string[] : null;
     this.ingredients = this._extractIngredients(inner);
+    // Derive identifier from result or use fallback
+    const parsed = this._parseResult(inner);
+    this.identifier = identifier || parsed?.identifier || "";
   }
 
   private _detectType(key: string): RecipeType {

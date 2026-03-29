@@ -1,5 +1,8 @@
 import { Asset } from "./asset.js";
 import type { LootEntry, LootPool } from "./types.js";
+import type { AddOn } from "./addon.js";
+import type { BpEntity } from "./entity.js";
+import type { Block } from "./block.js";
 
 export type { LootEntry, LootPool };
 
@@ -11,28 +14,27 @@ export type { LootEntry, LootPool };
  * ```ts
  * const lt = addon.getLootTableByPath("loot_tables/entities/zombie.json");
  * console.log(lt?.getItemIdentifiers()); // ["minecraft:rotten_flesh", ...]
+ * console.log(lt?.getSourceEntities());   // BpEntity[]
+ * console.log(lt?.getSourceBlocks());      // Block[]
  * ```
  */
 export class LootTable extends Asset {
-  /** The raw parsed JSON of the loot table file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the loot table file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
-  /** Path relative to the behavior pack root, e.g. `"loot_tables/entities/zombie.json"`. */
-  readonly relativePath: string;
+  /** The loot table path identifier, e.g. `"loot_tables/entities/zombie.json"`. */
+  readonly identifier: string;
   /** The parsed list of loot pools. Each pool rolls independently. */
   readonly pools: LootPool[];
 
-  constructor(data: Record<string, unknown>, filePath: string, relativePath: string, rawText: string) {
-    super(rawText);
-    this.data = data;
-    this.filePath = filePath;
-    this.relativePath = relativePath;
+  private readonly _addon: AddOn;
+
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+    super(filePath, data, rawText);
+    this.identifier = identifier;
+    this._addon = addon;
     this.pools = this._parsePools(data);
   }
+
+  /** Path relative to the behavior pack root. Alias for `identifier`. */
+  get relativePath(): string { return this.identifier; }
 
   /**
    * Returns a flat, deduplicated list of all item identifiers that can drop
@@ -49,6 +51,25 @@ export class LootTable extends Asset {
       for (const entry of pool.entries)
         if (entry.type === "item" && entry.name) ids.push(entry.name);
     return [...new Set(ids)];
+  }
+
+  /**
+   * Returns all entities that reference this loot table in their `minecraft:loot` component.
+   */
+  getSourceEntities(): BpEntity[] {
+    return this._addon.getAllBpEntities().toArray().filter((entity) =>
+      entity.getLootTables().some((lt) => lt.relativePath === this.relativePath)
+    );
+  }
+
+  /**
+   * Returns all blocks that reference this loot table in their `minecraft:loot` component.
+   */
+  getSourceBlocks(): Block[] {
+    return this._addon.getAllBlocks().toArray().filter((block) => {
+      const lootPath = block.getLootTable()?.relativePath;
+      return lootPath === this.relativePath;
+    });
   }
 
   private _parsePools(data: Record<string, unknown>): LootPool[] {

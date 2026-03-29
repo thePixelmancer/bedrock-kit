@@ -2,7 +2,7 @@ import { Asset } from "./asset.js";
 import type { AddOn } from "./addon.js";
 import type { Attachable } from "./attachable.js";
 import type { Recipe } from "./recipe.js";
-import type { Entity } from "./entity.js";
+import type { BpEntity } from "./entity.js";
 import type { Block } from "./block.js";
 
 /**
@@ -14,27 +14,18 @@ import type { Block } from "./block.js";
  * console.log(spear?.getTexturePath()); // "textures/items/spear/copper_spear"
  * console.log(spear?.getAttachable());  // Attachable | null
  * console.log(spear?.getRecipes());     // Recipe[]
- * console.log(spear?.getDroppedByEntities()); // Entity[]
+ * console.log(spear?.getEntities());    // BpEntity[]
  * console.log(spear?.getDroppedByBlocks());   // Block[]
  * ```
  */
 export class Item extends Asset {
   /** The namespaced item identifier, e.g. `"minecraft:copper_spear"`. */
   readonly identifier: string;
-  /** The raw parsed JSON of the item's behavior file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the item's behavior file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn, rawText: string) {
-    super(rawText);
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+    super(filePath, data, rawText);
     this.identifier = identifier;
-    this.data = data;
-    this.filePath = filePath;
     this._addon = addon;
   }
 
@@ -50,10 +41,31 @@ export class Item extends Asset {
     if (!textures) return null;
     const icon = this._extractIcon(this._getComponents());
     if (!icon) return null;
-    const entry = textures.texture_data[icon];
-    if (!entry) return null;
-    const tex = entry.textures;
+    const tex = textures.get(icon);
+    if (!tex) return null;
     return Array.isArray(tex) ? (tex[0] ?? null) : tex;
+  }
+
+  /**
+   * Returns the display name for this item from the language file.
+   * Defaults to en_US if no language is specified.
+   *
+   * @param language - Optional language code, e.g. `"en_US"`, `"fr_CA"`. Defaults to `"en_US"`.
+   * @returns The translated display name, or the identifier if translation not found.
+   *
+   * @example
+   * ```ts
+   * addon.getItem("minecraft:iron_sword")?.getDisplayName(); // "Iron Sword"
+   * addon.getItem("minecraft:iron_sword")?.getDisplayName("fr_CA"); // "Épée en fer"
+   * ```
+   */
+  getDisplayName(language?: string): string {
+    const lang = this._addon.getLangFile(language);
+    if (!lang) return this.identifier;
+    const short = this.identifier.includes(":") ? this.identifier.split(":")[1] : this.identifier;
+    const namespace = this.identifier.includes(":") ? this.identifier.split(":")[0] : "minecraft";
+    const key = `item.${namespace}.${short}.name`;
+    return lang.get(key);
   }
 
   /**
@@ -76,11 +88,12 @@ export class Item extends Asset {
    *
    * @example
    * ```ts
-   * addon.getItem("minecraft:rotten_flesh")?.getDroppedByEntities();
-   * // [Entity<"minecraft:zombie">, Entity<"minecraft:drowned">, ...]
+   * addon.getItem("minecraft:rotten_flesh")?.getEntities()
+   *   .map(e => e.identifier);
+   * // ["minecraft:panda", "minecraft:ocelot", ...]
    * ```
    */
-  getDroppedByEntities(): Entity[] {
+  getEntities(): BpEntity[] {
     return this._addon.getAllEntities().toArray().filter((entity) => entity.getLootTables().some((lt) => lt.getItemIdentifiers().includes(this.identifier)));
   }
 

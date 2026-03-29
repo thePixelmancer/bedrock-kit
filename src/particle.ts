@@ -12,19 +12,10 @@ import { Asset } from "./asset.js";
 export class Particle extends Asset {
   /** The namespaced particle identifier, e.g. `"minecraft:stunned_emitter"`. */
   readonly identifier: string;
-  /** The raw parsed JSON of the particle file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the particle file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, rawText: string) {
-    super(rawText);
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string) {
+    super(filePath, data, rawText);
     this.identifier = identifier;
-    this.data = data;
-    this.filePath = filePath;
   }
 
   private get _description(): Record<string, unknown> {

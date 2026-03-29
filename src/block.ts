@@ -1,8 +1,8 @@
 import { Asset } from "./asset.js";
 import type { AddOn } from "./addon.js";
 import type { LootTable } from "./lootTable.js";
-import type { SoundEvent } from "./sound.js";
-import { shortname } from "./utils.js";
+import type { SoundEventBinding } from "./sounds.js";
+import { shortname } from "./identifiers.js";
 
 /**
  * Represents a block definition file from the behavior pack's `blocks/` directory.
@@ -17,20 +17,11 @@ import { shortname } from "./utils.js";
 export class Block extends Asset {
   /** The namespaced block identifier, e.g. `"minecraft:dirt"`. */
   readonly identifier: string;
-  /** The raw parsed JSON of the block's behavior file. */
-  readonly data: Record<string, unknown>;
-  /**
-   * Absolute path to the block's behavior file on disk.
-   * Empty string when loaded from browser `File[]`.
-   */
-  readonly filePath: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, addon: AddOn, rawText: string) {
-    super(rawText);
+  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+    super(filePath, data, rawText);
     this.identifier = identifier;
-    this.data = data;
-    this.filePath = filePath;
     this._addon = addon;
   }
 
@@ -52,10 +43,35 @@ export class Block extends Asset {
       (materialInstances["*"] as Record<string, unknown>);
     const sn = instance?.["texture"] as string | undefined;
     if (!sn) return null;
-    const entry = textures.texture_data[sn];
-    if (!entry) return null;
-    const tex = entry.textures;
+    const tex = textures.get(sn);
+    if (!tex) return null;
     return Array.isArray(tex) ? (tex[0] ?? null) : tex;
+  }
+
+  /**
+   * Returns the display name for this block from the language file.
+   * Defaults to en_US if no language is specified.
+   *
+   * @param language - Optional language code, e.g. `"en_US"`, `"fr_CA"`. Defaults to `"en_US"`.
+   * @returns The translated display name, or the identifier if translation not found.
+   *
+   * @example
+   * ```ts
+   * addon.getBlock("minecraft:dirt")?.getDisplayName(); // "Dirt"
+   * addon.getBlock("minecraft:dirt")?.getDisplayName("fr_CA"); // "Terre"
+   * ```
+   */
+  getDisplayName(language?: string): string {
+    const lang = this._addon.getLangFile(language);
+    if (!lang) return this.identifier;
+    const short = this.identifier.includes(":") ? this.identifier.split(":")[1] : this.identifier;
+    const namespace = this.identifier.includes(":") ? this.identifier.split(":")[0] : "minecraft";
+    // Minecraft uses both "tile." and "block." prefixes for blocks
+    const tileKey = `tile.${namespace}.${short}.name`;
+    const blockKey = `block.${namespace}.${short}.name`;
+    const tileResult = lang.getOrNull(tileKey);
+    if (tileResult !== null) return tileResult;
+    return lang.get(blockKey);
   }
 
   /**
@@ -81,7 +97,7 @@ export class Block extends Asset {
    * // "break.amethyst_block"
    * ```
    */
-  getSoundEvents(): SoundEvent[] {
+  getSoundEvents(): SoundEventBinding[] {
     return this._addon.getBlockSoundEvents(shortname(this.identifier));
   }
 

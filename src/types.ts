@@ -1,27 +1,3 @@
-// ─── Texture maps ─────────────────────────────────────────────────────────────
-
-/**
- * The parsed structure of a resource pack's `textures/item_texture.json`.
- * Maps shortnames (e.g. `"iron_sword"`) to texture file paths.
- */
-export interface ItemTextureMap {
-  resource_pack_name: string;
-  texture_name: string;
-  /** Map of shortname → texture path(s). Used internally to resolve item icon paths. */
-  texture_data: Record<string, { textures: string | string[] }>;
-}
-
-/**
- * The parsed structure of a resource pack's `textures/terrain_texture.json`.
- * Maps shortnames to block texture file paths.
- */
-export interface TerrainTextureMap {
-  resource_pack_name: string;
-  texture_name: string;
-  /** Map of shortname → texture path(s). Used internally to resolve block face texture paths. */
-  texture_data: Record<string, { textures: string | string[] }>;
-}
-
 // ─── Recipe types ─────────────────────────────────────────────────────────────
 
 /**

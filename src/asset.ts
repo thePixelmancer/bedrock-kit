@@ -9,10 +9,9 @@ export type { CommentBlock };
  * Base class for every game-object wrapper in bedrockKit that corresponds to
  * a file on disk (items, blocks, entities, loot tables, animations, etc.).
  *
- * Provides `docData` — all JSDoc-style comment blocks parsed from the raw
- * source text of the backing JSON file. This lets you attach structured
- * documentation directly inside your addon JSON files and read it back
- * programmatically:
+ * JSDoc-style comment blocks written inside the backing JSON file are parsed
+ * eagerly at construction time and exposed as `documentation`. This lets you
+ * attach structured docs directly inside your addon JSON files:
  *
  * ```jsonc
  * {
@@ -26,27 +25,28 @@ export type { CommentBlock };
  * ```
  *
  * ```ts
- * const entity = addon.getEntity("mypack:guardian");
- * console.log(entity?.docData[0].description);
+ * const entity = addon.getBpEntity("mypack:guardian");
+ * console.log(entity?.documentation[0]?.description);
  * // "The ancient guardian. Spawns in deep ocean ruins."
- * console.log(entity?.docData[0].tags.find(t => t.tag === "version")?.name);
+ * console.log(entity?.documentation[0]?.tags.find(t => t.tag === "version")?.name);
  * // "2.1.0"
  * ```
  */
 export abstract class Asset {
+  /** Absolute path to the asset's file on disk. Empty string in browser mode. */
+  readonly filePath: string;
+  /** The raw parsed JSON data of the asset file. */
+  readonly data: Record<string, unknown>;
   /**
-   * All JSDoc-style comment blocks found in this asset's source JSON file,
-   * as returned by `comment-parser`. Empty array when no `/** … *\/` blocks
-   * are present in the file.
-   *
-   * Files can contain multiple comment blocks — for example one at the top of
-   * the file and one before each major component section. All are preserved
-   * in document order.
+   * All JSDoc-style comment blocks parsed from this asset's source file,
+   * in document order. Empty array when no `/** … *\/` blocks are present.
    */
-  readonly docData: CommentBlock[];
+  readonly documentation: CommentBlock[];
 
-  protected constructor(rawText: string) {
-    this.docData = rawText ? parse(rawText) : [];
+  protected constructor(filePath: string, data: Record<string, unknown>, rawText: string) {
+    this.filePath = filePath;
+    this.data = data;
+    this.documentation = rawText ? parse(rawText) : [];
   }
 }
 
@@ -65,11 +65,15 @@ export abstract class Asset {
  * const items = addon.getAllItems();
  *
  * // Map-style lookup — O(1)
- * const spear = items.get("minecraft:copper_spear");
+ * const spear = items.get("mypack:copper_spear");
  *
  * // Array-style helpers
  * const withTexture = items.filter(i => i.getTexturePath() !== null);
  * const ids = items.map(i => i.identifier);
+ *
+ * // Grouping by namespace
+ * const byNs = items.groupBy(i => i.identifier.split(":")[0]);
+ * // { "minecraft": [...], "mypack": [...] }
  *
  * // Iterable
  * for (const item of items) { … }
@@ -145,6 +149,47 @@ export class AssetCollection<T extends Asset> implements Iterable<T> {
   every(predicate: (asset: T, key: string) => boolean): boolean {
     for (const [k, v] of this._map) if (!predicate(v, k)) return false;
     return true;
+  }
+
+  /**
+   * Reduces all assets to a single accumulated value.
+   *
+   * @example
+   * ```ts
+   * const totalTiers = addon.getAllTradingTables()
+   *   .reduce((sum, t) => sum + t.tiers.length, 0);
+   * ```
+   */
+  reduce<U>(fn: (acc: U, asset: T, key: string) => U, initial: U): U {
+    let acc = initial;
+    for (const [k, v] of this._map) acc = fn(acc, v, k);
+    return acc;
+  }
+
+  /**
+   * Groups all assets by a derived key. Returns a plain `Record` where each
+   * value is an array of assets sharing that group key.
+   *
+   * @example
+   * ```ts
+   * // Group items by namespace
+   * const byNamespace = addon.getAllItems()
+   *   .groupBy(item => item.identifier.split(":")[0]);
+   * // { "minecraft": [...], "mypack": [...] }
+   *
+   * // Group entities by population control group
+   * const byPop = addon.getAllBpEntities()
+   *   .groupBy(e => e.getSpawnRule()?.populationControl ?? "none");
+   * ```
+   */
+  groupBy<K extends string>(keyFn: (asset: T, key: string) => K): Record<K, T[]> {
+    const out = {} as Record<K, T[]>;
+    for (const [k, v] of this._map) {
+      const group = keyFn(v, k);
+      if (!out[group]) out[group] = [];
+      out[group].push(v);
+    }
+    return out;
   }
 
   // ── Iterable ─────────────────────────────────────────────────────────────
