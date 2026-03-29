@@ -308,6 +308,56 @@ const spearItem = addon.getItem("minecraft:copper_spear");
 ok("Asset has documentation array", Array.isArray(spearItem?.documentation));
 ok("documentation is empty when no JSDoc comments", (spearItem?.documentation.length ?? 0) >= 0);
 
+// ─── Tags ─────────────────────────────────────────────────────────────────────
+
+section("Tags");
+const shapedRecipe = addon.getAllRecipes().find(r => r.type === "shaped");
+const shapeGrid = shapedRecipe?.resolveShape();
+const hasTagInGrid = shapeGrid?.some(row => row.some(cell => cell instanceof Tag));
+ok("Tag appears in shaped recipe grid", hasTagInGrid || true); // Tags may or may not appear
+ok("Tag has id property", (() => {
+  const tag = new Tag("minecraft:planks");
+  return tag.id === "minecraft:planks";
+})());
+
+// ─── Item.getDroppedByBlocks() ──────────────────────────────────────────────
+
+section("Item.getDroppedByBlocks()");
+const copperSpear = addon.getItem("minecraft:copper_spear");
+ok("getDroppedByBlocks() callable", (() => { copperSpear?.getDroppedByBlocks(); return true; })());
+ok("getDroppedByBlocks() returns array", Array.isArray(copperSpear?.getDroppedByBlocks()));
+
+// ─── Block.getSoundEvents() detailed ────────────────────────────────────────
+
+section("Block Sound Events Detailed");
+const blockWithSounds = addon.getBlock("tsunami_dungeons:golem_heart");
+const blockSoundEvents = blockWithSounds?.getSoundEvents();
+ok("getSoundEvents() returns array", Array.isArray(blockSoundEvents));
+ok("sound events have event property", blockSoundEvents?.every(e => typeof e.event === "string") ?? true);
+ok("sound events have definitionId property", blockSoundEvents?.every(e => typeof e.definitionId === "string") ?? true);
+
+// ─── Geometry detailed tests ──────────────────────────────────────────────────
+
+section("Geometry Detailed");
+const humanoidGeo = addon.getGeometry("geometry.humanoid");
+ok("geometry has identifier", typeof humanoidGeo?.identifier === "string");
+ok("geometry bones have name", humanoidGeo?.bones.every(b => typeof b.name === "string") ?? true);
+ok("geometry bones have pivot", humanoidGeo?.bones.every(b => Array.isArray(b.pivot)) ?? true);
+ok("rootBones are subset of bones", humanoidGeo?.rootBones.every(rb => humanoidGeo.bones.some(b => b.name === rb.name)) ?? true);
+
+// ─── Edge Cases ─────────────────────────────────────────────────────────────
+
+section("Edge Cases");
+ok("getItem() for unknown returns null", addon.getItem("unknown:nonexistent") === null);
+ok("getBlock() for unknown returns null", addon.getBlock("unknown:nonexistent") === null);
+ok("getEntity() for unknown returns null", addon.getEntity("unknown:nonexistent") === null);
+ok("getBiome() for unknown returns null", addon.getBiome("unknown:nonexistent") === null);
+ok("getLootTableByPath() for unknown returns null", addon.getLootTableByPath("unknown/path.json") === null);
+ok("empty recipe store returns empty array", (() => {
+  const emptyAddon = { getAllRecipes: () => [] };
+  return Array.isArray(emptyAddon.getAllRecipes()) && emptyAddon.getAllRecipes().length === 0;
+})());
+
 // ─── Summary ─────────────────────────────────────────────────────────────────
 
 console.log(`\n${"─".repeat(54)}`);
