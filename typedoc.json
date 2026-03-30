@@ -1,0 +1,8 @@
+{
+  "entryPoints": ["./src/bedrockKit.ts"],
+  "out": "./docs",
+  "excludeInternal": true,
+  "validation": {
+    "notExported": false
+  }
+}

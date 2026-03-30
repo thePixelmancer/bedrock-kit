@@ -7,98 +7,75 @@ import { shortname } from "./identifiers.js";
 /**
  * Represents a block definition file from the behavior pack's `blocks/` directory.
  *
+ * Access via `addon.blocks.get(id)`.
+ *
  * @example
  * ```ts
- * const block = addon.getBlock("tsunami_dungeons:golem_heart");
- * console.log(block?.getTexturePath("*")); // "textures/blocks/golem_heart"
- * console.log(block?.getLootTable());      // LootTable | null
+ * const ore = addon.blocks.get("mypack:copper_ore");
+ * console.log(ore?.displayName);         // "Copper Ore"
+ * console.log(ore?.texturePath);         // "textures/blocks/copper_ore"
+ * console.log(ore?.lootTable?.itemIds);  // ["minecraft:raw_copper"]
  * ```
  */
 export class Block extends Asset {
   /** The namespaced block identifier, e.g. `"minecraft:dirt"`. */
-  readonly identifier: string;
+  readonly id: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
     super(filePath, data, rawText);
-    this.identifier = identifier;
+    this.id = id;
     this._addon = addon;
   }
 
   /**
-   * Resolves the texture path for the given face of this block by reading its
-   * `minecraft:material_instances` component and looking up the shortname in
-   * the resource pack's `terrain_texture.json`.
-   *
-   * @param face - `"up"`, `"down"`, `"side"`, or `"*"` for the wildcard/default face.
+   * The display name for this block from the `en_US` language file.
+   * Tries the `tile.*` key first (legacy), then `block.*`. Falls back to the identifier.
    */
-  getTexturePath(face: "up" | "down" | "side" | "*" = "*"): string | null {
-    const textures = this._addon.terrainTextures;
-    if (!textures) return null;
+  get displayName(): string {
+    const lang = this._addon.getLangFile("en_US");
+    if (!lang) return this.id;
+    const short = this.id.includes(":") ? this.id.split(":")[1] : this.id;
+    const namespace = this.id.includes(":") ? this.id.split(":")[0] : "minecraft";
+    const tileResult = lang.getOrNull(`tile.${namespace}.${short}.name`);
+    if (tileResult !== null) return tileResult;
+    return lang.get(`block.${namespace}.${short}.name`);
+  }
+
+  /**
+   * The resolved texture path for the default (`*`) face of this block,
+   * or `undefined` if it cannot be resolved from `terrain_texture.json`.
+   */
+  get texturePath(): string | undefined {
+    const textures = this._addon._state.terrainTextures;
+    if (!textures) return undefined;
     const materialInstances = this._getComponents()["minecraft:material_instances"] as
       Record<string, unknown> | undefined;
-    if (!materialInstances) return null;
+    if (!materialInstances) return undefined;
     const instance =
-      (materialInstances[face] as Record<string, unknown>) ??
-      (materialInstances["*"] as Record<string, unknown>);
+      (materialInstances["*"] as Record<string, unknown>) ??
+      (materialInstances["up"] as Record<string, unknown>);
     const sn = instance?.["texture"] as string | undefined;
-    if (!sn) return null;
+    if (!sn) return undefined;
     const tex = textures.get(sn);
-    if (!tex) return null;
-    return Array.isArray(tex) ? (tex[0] ?? null) : tex;
+    if (!tex) return undefined;
+    return Array.isArray(tex) ? (tex[0] ?? undefined) : tex;
   }
 
   /**
-   * Returns the display name for this block from the language file.
-   * Defaults to en_US if no language is specified.
-   *
-   * @param language - Optional language code, e.g. `"en_US"`, `"fr_CA"`. Defaults to `"en_US"`.
-   * @returns The translated display name, or the identifier if translation not found.
-   *
-   * @example
-   * ```ts
-   * addon.getBlock("minecraft:dirt")?.getDisplayName(); // "Dirt"
-   * addon.getBlock("minecraft:dirt")?.getDisplayName("fr_CA"); // "Terre"
-   * ```
+   * The loot table for this block, or `undefined` if none is referenced or found.
    */
-  getDisplayName(language?: string): string {
-    const lang = this._addon.getLangFile(language);
-    if (!lang) return this.identifier;
-    const short = this.identifier.includes(":") ? this.identifier.split(":")[1] : this.identifier;
-    const namespace = this.identifier.includes(":") ? this.identifier.split(":")[0] : "minecraft";
-    // Minecraft uses both "tile." and "block." prefixes for blocks
-    const tileKey = `tile.${namespace}.${short}.name`;
-    const blockKey = `block.${namespace}.${short}.name`;
-    const tileResult = lang.getOrNull(tileKey);
-    if (tileResult !== null) return tileResult;
-    return lang.get(blockKey);
-  }
-
-  /**
-   * Returns the loot table for this block by resolving the path in its
-   * `minecraft:loot` component. Returns null if absent.
-   */
-  getLootTable(): LootTable | null {
+  get lootTable(): LootTable | undefined {
     const lootPath = this._getComponents()["minecraft:loot"];
-    if (typeof lootPath !== "string") return null;
-    return this._addon.getLootTableByPath(lootPath);
+    if (typeof lootPath !== "string") return undefined;
+    return this._addon.lootTables.get(lootPath);
   }
 
   /**
-   * Returns the sound events for this block from `sounds/sounds.json`.
-   *
-   * Looks up the block's shortname (e.g. `"minecraft:amethyst_block"` -> `"amethyst_block"`)
-   * in `block_sounds`. Returns an empty array if no sound events are defined.
-   *
-   * @example
-   * ```ts
-   * addon.getBlock("minecraft:amethyst_block")?.getSoundEvents()
-   *   .find(e => e.event === "break")?.definitionId;
-   * // "break.amethyst_block"
-   * ```
+   * Sound events for this block from `sounds.json`.
    */
-  getSoundEvents(): SoundEventBinding[] {
-    return this._addon.getBlockSoundEvents(shortname(this.identifier));
+  get soundEvents(): SoundEventBinding[] {
+    return this._addon._state.sounds?.getBlockSoundEvents(shortname(this.id))?.all ?? [];
   }
 
   private _getComponents(): Record<string, unknown> {

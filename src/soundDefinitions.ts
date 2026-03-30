@@ -5,7 +5,15 @@ import type { SoundFile } from "./types.js";
 
 /**
  * Wraps the `sounds/sound_definitions.json` file.
- * Provides access to individual sound definitions and file-level metadata.
+ *
+ * Access via `addon.sounds`.
+ *
+ * @example
+ * ```ts
+ * const entry = addon.sounds?.get("mob.zombie.say");
+ * console.log(entry?.category); // "mob"
+ * console.log(entry?.files[0].name); // "sounds/mob/zombie/say1"
+ * ```
  */
 export class SoundDefinitionsFile extends Asset {
   private _definitions: Map<string, SoundDefinitionEntry>;
@@ -26,11 +34,16 @@ export class SoundDefinitionsFile extends Asset {
   }
 
   /**
-   * Returns a single sound definition by its event ID, or null if not found.
-   * @example `get("mob.zombie.say")`
+   * Returns a single sound definition by its event ID, or `undefined` if not found.
+   * @example `addon.sounds?.get("mob.zombie.say")`
    */
-  get(id: string): SoundDefinitionEntry | null {
-    return this._definitions.get(id) ?? null;
+  get(id: string): SoundDefinitionEntry | undefined {
+    return this._definitions.get(id);
+  }
+
+  /** Returns all sound definitions as an array. */
+  all(): SoundDefinitionEntry[] {
+    return [...this._definitions.values()];
   }
 
   /** Returns all sound definition IDs in this file. */
@@ -46,15 +59,14 @@ export class SoundDefinitionsFile extends Asset {
 
 /**
  * A single entry from `sound_definitions.json`.
- * Mirrors the old `SoundDefinition` class but is stored within the file Asset.
  */
 export class SoundDefinitionEntry {
   /** The sound event identifier, e.g. `"mob.zombie.say"`. */
   readonly id: string;
   /** The raw data for this sound definition entry. */
   readonly data: Record<string, unknown>;
-  /** The audio category, e.g. `"ambient"`, `"block"`, `"mob"`, `"music"`, `"player"`, `"ui"`. */
-  readonly category: string | null;
+  /** The audio category, e.g. `"ambient"`, `"block"`, `"mob"`, `"music"`, `"player"`, `"ui"`. `undefined` if not specified. */
+  readonly category: string | undefined;
   /** The parsed list of audio files this definition can play. */
   readonly files: SoundFile[];
   private readonly _parentFile: SoundDefinitionsFile;
@@ -63,7 +75,7 @@ export class SoundDefinitionEntry {
     this.id = id;
     this.data = data;
     this._parentFile = parentFile;
-    this.category = (data["category"] as string) ?? null;
+    this.category = (data["category"] as string) ?? undefined;
     this.files = this._parseFiles(data["sounds"]);
   }
 

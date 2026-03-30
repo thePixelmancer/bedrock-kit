@@ -5,8 +5,6 @@ import { Asset } from "./asset.js";
 /**
  * A material binding in a render controller.
  * Bedrock render controllers map material shortnames to Molang expressions.
- *
- * @example `{ bone: "*", material: "Material.default" }`
  */
 export interface RenderControllerMaterial {
   /** The bone pattern this material applies to (supports `*` wildcard). */
@@ -20,44 +18,38 @@ export interface RenderControllerMaterial {
 /**
  * Represents a single render controller loaded from a resource pack
  * `render_controllers/` file. Render controllers define which geometry,
- * materials, and textures are applied to an entity at runtime, typically
- * driven by Molang expressions.
+ * materials, and textures are applied to an entity at runtime.
+ *
+ * Access via `addon.renderControllers.get(id)` or through
+ * `entity.resource.renderControllers`.
  *
  * @example
  * ```ts
- * const rc = addon.getRenderController("controller.render.zombie");
- * console.log(rc?.geometryExpression);
- * // "Geometry.default"
- * console.log(rc?.textureExpressions);
- * // ["Texture.default"]
- * console.log(rc?.materials);
- * // [{ bone: "*", material: "Material.default" }]
+ * const rc = addon.renderControllers.get("controller.render.zombie");
+ * console.log(rc?.geometryExpression); // "Geometry.default"
+ * console.log(rc?.textureExpressions); // ["Texture.default"]
  * ```
  */
 export class RenderController extends Asset {
   /** The full controller identifier, e.g. `"controller.render.zombie"`. */
-  readonly identifier: string;
+  readonly id: string;
 
-  constructor(identifier: string, data: Record<string, unknown>, filePath: string, rawText: string) {
+  constructor(id: string, data: Record<string, unknown>, filePath: string, rawText: string) {
     super(filePath, data, rawText);
-    this.identifier = identifier;
+    this.id = id;
   }
 
   /**
    * The geometry Molang expression declared in this render controller.
-   * Typically a string like `"Geometry.default"` but can be a conditional
-   * Molang expression for variant-based models.
-   * Returns null if not declared.
+   * `undefined` if not declared.
    */
-  get geometryExpression(): string | null {
-    return (this.data["geometry"] as string) ?? null;
+  get geometryExpression(): string | undefined {
+    return (this.data["geometry"] as string) ?? undefined;
   }
 
   /**
    * The list of texture Molang expressions declared in this render controller.
    * Bedrock supports multiple texture layers per controller.
-   *
-   * @example `["Texture.default", "Texture.overlay"]`
    */
   get textureExpressions(): string[] {
     const raw = this.data["textures"];
@@ -68,13 +60,6 @@ export class RenderController extends Asset {
   /**
    * The material bindings declared in this render controller.
    * Each entry maps a bone pattern to a material expression.
-   *
-   * @example
-   * ```ts
-   * rc.materials;
-   * // [{ bone: "*", material: "Material.default" }]
-   * // [{ bone: "head", material: "Material.translucent" }, { bone: "*", material: "Material.default" }]
-   * ```
    */
   get materials(): RenderControllerMaterial[] {
     const raw = this.data["materials"];
@@ -86,19 +71,14 @@ export class RenderController extends Asset {
     });
   }
 
-  /**
-   * Returns `true` if this render controller uses array-based texture selection
-   * (e.g. `Array.skins[query.variant]`). Useful for detecting variant-driven entities.
-   */
+  /** `true` if this render controller uses array-based texture selection. */
   get usesTextureArrays(): boolean {
     return this.textureExpressions.some((t) => t.startsWith("Array."));
   }
 
-  /**
-   * Returns `true` if this render controller uses array-based geometry selection.
-   */
+  /** `true` if this render controller uses array-based geometry selection. */
   get usesGeometryArrays(): boolean {
     const geo = this.geometryExpression;
-    return geo !== null && geo.startsWith("Array.");
+    return geo !== undefined && geo.startsWith("Array.");
   }
 }

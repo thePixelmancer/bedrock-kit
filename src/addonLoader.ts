@@ -15,9 +15,8 @@ import { MusicDefinitionsFile } from "./musicDefinitions.js";
 import { SoundsFile } from "./sounds.js";
 import { LangFile } from "./lang.js";
 import { Item } from "./item.js";
-import { ItemStack } from "./itemStack.js";
 import { Block } from "./block.js";
-import { BpEntity, RpEntity } from "./entity.js";
+import { BehaviorEntity, ResourceEntity, Entity } from "./entity.js";
 import { Recipe } from "./recipe.js";
 import { LootTable } from "./lootTable.js";
 import { SpawnRule } from "./spawnRule.js";
@@ -41,7 +40,7 @@ export interface AddonState {
   bpData: PackData | null;
   rpData: PackData | null;
 
-  // Eagerly loaded connective tissue
+  // Eagerly loaded connective tissue (internal only)
   behaviorManifest: ManifestFile | null;
   resourceManifest: ManifestFile | null;
   itemTextures: TextureAtlasFile | null;
@@ -53,8 +52,9 @@ export interface AddonState {
   // Lazy caches
   items: Map<string, Item> | null;
   blocks: Map<string, Block> | null;
-  bpEntities: Map<string, BpEntity> | null;
-  rpEntities: Map<string, RpEntity> | null;
+  bpEntities: Map<string, BehaviorEntity> | null;
+  rpEntities: Map<string, ResourceEntity> | null;
+  entityStore: Map<string, Entity> | null;
   recipes: Recipe[] | null;
   lootTables: Map<string, LootTable> | null;
   spawnRules: Map<string, SpawnRule> | null;
@@ -72,20 +72,19 @@ export interface AddonState {
 // ─── Loader ───────────────────────────────────────────────────────────────────
 
 export class AddonLoader {
-  static fromDisk(bpPath: string, rpPath: string, addon: AddOn): AddonState {
+  static fromDisk(bpPath: string, rpPath: string, _addon: AddOn): AddonState {
     const state = AddonLoader._emptyState(bpPath, rpPath, null, null);
     state.behaviorManifest = AddonLoader._loadManifestFromDisk(bpPath);
-    state.resourceManifest = AddonLoader._loadManifestFromDisk(rpPath);
-    state.itemTextures = AddonLoader._loadAtlasFromDisk(rpPath, "textures/item_texture.json");
-    state.terrainTextures = AddonLoader._loadAtlasFromDisk(rpPath, "textures/terrain_texture.json");
-    state.soundDefinitions = AddonLoader._loadSoundDefinitionsFromDisk(rpPath);
-    state.musicDefinitions = AddonLoader._loadMusicDefinitionsFromDisk(rpPath);
-    state.sounds = AddonLoader._loadSoundsFromDisk(rpPath);
-    if (state.sounds) state.sounds._linkAddon(addon);
+    state.resourceManifest = rpPath ? AddonLoader._loadManifestFromDisk(rpPath) : null;
+    state.itemTextures = rpPath ? AddonLoader._loadAtlasFromDisk(rpPath, "textures/item_texture.json") : null;
+    state.terrainTextures = rpPath ? AddonLoader._loadAtlasFromDisk(rpPath, "textures/terrain_texture.json") : null;
+    state.soundDefinitions = rpPath ? AddonLoader._loadSoundDefinitionsFromDisk(rpPath) : null;
+    state.musicDefinitions = rpPath ? AddonLoader._loadMusicDefinitionsFromDisk(rpPath) : null;
+    state.sounds = rpPath ? AddonLoader._loadSoundsFromDisk(rpPath) : null;
     return state;
   }
 
-  static fromPackData(bpData: PackData, rpData: PackData, addon: AddOn): AddonState {
+  static fromPackData(bpData: PackData, rpData: PackData, _addon: AddOn): AddonState {
     const state = AddonLoader._emptyState("", "", bpData, rpData);
     state.behaviorManifest = AddonLoader._loadManifestFromPackData(bpData);
     state.resourceManifest = AddonLoader._loadManifestFromPackData(rpData);
@@ -94,7 +93,6 @@ export class AddonLoader {
     state.soundDefinitions = AddonLoader._loadSoundDefinitionsFromPackData(rpData);
     state.musicDefinitions = AddonLoader._loadMusicDefinitionsFromPackData(rpData);
     state.sounds = AddonLoader._loadSoundsFromPackData(rpData);
-    if (state.sounds) state.sounds._linkAddon(addon);
     return state;
   }
 
@@ -123,6 +121,7 @@ export class AddonLoader {
       blocks: null,
       bpEntities: null,
       rpEntities: null,
+      entityStore: null,
       recipes: null,
       lootTables: null,
       spawnRules: null,
@@ -174,24 +173,24 @@ export class AddonLoader {
     return map;
   }
 
-  static loadBpEntities(state: AddonState, addon: AddOn): Map<string, BpEntity> {
-    const map = new Map<string, BpEntity>();
+  static loadBpEntities(state: AddonState, addon: AddOn): Map<string, BehaviorEntity> {
+    const map = new Map<string, BehaviorEntity>();
     for (const { filePath, data, rawText } of AddonLoader.bpEntries(state, "entities")) {
       const id = extractIdentifier(data, "minecraft:entity") ?? extractIdentifier(data, "minecraft:npc");
       if (!id) continue;
-      map.set(id, new BpEntity(id, filePath, data, rawText, addon));
+      map.set(id, new BehaviorEntity(id, filePath, data, rawText, addon));
     }
     return map;
   }
 
-  static loadRpEntities(state: AddonState, addon: AddOn): Map<string, RpEntity> {
-    const map = new Map<string, RpEntity>();
+  static loadRpEntities(state: AddonState, addon: AddOn): Map<string, ResourceEntity> {
+    const map = new Map<string, ResourceEntity>();
     for (const { filePath, data, rawText } of AddonLoader.rpEntries(state, "entity")) {
       const inner = data["minecraft:client_entity"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      map.set(id, new RpEntity(id, filePath, data, rawText, addon));
+      map.set(id, new ResourceEntity(id, filePath, data, rawText, addon));
     }
     return map;
   }
@@ -301,7 +300,6 @@ export class AddonLoader {
   static loadGeometries(state: AddonState): Map<string, GeometryModel> {
     const map = new Map<string, GeometryModel>();
     for (const { filePath, data, rawText } of AddonLoader.rpEntries(state, "models")) {
-      // Format 1.12.0+: top-level "minecraft:geometry" array
       const geoArray = data["minecraft:geometry"];
       if (Array.isArray(geoArray)) {
         for (const modelData of geoArray as Record<string, unknown>[]) {
@@ -312,7 +310,6 @@ export class AddonLoader {
         }
         continue;
       }
-      // Legacy format: keys starting with "geometry."
       for (const [key, value] of Object.entries(data)) {
         if (!key.startsWith("geometry.")) continue;
         map.set(key, new GeometryModel(key, value as Record<string, unknown>, filePath, rawText));
@@ -322,13 +319,11 @@ export class AddonLoader {
   }
 
   static loadLangFile(state: AddonState, language: string): LangFile | null {
-    // Browser mode
     if (state.rpData) {
       const entry = state.rpData.get(`texts/${language}.lang`);
       if (!entry) return null;
       return new LangFile(`texts/${language}.lang`, language, entry.rawText);
     }
-    // Disk mode
     const filePath = join(state.resourcePackPath, "texts", `${language}.lang`);
     const rawText = readRawFromDisk(filePath);
     if (!rawText) return null;

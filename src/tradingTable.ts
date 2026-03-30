@@ -7,21 +7,23 @@ export type { Trade, TradeTier, TradeItem };
  * Represents a villager trading table from the behavior pack's `trading/` directory.
  * Trading tables define the tiers of trades available for a villager profession.
  *
+ * Access via `addon.trading.get(id)`.
+ *
  * @example
  * ```ts
- * const table = addon.getTradingTable("armorer_trades");
+ * const table = addon.trading.get("armorer_trades");
  * console.log(table?.tiers[0].trades[0]);
  * ```
  */
 export class TradingTable extends Asset {
-  /** The file name without extension, used as the lookup key. e.g. `"armorer_trades"`. Alias for `identifier`. */
-  readonly name: string;
+  /** The trading table identifier — the filename without extension, e.g. `"armorer_trades"`. */
+  readonly id: string;
   /** The ordered list of trade tiers. Players unlock higher tiers by completing trades. */
   readonly tiers: TradeTier[];
 
-  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string) {
+  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string) {
     super(filePath, data, rawText);
-    this.name = identifier;
+    this.id = id;
     this.tiers = this._parseTiers(data);
   }
 

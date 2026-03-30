@@ -16,49 +16,35 @@ export type { RecipeType };
 
 /**
  * Represents a single recipe file from the behavior pack's `recipes/` directory.
- * Supports shaped, shapeless, furnace, and brewing recipe types.
+ *
+ * Access via `addon.recipes`, `addon.recipes.forItem(id)`, or `item.recipes`.
  *
  * @example
  * ```ts
- * const recipes = addon.getRecipesFor("minecraft:copper_spear");
- * const shaped = recipes.find(r => r.type === "shaped");
- * const grid = shaped?.resolveShape();
- * // grid[0][2] instanceof Item -> true
+ * const recipe = addon.recipes.forItem("minecraft:copper_spear")[0];
+ * console.log(recipe?.type);           // "shaped"
+ * console.log(recipe?.result?.id);     // "minecraft:copper_spear"
+ * console.log(recipe?.ingredients);    // [Item, Item, ...]
  * ```
  */
 export class Recipe extends Asset {
-  /** The recipe identifier derived from the result item, or the filename if no result. */
-  readonly identifier: string;
-  /** The recipe type as detected from the root JSON key. */
+  /** The recipe identifier — the filename without extension, e.g. `"copper_spear_recipe"`. */
+  readonly id: string;
+  /** The recipe type. */
   readonly type: RecipeType;
-  /**
-   * Pattern rows for shaped recipes, e.g. `["X ", "X ", "X "]`.
-   * Null for non-shaped recipes.
-   */
-  readonly shape: string[] | null;
-  /**
-   * Raw ingredient data extracted from the recipe file.
-   * Prefer the typed resolve methods over reading this directly.
-   */
-  readonly ingredients: Record<string, string> | string[];
 
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
     super(filePath, data, rawText);
+    this.id = id;
     this._addon = addon;
-    const recipeKey = Object.keys(data).find((k) => k.startsWith("minecraft:recipe_"));
-    const inner = recipeKey ? (data[recipeKey] as Record<string, unknown>) : {};
+    const recipeKey = Object.keys(data).find(k => k.startsWith("minecraft:recipe_"));
     this.type = this._detectType(recipeKey ?? "");
-    this.shape = Array.isArray(inner["pattern"]) ? inner["pattern"] as string[] : null;
-    this.ingredients = this._extractIngredients(inner);
-    // Derive identifier from result or use fallback
-    const parsed = this._parseResult(inner);
-    this.identifier = identifier || parsed?.identifier || "";
   }
 
   private _detectType(key: string): RecipeType {
-    if (key.includes("shaped")) return "shaped";
+    if (key.includes("shaped") && !key.includes("shapeless")) return "shaped";
     if (key.includes("shapeless")) return "shapeless";
     if (key.includes("furnace")) return "furnace";
     if (key.includes("brewing_mix")) return "brewing_mix";
@@ -66,76 +52,61 @@ export class Recipe extends Asset {
     return "unknown";
   }
 
-  private _extractIngredients(inner: Record<string, unknown>): Record<string, string> | string[] {
-    if (inner["key"] && typeof inner["key"] === "object" && !Array.isArray(inner["key"])) {
-      const keyMap = inner["key"] as Record<string, unknown>;
-      const result: Record<string, string> = {};
-      for (const [symbol, value] of Object.entries(keyMap))
-        result[symbol] = parseIngredient(value);
-      return result;
-    }
-    if (Array.isArray(inner["ingredients"])) {
-      return (inner["ingredients"] as unknown[]).map(parseIngredient);
-    }
-    return {};
-  }
-
-  private _parseResult(inner: Record<string, unknown>): { identifier: string; count: number } | null {
-    if (!inner["result"]) return null;
-    if (typeof inner["result"] === "string")
-      return { identifier: inner["result"] as string, count: 1 };
-    const r = inner["result"] as Record<string, unknown>;
-    const identifier = (r["item"] as string) ?? (r["block"] as string) ?? null;
-    if (!identifier) return null;
-    const count = typeof r["count"] === "number" ? (r["count"] as number) : 1;
-    return { identifier, count };
+  private get _inner(): Record<string, unknown> {
+    const recipeKey = Object.keys(this.data).find(k => k.startsWith("minecraft:recipe_"));
+    return recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
   }
 
   /**
-   * Returns the output of this recipe as an `ItemStack`, or null if the recipe
-   * has no result (e.g. some brewing recipes).
+   * The output of this recipe as an {@link ItemStack}, or `undefined` if the
+   * recipe has no result (e.g. some brewing recipes).
    */
-  getResultStack(): ItemStack | null {
-    const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
-    const inner = recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
-    const parsed = this._parseResult(inner);
-    if (!parsed) return null;
-    return new ItemStack(parsed.identifier, parsed.count, this._addon);
-  }
-
-  /** @deprecated Use `getResultStack()` instead. */
-  getResultItem(): Item | null {
-    return this.getResultStack()?.item ?? null;
+  get result(): ItemStack | undefined {
+    const parsed = this._parseResult(this._inner);
+    if (!parsed) return undefined;
+    return new ItemStack(parsed.id, parsed.count, this._addon);
   }
 
   /**
-   * Shaped: returns a 2D grid matching the pattern.
-   * Each cell is an Item, a Tag, or null for an empty slot.
-   * Returns null if this recipe is not shaped.
+   * All resolved ingredients as a flat array of `Item` or `Tag` instances.
+   * For shaped recipes the grid is flattened; empty slots are excluded.
+   */
+  get ingredients(): Array<Item | Tag> {
+    return this.getAllIngredients();
+  }
+
+  /**
+   * Shaped: resolves the pattern into a 2D grid of `Item | Tag | null`.
+   * Returns `null` if this is not a shaped recipe.
    */
   resolveShape(): Ingredient[][] | null {
-    if (this.type !== "shaped" || !this.shape) return null;
-    const keyMap = this.ingredients as Record<string, string>;
-    return this.shape.map((row) =>
-      row.split("").map((char) => {
+    if (this.type !== "shaped") return null;
+    const inner = this._inner;
+    const shape = Array.isArray(inner["pattern"]) ? (inner["pattern"] as string[]) : null;
+    if (!shape) return null;
+    const keyMap = inner["key"] && typeof inner["key"] === "object" && !Array.isArray(inner["key"])
+      ? (inner["key"] as Record<string, unknown>)
+      : {};
+    const resolved: Record<string, string> = {};
+    for (const [symbol, value] of Object.entries(keyMap)) resolved[symbol] = parseIngredient(value);
+    return shape.map(row =>
+      row.split("").map(char => {
         if (char === " ") return null;
-        const raw = keyMap[char] ?? "";
+        const raw = resolved[char] ?? "";
         return this._resolveIngredientStr(raw);
       })
     );
   }
 
   /**
-   * Shapeless: returns each ingredient as an Item or Tag with its count.
-   * Returns null if this recipe is not shapeless.
+   * Shapeless: returns each ingredient with its required count.
+   * Returns `null` if this is not a shapeless recipe.
    */
   resolveShapeless(): ShapelessIngredient[] | null {
     if (this.type !== "shapeless") return null;
-    const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
-    const inner = recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
-    const raw = inner["ingredients"];
+    const raw = this._inner["ingredients"];
     if (!Array.isArray(raw)) return [];
-    return (raw as Record<string, unknown>[]).flatMap((entry) => {
+    return (raw as Record<string, unknown>[]).flatMap(entry => {
       const ingredient = this._resolveIngredientStr(parseIngredient(entry));
       if (!ingredient) return [];
       return [{ ingredient, count: (entry["count"] as number) ?? 1 }];
@@ -143,13 +114,12 @@ export class Recipe extends Asset {
   }
 
   /**
-   * Furnace: returns input and output as Item or Tag objects.
-   * Returns null if this recipe is not a furnace recipe.
+   * Furnace: returns the input and output.
+   * Returns `null` if this is not a furnace recipe.
    */
   resolveFurnace(): FurnaceResolved | null {
     if (this.type !== "furnace") return null;
-    const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
-    const inner = recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
+    const inner = this._inner;
     const input = this._resolveIngredientStr(parseIngredient(inner["input"]));
     const output = this._resolveIngredientStr(parseIngredient(inner["output"]));
     if (!input || !output) return null;
@@ -157,13 +127,12 @@ export class Recipe extends Asset {
   }
 
   /**
-   * Brewing: returns input, reagent, and output as Item or Tag objects.
-   * Returns null if this recipe is not a brewing recipe.
+   * Brewing: returns the input, reagent, and output.
+   * Returns `null` if this is not a brewing recipe.
    */
   resolveBrewing(): BrewingResolved | null {
     if (this.type !== "brewing_mix" && this.type !== "brewing_container") return null;
-    const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
-    const inner = recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
+    const inner = this._inner;
     const input = this._resolveIngredientStr(parseIngredient(inner["input"]));
     const reagent = this._resolveIngredientStr(parseIngredient(inner["reagent"]));
     const output = this._resolveIngredientStr(parseIngredient(inner["output"]));
@@ -172,31 +141,40 @@ export class Recipe extends Asset {
   }
 
   /**
-   * Returns a flat array of all ingredients across the recipe as `Item | Tag` objects.
+   * Returns a flat array of all resolved ingredients (`Item` or `Tag` instances).
    * Empty slots are excluded.
    */
   getAllIngredients(): Array<Item | Tag> {
-    const strs = this._allIngredientStrings();
-    return strs.flatMap((s) => {
+    return this._allIngredientStrings().flatMap(s => {
       const r = this._resolveIngredientStr(s);
       return r ? [r] : [];
     });
   }
 
+  /** Returns `true` if this recipe uses the given item identifier as an ingredient. */
+  usesItem(id: string): boolean {
+    return this._allIngredientStrings().some(s => s === id);
+  }
+
   private _resolveIngredientStr(raw: string): Item | Tag | null {
     if (!raw) return null;
     if (raw.startsWith("tag:")) return new Tag(raw.slice(4));
-    return this._addon.getItem(raw) ?? new Tag(raw);
+    return this._addon.items.get(raw) ?? new Tag(raw);
   }
 
-  /** Returns true if this recipe uses the given item identifier as an ingredient. */
-  usesItem(identifier: string): boolean {
-    return this._allIngredientStrings().some((s) => s === identifier);
+  private _parseResult(inner: Record<string, unknown>): { id: string; count: number } | null {
+    if (!inner["result"]) return null;
+    if (typeof inner["result"] === "string")
+      return { id: inner["result"] as string, count: 1 };
+    const r = inner["result"] as Record<string, unknown>;
+    const id = (r["item"] as string) ?? (r["block"] as string) ?? null;
+    if (!id) return null;
+    const count = typeof r["count"] === "number" ? (r["count"] as number) : 1;
+    return { id, count };
   }
 
   private _allIngredientStrings(): string[] {
-    const recipeKey = Object.keys(this.data).find((k) => k.startsWith("minecraft:recipe_"));
-    const inner = recipeKey ? (this.data[recipeKey] as Record<string, unknown>) : {};
+    const inner = this._inner;
     const strs: string[] = [];
     if (inner["key"] && typeof inner["key"] === "object" && !Array.isArray(inner["key"])) {
       for (const v of Object.values(inner["key"] as Record<string, unknown>))

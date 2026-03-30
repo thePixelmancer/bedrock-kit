@@ -1,42 +1,37 @@
 import { Asset } from "./asset.js";
 import type { AddOn } from "./addon.js";
-import type { BpEntity } from "./entity.js";
+import type { Entity } from "./entity.js";
 import type { MusicDefinitionEntry } from "./musicDefinitions.js";
 import { shortname } from "./identifiers.js";
 
 /**
  * Represents a biome definition file from the behavior pack's `biomes/` directory.
  *
+ * Access via `addon.biomes.get(id)`.
+ *
  * @example
  * ```ts
- * const biome = addon.getBiome("minecraft:bamboo_jungle");
- * console.log(biome?.climate?.temperature); // 0.95
- * console.log(biome?.getEntities().map(e => e.identifier));
+ * const biome = addon.biomes.get("minecraft:bamboo_jungle");
+ * console.log(biome?.entities.map(e => e.id));
+ * console.log(biome?.musicDefinition?.eventName);
  * ```
  */
 export class Biome extends Asset {
   /** The namespaced biome identifier, e.g. `"minecraft:bamboo_jungle"`. */
-  readonly identifier: string;
+  readonly id: string;
   private readonly _addon: AddOn;
 
-  constructor(identifier: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
+  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
     super(filePath, data, rawText);
-    this.identifier = identifier;
+    this.id = id;
     this._addon = addon;
   }
 
   /**
-   * Returns all entities whose spawn rule references at least one tag that this biome has.
-   *
-   * @example
-   * ```ts
-   * addon.getBiome("minecraft:bamboo_jungle")
-   *   ?.getEntities()
-   *   .map(e => e.identifier);
-   * // ["minecraft:panda", "minecraft:ocelot", ...]
-   * ```
+   * All unified entities whose spawn rule references at least one tag that
+   * this biome has.
    */
-  getEntities(): BpEntity[] {
+  get entities(): Entity[] {
     const inner = (this.data["minecraft:biome"] as Record<string, unknown>) ?? {};
     const comps = (inner["components"] as Record<string, unknown>) ?? {};
     const tagsComp = comps["minecraft:tags"] as Record<string, unknown> | undefined;
@@ -45,26 +40,18 @@ export class Biome extends Asset {
       : [];
     if (biomeTags.length === 0) return [];
 
-    return this._addon.getAllEntities().toArray().filter((entity) => {
-      const spawnRule = entity.getSpawnRule();
+    return this._addon.entities.all().filter(entity => {
+      const spawnRule = entity.spawnRule;
       if (!spawnRule) return false;
-      return spawnRule.getBiomeTags().some((tag) => biomeTags.includes(tag));
+      return spawnRule.biomeTags.some(tag => biomeTags.includes(tag));
     });
   }
 
   /**
-   * Returns the music definition for this biome from `sounds/music_definitions.json`.
-   *
-   * Looks up the biome's shortname (e.g. `"minecraft:bamboo_jungle"` -> `"bamboo_jungle"`).
-   * Returns null if no music definition exists for this biome.
-   *
-   * @example
-   * ```ts
-   * addon.getBiome("minecraft:bamboo_jungle")?.getMusicDefinition()?.eventName;
-   * // "music.overworld.bamboo_jungle"
-   * ```
+   * The music definition for this biome from `sounds/music_definitions.json`.
+   * `undefined` if not found.
    */
-  getMusicDefinition(): MusicDefinitionEntry | null {
-    return this._addon.getMusicDefinition(shortname(this.identifier));
+  get musicDefinition(): MusicDefinitionEntry | undefined {
+    return this._addon.music?.get(shortname(this.id));
   }
 }

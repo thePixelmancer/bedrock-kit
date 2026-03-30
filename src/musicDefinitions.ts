@@ -2,7 +2,14 @@ import { Asset } from "./asset.js";
 
 /**
  * Wraps the `sounds/music_definitions.json` file.
- * Provides access to individual music definitions.
+ *
+ * Access via `addon.music`.
+ *
+ * @example
+ * ```ts
+ * const entry = addon.music?.get("bamboo_jungle");
+ * console.log(entry?.eventName); // "music.overworld.bamboo_jungle"
+ * ```
  */
 export class MusicDefinitionsFile extends Asset {
   private _definitions: Map<string, MusicDefinitionEntry>;
@@ -21,11 +28,16 @@ export class MusicDefinitionsFile extends Asset {
   }
 
   /**
-   * Returns a single music definition by its context key, or null if not found.
-   * @example `get("bamboo_jungle")`
+   * Returns a single music definition by its context key, or `undefined` if not found.
+   * @example `addon.music?.get("bamboo_jungle")`
    */
-  get(id: string): MusicDefinitionEntry | null {
-    return this._definitions.get(id) ?? null;
+  get(id: string): MusicDefinitionEntry | undefined {
+    return this._definitions.get(id);
+  }
+
+  /** Returns all music definitions as an array. */
+  all(): MusicDefinitionEntry[] {
+    return [...this._definitions.values()];
   }
 
   /** Returns all music definition IDs (context keys) in this file. */
