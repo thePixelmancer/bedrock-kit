@@ -74,7 +74,11 @@ collection.reduce(fn, init)
 collection.groupBy(fn)               // Record<K, T[]>
 ```
 
-Collections are keyed by the asset's `id`. For most assets that is the namespaced identifier (e.g. `"minecraft:zombie"`). For loot tables it is the relative file path from the BP root (e.g. `"loot_tables/entities/zombie.json"`).
+Collections are keyed by the asset's `id`:
+- Most assets: namespaced identifier, e.g. `"minecraft:zombie"`
+- Recipes: `description.identifier` from the JSON, e.g. `"minecraft:copper_spear"` (falls back to filename without extension)
+- Loot tables: relative file path from BP root, e.g. `"loot_tables/entities/zombie.json"`
+- Trading tables: filename, e.g. `"economy_trade_table.json"`
 
 ---
 
@@ -168,12 +172,12 @@ entity.resource.filePath              // absolute path to RP entity file
 
 ## Recipe
 
-Keyed by filename without extension (e.g. `"copper_spear_recipe"`).
+Keyed by `description.identifier` from the recipe JSON (e.g. `"minecraft:copper_spear"`). Falls back to filename without extension if the field is absent.
 
 ```ts
-const recipe = addon.recipes.get("copper_spear_recipe"); // Recipe | undefined
+const recipe = addon.recipes.get("minecraft:copper_spear"); // Recipe | undefined
 
-recipe.id           // "copper_spear_recipe"
+recipe.id           // "minecraft:copper_spear"
 recipe.type         // "shaped" | "shapeless" | "furnace" | "brewing_mix" | "brewing_container" | "unknown"
 recipe.result       // ItemStack | undefined
 recipe.ingredients  // (Item | Tag)[] — flat, empty slots excluded
@@ -303,6 +307,28 @@ en?.get("item.minecraft.stick.name")     // "Stick" | the key if not found
 addon.bpManifest?.data   // raw manifest JSON
 addon.rpManifest?.data
 ```
+
+---
+
+## File Path Lookup
+
+Resolve any file path to its addon object. Accepts an absolute path or any suffix that uniquely identifies the file (e.g. a relative path or just the filename).
+
+```ts
+// Untyped — returns Asset | undefined
+const asset = addon.getAssetByPath("entities/zombie.json");
+
+// Typed — pass the class constructor, get back that type or undefined
+// Returns undefined if the file is found but is not an instance of the requested class
+const entity = addon.getAssetByPath("entities/zombie.json", BehaviorEntity);
+//    ^? BehaviorEntity | undefined
+const recipe = addon.getAssetByPath("recipes/acacia_chest_boat.json", Recipe);
+//    ^? Recipe | undefined
+const item   = addon.getAssetByPath("items/copper_spear.json", Item);
+//    ^? Item | undefined
+```
+
+Matching is case-insensitive. For BP entity files, the linked `ResourceEntity` is also reachable via the same call.
 
 ---
 
