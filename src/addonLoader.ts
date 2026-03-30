@@ -197,8 +197,11 @@ export class AddonLoader {
 
   static loadRecipes(state: AddonState, addon: AddOn): Recipe[] {
     return AddonLoader.bpEntries(state, "recipes").map(({ filePath, relativePath, data, rawText }) => {
-      const name = posix.basename(relativePath, ".json");
-      return new Recipe(name, filePath, data, rawText, addon);
+      const recipeKey = Object.keys(data).find(k => k.startsWith("minecraft:recipe_"));
+      const inner = recipeKey ? (data[recipeKey] as Record<string, unknown>) : undefined;
+      const desc = inner?.["description"] as Record<string, unknown> | undefined;
+      const id = (desc?.["identifier"] as string | undefined) ?? posix.basename(relativePath, ".json");
+      return new Recipe(id, filePath, data, rawText, addon);
     });
   }
 

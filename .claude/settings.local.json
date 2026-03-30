@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(grep -n \"addon.recipes\" /d/GitHub/bedrock-kit/src/*.ts)",
+      "Bash(npm test:*)"
     ]
   }
 }

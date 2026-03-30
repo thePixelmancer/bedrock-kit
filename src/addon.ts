@@ -256,10 +256,23 @@ export class AddOn {
   }
 
   /**
-   * Returns any asset by its file path. Searches across all loaded asset types.
-   * @internal
+   * Returns the asset whose file path matches (or ends with) `filePath`.
+   * Searches across all loaded asset types.
+   *
+   * Pass a class constructor as the second argument to narrow the return type.
+   * Returns `undefined` if the asset is found but is not an instance of the
+   * requested class.
+   *
+   * @example
+   * ```ts
+   * const asset  = addon.getAssetByPath("entities/zombie.json");
+   * const entity = addon.getAssetByPath("entities/zombie.json", BehaviorEntity);
+   * const recipe = addon.getAssetByPath("recipes/acacia_chest_boat.json", Recipe);
+   * ```
    */
-  getAssetByPath(filePath: string): Asset | undefined {
+  getAssetByPath(filePath: string): Asset | undefined;
+  getAssetByPath<T extends Asset>(filePath: string, type: abstract new (...args: any[]) => T): T | undefined;
+  getAssetByPath<T extends Asset>(filePath: string, type?: abstract new (...args: any[]) => T): Asset | T | undefined {
     const norm = filePath.replace(/\\/g, "/").toLowerCase();
     const stores: Iterable<Asset>[] = [
       this._itemStore.values(),
@@ -278,17 +291,20 @@ export class AddOn {
       this._geoStore.values(),
     ];
 
-    for (const store of stores) {
+    let found: Asset | undefined;
+    outer: for (const store of stores) {
       for (const asset of store) {
         const p = asset.filePath.replace(/\\/g, "/").toLowerCase();
-        if (p === norm || p.endsWith(norm)) return asset;
+        if (p === norm || p.endsWith(norm)) { found = asset; break outer; }
         if (asset instanceof BehaviorEntity) {
           const rp = asset.resource;
-          if (rp && rp.filePath.replace(/\\/g, "/").toLowerCase().endsWith(norm)) return rp;
+          if (rp && rp.filePath.replace(/\\/g, "/").toLowerCase().endsWith(norm)) { found = rp; break outer; }
         }
       }
     }
-    return this._recipeStore.find(r => r.filePath.replace(/\\/g, "/").toLowerCase().endsWith(norm));
+    if (!found) found = this._recipeStore.find(r => r.filePath.replace(/\\/g, "/").toLowerCase().endsWith(norm));
+    if (!found || !type) return found;
+    return found instanceof type ? found : undefined;
   }
 
   // ── Internal Lazy Stores ──────────────────────────────────────────────────

@@ -28,7 +28,7 @@ export type { RecipeType };
  * ```
  */
 export class Recipe extends Asset {
-  /** The recipe identifier — the filename without extension, e.g. `"copper_spear_recipe"`. */
+  /** The recipe identifier from `description.identifier`, e.g. `"minecraft:copper_spear"`. Falls back to the filename without extension if the field is absent. */
   readonly id: string;
   /** The recipe type. */
   readonly type: RecipeType;
