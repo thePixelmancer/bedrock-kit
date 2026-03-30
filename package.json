@@ -1,6 +1,6 @@
 {
   "name": "bedrock-kit",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A typed API for navigating Minecraft Bedrock addon files. Works in Node.js and browsers.",
   "type": "module",
   "main": "./dist/bedrockKit.js",
