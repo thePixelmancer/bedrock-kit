@@ -37,9 +37,16 @@ export class Block extends Asset {
     if (!lang) return this.id;
     const short = this.id.includes(":") ? this.id.split(":")[1] : this.id;
     const namespace = this.id.includes(":") ? this.id.split(":")[0] : "minecraft";
-    const tileResult = lang.getOrNull(`tile.${namespace}.${short}.name`);
-    if (tileResult !== null) return tileResult;
-    return lang.get(`block.${namespace}.${short}.name`);
+    const tileResult =
+      lang.getOrNull(`entity.${short}.name`) ||
+      lang.getOrNull(`item.${short}.name`) ||
+      lang.getOrNull(`tile.${short}.name`) ||
+      lang.getOrNull(`block.${short}.name`) ||
+      lang.getOrNull(`entity.${namespace}:${short}.name`) ||
+      lang.getOrNull(`item.${namespace}:${short}.name`) ||
+      lang.getOrNull(`tile.${namespace}:${short}.name`) ||
+      lang.getOrNull(`block.${namespace}:${short}.name`);
+    return tileResult ?? short;
   }
 
   /**
@@ -49,12 +56,9 @@ export class Block extends Asset {
   get texturePath(): string | undefined {
     const textures = this._addon._state.terrainTextures;
     if (!textures) return undefined;
-    const materialInstances = this._getComponents()["minecraft:material_instances"] as
-      Record<string, unknown> | undefined;
+    const materialInstances = this._getComponents()["minecraft:material_instances"] as Record<string, unknown> | undefined;
     if (!materialInstances) return undefined;
-    const instance =
-      (materialInstances["*"] as Record<string, unknown>) ??
-      (materialInstances["up"] as Record<string, unknown>);
+    const instance = (materialInstances["*"] as Record<string, unknown>) ?? (materialInstances["up"] as Record<string, unknown>);
     const sn = instance?.["texture"] as string | undefined;
     if (!sn) return undefined;
     const tex = textures.get(sn);
