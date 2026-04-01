@@ -77,7 +77,6 @@ export class BehaviorBiome extends Asset {
  * @example
  * ```ts
  * const biome = addon.biomes.get("tsu_nat:maple_forest");
- * console.log(biome?.resource?.skyColor);        // "#FF85CCFF"
  * console.log(biome?.resource?.fog?.id);         // "tsu_nat:maple_forest_fog"
  * console.log(biome?.resource?.ambientSounds);   // SoundEventBinding[]
  * ```
@@ -99,44 +98,12 @@ export class ClientBiome extends Asset {
   }
 
   /**
-   * The fog identifier from `minecraft:fog_appearance.fog_identifier`.
-   * Use {@link fog} for the resolved object.
-   */
-  get fogIdentifier(): string | undefined {
-    const comp = this._components["minecraft:fog_appearance"] as Record<string, unknown> | undefined;
-    return comp?.["fog_identifier"] as string | undefined;
-  }
-
-  /**
-   * The resolved fog settings for this biome. `undefined` if not found.
+   * The resolved fog for this biome. `undefined` if not found.
    */
   get fog(): Fog | undefined {
-    const id = this.fogIdentifier;
+    const comp = this._components["minecraft:fog_appearance"] as Record<string, unknown> | undefined;
+    const id = comp?.["fog_identifier"] as string | undefined;
     return id ? this._addon.fogs.get(id) : undefined;
-  }
-
-  /**
-   * The sky color from `minecraft:sky_color.sky_color`, e.g. `"#FF85CCFF"`.
-   */
-  get skyColor(): string | undefined {
-    const comp = this._components["minecraft:sky_color"] as Record<string, unknown> | undefined;
-    return comp?.["sky_color"] as string | undefined;
-  }
-
-  /**
-   * The foliage color from `minecraft:foliage_appearance.color`, e.g. `"#FF65A33C"`.
-   */
-  get foliageColor(): string | undefined {
-    const comp = this._components["minecraft:foliage_appearance"] as Record<string, unknown> | undefined;
-    return comp?.["color"] as string | undefined;
-  }
-
-  /**
-   * The water surface/body color from `minecraft:water_appearance.water_color`.
-   */
-  get waterColor(): string | undefined {
-    const comp = this._components["minecraft:water_appearance"] as Record<string, unknown> | undefined;
-    return comp?.["water_color"] as string | undefined;
   }
 
   /**
@@ -176,7 +143,6 @@ export class ClientBiome extends Asset {
  * ```ts
  * const biome = addon.biomes.get("tsu_nat:maple_forest");
  * console.log(biome?.behavior?.entities.map(e => e.id));
- * console.log(biome?.resource?.skyColor);
  * console.log(biome?.fog?.id);           // shortcut for biome.resource.fog.id
  * console.log(biome?.ambientSounds);     // shortcut for biome.resource.ambientSounds
  * ```

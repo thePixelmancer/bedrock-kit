@@ -99,11 +99,9 @@ export type { Trade, TradeTier, TradeItem } from "./tradingTable.js";
 // ─── Visuals ──────────────────────────────────────────────────────────────────
 export { Animation, AnimationController } from "./animation.js";
 export { RenderController } from "./renderController.js";
-export type { RenderControllerMaterial } from "./renderController.js";
 export { Particle } from "./particle.js";
 export { Attachable } from "./attachable.js";
 export { GeometryModel } from "./geometry.js";
-export type { GeometryBone } from "./geometry.js";
 
 // ─── Sounds ───────────────────────────────────────────────────────────────────
 export { SoundDefinitionsFile, SoundDefinitionEntry } from "./soundDefinitions.js";

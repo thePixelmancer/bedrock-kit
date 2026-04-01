@@ -78,23 +78,13 @@ export class SoundDefinitionEntry {
   readonly id: string;
   /** The raw data for this sound definition entry. */
   readonly data: Record<string, unknown>;
-  /** The audio category, e.g. `"ambient"`, `"block"`, `"mob"`, `"music"`, `"player"`, `"ui"`. `undefined` if not specified. */
-  readonly category: string | undefined;
   /** The parsed list of audio files this definition can play. */
   readonly files: SoundFile[];
-  private readonly _parentFile: SoundDefinitionsFile;
 
-  constructor(id: string, data: Record<string, unknown>, parentFile: SoundDefinitionsFile) {
+  constructor(id: string, data: Record<string, unknown>, _parentFile: SoundDefinitionsFile) {
     this.id = id;
     this.data = data;
-    this._parentFile = parentFile;
-    this.category = (data["category"] as string) ?? undefined;
     this.files = this._parseFiles(data["sounds"]);
-  }
-
-  /** Returns the parent `SoundDefinitionsFile` that this entry belongs to. */
-  get parentFile(): SoundDefinitionsFile {
-    return this._parentFile;
   }
 
   private _parseFiles(raw: unknown): SoundFile[] {

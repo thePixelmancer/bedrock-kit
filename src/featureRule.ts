@@ -13,7 +13,6 @@ import type { Feature } from "./feature.js";
  * ```ts
  * const rule = addon.featureRules.get("tsu_nat:maple_tree_rule");
  * console.log(rule?.placesFeature?.id);  // "tsu_nat:maple_tree"
- * console.log(rule?.placementPass);      // "surface_pass"
  * ```
  */
 export class FeatureRule extends Asset {
@@ -27,16 +26,9 @@ export class FeatureRule extends Asset {
     this._addon = addon;
   }
 
-  private get _inner(): Record<string, unknown> {
-    return (this.data["minecraft:feature_rules"] as Record<string, unknown>) ?? {};
-  }
-
   private get _description(): Record<string, unknown> {
-    return (this._inner["description"] as Record<string, unknown>) ?? {};
-  }
-
-  private get _conditions(): Record<string, unknown> {
-    return (this._inner["conditions"] as Record<string, unknown>) ?? {};
+    const inner = (this.data["minecraft:feature_rules"] as Record<string, unknown>) ?? {};
+    return (inner["description"] as Record<string, unknown>) ?? {};
   }
 
   /**
@@ -54,13 +46,5 @@ export class FeatureRule extends Asset {
   get placesFeature(): Feature | undefined {
     const id = this.placesFeatureId;
     return id ? this._addon.features.get(id) : undefined;
-  }
-
-  /**
-   * The terrain generation pass in which this feature is placed,
-   * e.g. `"after_surface_pass"`, `"pre_surface_pass"`, `"pregeneration_pass"`.
-   */
-  get placementPass(): string | undefined {
-    return this._conditions["placement_pass"] as string | undefined;
   }
 }

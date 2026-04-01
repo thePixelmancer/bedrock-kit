@@ -68,19 +68,19 @@ collection.entries()                 // IterableIterator<[string, T]>
 for (const x of collection) { }
 [...collection]
 
-// Functional helpers — all return T[] or AssetCollection<T>
-collection.filter(fn)
-collection.map(fn)
-collection.find(fn)
-collection.some(fn)
-collection.every(fn)
-collection.reduce(fn, init)
+// Functional helpers
+collection.filter(fn)                // AssetCollection<T>
+collection.map(fn)                   // U[]
+collection.find(fn)                  // T | undefined
+collection.some(fn)                  // boolean
+collection.every(fn)                 // boolean
+collection.reduce(fn, init)          // U
 collection.groupBy(fn)               // Record<K, T[]>
 ```
 
 Collections are keyed by the asset's `id`:
 - Most assets: namespaced identifier, e.g. `"minecraft:zombie"`
-- Recipes: `description.identifier` from the JSON, e.g. `"minecraft:copper_spear"` (falls back to filename without extension)
+- Recipes: `description.identifier` from the JSON (falls back to filename without extension)
 - Loot tables: relative file path from BP root, e.g. `"loot_tables/entities/zombie.json"`
 - Trading tables: filename, e.g. `"economy_trade_table.json"`
 
@@ -89,20 +89,18 @@ Collections are keyed by the asset's `id`:
 ## Item
 
 ```ts
-const item = addon.items.get("minecraft:copper_spear"); // Item | undefined
+const item = addon.items.get("mypack:copper_spear"); // Item | undefined
 
-item.id           // "minecraft:copper_spear"
-item.displayName  // "Copper Spear" — en_US lang lookup, falls back to id
-item.texture      // Texture | undefined — resolved texture object
-item.attachable   // Attachable | undefined
-item.recipes      // Recipe[] — recipes whose result is this item
-item.entities     // Entity[] — entities that can drop this item via loot tables
+item.id              // "mypack:copper_spear"
+item.displayName     // "Copper Spear" — en_US lang lookup, falls back to id
+item.texture         // Texture | undefined — resolved from item_texture.json
+item.attachable      // Attachable | undefined
+item.recipes         // Recipe[] — recipes whose result is this item
+item.entities        // Entity[] — entities that can drop this item via loot tables
 item.droppedByBlocks // Block[] — blocks that drop this item via loot table
-
-// Raw JSON when needed
-item.data         // Record<string, unknown>
-item.filePath     // absolute path to the BP item file
-item.docstrings   // CommentBlock[] — JSDoc blocks parsed from the source file
+item.data            // Record<string, unknown> — raw JSON
+item.filePath        // absolute path to the BP item file
+item.docstrings      // CommentBlock[] — JSDoc blocks parsed from the source file
 ```
 
 ---
@@ -110,15 +108,14 @@ item.docstrings   // CommentBlock[] — JSDoc blocks parsed from the source file
 ## Block
 
 ```ts
-const block = addon.blocks.get("minecraft:coal_ore"); // Block | undefined
+const block = addon.blocks.get("mypack:coal_ore"); // Block | undefined
 
-block.id          // "minecraft:coal_ore"
-block.displayName // "Coal Ore"
-block.texture     // Texture | undefined — resolved texture object
+block.id          // "mypack:coal_ore"
+block.displayName // "Coal Ore" — tries tile.*, block.*, item.*, entity.* lang keys
+block.texture     // Texture | undefined — resolved from terrain_texture.json
 block.lootTable   // LootTable | undefined
 block.soundEvents // SoundEventBinding[]
-
-block.data        // raw JSON
+block.data        // Record<string, unknown>
 block.filePath    // absolute path
 block.docstrings  // CommentBlock[]
 ```
@@ -127,7 +124,7 @@ block.docstrings  // CommentBlock[]
 
 ## Entity
 
-`Entity` is a logical grouping — it is not itself file-backed. Raw data lives on `.behavior` and `.resource`.
+`Entity` is a logical grouping — not itself file-backed. Raw data lives on `.behavior` and `.resource`.
 
 ```ts
 const entity = addon.entities.get("minecraft:zombie"); // Entity | undefined
@@ -154,7 +151,7 @@ entity.behavior.entity          // Entity | undefined — back-link to unified v
 entity.behavior.resource        // ResourceEntity | undefined — cross-link
 entity.behavior.data            // raw BP entity JSON
 entity.behavior.filePath        // absolute path to BP entity file
-entity.behavior.docstrings      // CommentBlock[] — parsed JSDoc from file
+entity.behavior.docstrings      // CommentBlock[]
 ```
 
 ### ResourceEntity
@@ -162,7 +159,7 @@ entity.behavior.docstrings      // CommentBlock[] — parsed JSDoc from file
 ```ts
 entity.resource.id                    // "minecraft:zombie"
 entity.resource.displayName           // "Zombie"
-entity.resource.textures              // Record<string, Texture> — shortname → resolved Texture
+entity.resource.textures              // Record<string, Texture> — shortname → Texture
 entity.resource.animations            // Array<{ shortname: string; animation: Animation }>
 entity.resource.animationControllers  // Array<{ shortname: string; controller: AnimationController }>
 entity.resource.renderControllers     // RenderController[]
@@ -183,34 +180,34 @@ entity.resource.docstrings            // CommentBlock[]
 
 ## Recipe
 
-Keyed by `description.identifier` from the recipe JSON (e.g. `"minecraft:copper_spear"`). Falls back to filename without extension if the field is absent.
+Keyed by `description.identifier` (falls back to filename without extension).
 
 ```ts
-const recipe = addon.recipes.get("minecraft:copper_spear"); // Recipe | undefined
+const recipe = addon.recipes.get("mypack:copper_spear"); // Recipe | undefined
 
-recipe.id           // "minecraft:copper_spear"
+recipe.id           // "mypack:copper_spear"
 recipe.type         // "shaped" | "shapeless" | "furnace" | "brewing_mix" | "brewing_container" | "unknown"
 recipe.result       // ItemStack | undefined
 recipe.item         // Item | undefined — shortcut for recipe.result?.item
 recipe.ingredients  // (Item | Tag)[] — flat, empty slots excluded
 
-recipe.resolveShape()      // Ingredient[][] | undefined  — shaped only, 2D grid with nulls for empty slots
+recipe.resolveShape()      // Ingredient[][] | undefined  — 2D grid, null for empty slots
 recipe.resolveShapeless()  // ShapelessIngredient[] | undefined
 recipe.resolveFurnace()    // FurnaceResolved | undefined
 recipe.resolveBrewing()    // BrewingResolved | undefined
 recipe.usesItem(id)        // boolean
 
 // Preferred access: item.recipes
-const spearRecipes = addon.items.get("minecraft:copper_spear")?.recipes;
+const recipes = addon.items.get("mypack:copper_spear")?.recipes;
 ```
 
 ### ItemStack
 
 ```ts
 const stack = recipe.result;
-stack.id      // "minecraft:copper_spear"
-stack.count   // number
-stack.item    // Item | undefined  (undefined for vanilla/unknown items)
+stack.id    // "mypack:copper_spear"
+stack.count // number
+stack.item  // Item | undefined  (undefined for vanilla/unknown items)
 ```
 
 ---
@@ -228,6 +225,9 @@ table.itemIds         // string[] — all item ids that can drop
 table.items           // Item[] — resolved addon items (vanilla excluded)
 table.sourceEntities  // Entity[] — entities referencing this table
 table.sourceBlocks    // Block[] — blocks referencing this table
+table.data            // raw JSON
+table.filePath        // absolute path
+table.docstrings      // CommentBlock[]
 ```
 
 ---
@@ -235,57 +235,62 @@ table.sourceBlocks    // Block[] — blocks referencing this table
 ## SpawnRule
 
 ```ts
-entity.spawnRule.id                // "minecraft:zombie"
-entity.spawnRule.biomeTags         // string[]
-entity.spawnRule.populationControl // string | undefined
-entity.spawnRule.entity            // Entity | undefined — back-link to unified entity
-entity.spawnRule.data              // raw JSON
+const rule = entity.spawnRule; // SpawnRule | undefined
+
+rule.id                // "minecraft:zombie"
+rule.biomeTags         // string[] — deduplicated values from biome_filter conditions
+rule.populationControl // string | undefined — e.g. "monster", "animal"
+rule.conditions        // Record<string, unknown>[] — raw condition objects
+rule.entity            // Entity | undefined — back-link to unified entity
+rule.data              // raw JSON
+rule.filePath          // absolute path
+rule.docstrings        // CommentBlock[]
 ```
 
 ---
 
 ## Biome
 
-`Biome` is a logical grouping — it is not itself file-backed. Raw data lives on `.behavior` and `.resource`.
+`Biome` is a logical grouping — not itself file-backed. Raw data lives on `.behavior` and `.resource`.
 
 ```ts
-const biome = addon.biomes.get("minecraft:desert");
+const biome = addon.biomes.get("mypack:maple_forest"); // Biome | undefined
 
-biome.id                // "minecraft:desert"
-biome.behavior          // BehaviorBiome | undefined  (BP file)
-biome.resource          // ClientBiome | undefined    (RP file)
-biome.entities          // Entity[] — entities with spawn rules for this biome
-biome.musicDefinition   // MusicDefinitionEntry | undefined
-biome.fog               // Fog | undefined — shortcut for biome.resource?.fog
-biome.ambientSounds     // SoundEventBinding[] — shortcut for biome.resource?.ambientSounds
-biome.docstrings        // CommentBlock[] — from behavior, falls back to resource
+biome.id               // "mypack:maple_forest"
+biome.behavior         // BehaviorBiome | undefined  (BP file)
+biome.resource         // ClientBiome | undefined    (RP file)
+biome.entities         // Entity[] — entities with spawn rules for this biome
+biome.musicDefinition  // MusicDefinitionEntry | undefined
+biome.fog              // Fog | undefined — shortcut for biome.resource?.fog
+biome.ambientSounds    // SoundEventBinding[] — shortcut for biome.resource?.ambientSounds
+biome.docstrings       // CommentBlock[] — from behavior, falls back to resource
 ```
 
 ### BehaviorBiome
 
 ```ts
-biome.behavior.id               // "minecraft:desert"
+biome.behavior.id               // "mypack:maple_forest"
 biome.behavior.entities         // Entity[] — matching spawn rules
 biome.behavior.musicDefinition  // MusicDefinitionEntry | undefined
 biome.behavior.biome            // Biome | undefined — back-link to unified view
 biome.behavior.data             // raw BP biome JSON
-biome.behavior.filePath         // absolute path to BP biome file
+biome.behavior.filePath         // absolute path
 biome.behavior.docstrings       // CommentBlock[]
 ```
 
 ### ClientBiome
 
 ```ts
-biome.resource.id               // "minecraft:desert"
-biome.resource.fogIdentifier    // string | undefined
-biome.resource.fog              // Fog | undefined — resolved fog object
+biome.resource.id               // "mypack:maple_forest"
+biome.resource.fogIdentifier    // string | undefined — raw fog ID
+biome.resource.fog              // Fog | undefined — resolved Fog object
 biome.resource.skyColor         // string | undefined — e.g. "#FF85CCFF"
 biome.resource.foliageColor     // string | undefined
 biome.resource.waterColor       // string | undefined
 biome.resource.ambientSounds    // SoundEventBinding[]
 biome.resource.biome            // Biome | undefined — back-link to unified view
 biome.resource.data             // raw RP client biome JSON
-biome.resource.filePath         // absolute path to RP biome file
+biome.resource.filePath         // absolute path
 biome.resource.docstrings       // CommentBlock[]
 ```
 
@@ -293,22 +298,27 @@ biome.resource.docstrings       // CommentBlock[]
 
 ## Texture
 
+Keyed by relative path without extension (e.g. `"textures/blocks/maple_log"`).
+Only populated in Node.js (disk) mode — empty in browser mode.
+
 ```ts
-const tex = addon.textures.get("textures/items/copper_spear"); // Texture | undefined
+const tex = addon.textures.get("textures/blocks/maple_log"); // Texture | undefined
 
-tex.id          // "textures/items/copper_spear" — relative path without extension
-tex.filePath    // absolute path to the PNG/TGA file
+tex.id          // "textures/blocks/maple_log"
+tex.filePath    // absolute path to PNG/TGA
 
-tex.normal      // Texture | undefined — from .texture_set.json normal field
-tex.heightmap   // Texture | undefined — from .texture_set.json heightmap field
-tex.mer         // Texture | undefined — metalness/emissive/roughness companion
+// PBR companion textures (resolved from <name>.texture_set.json)
+tex.textureSet  // Record<string, unknown> | undefined — raw texture_set data
+tex.normal      // Texture | undefined — normal map
+tex.heightmap   // Texture | undefined — heightmap (alternative to normal)
+tex.mer         // Texture | undefined — metalness/emissive/roughness
 
-tex.getPixelData()    // Buffer | undefined — raw PNG/TGA bytes (Node.js only)
+tex.getPixelData() // Buffer | undefined — raw file bytes (Node.js only)
 
-// Reverse lookups (lazy, cached)
+// Reverse lookups (lazy, O(1) via shared index)
 tex.usedByBlocks    // Block[]
 tex.usedByItems     // Item[]
-tex.usedByEntities  // Entity[]
+tex.usedByEntities  // Entity[] — includes spawn egg textures
 ```
 
 ---
@@ -316,11 +326,11 @@ tex.usedByEntities  // Entity[]
 ## Fog
 
 ```ts
-const fog = addon.fogs.get("minecraft:fog_bamboo_jungle"); // Fog | undefined
+const fog = addon.fogs.get("mypack:maple_forest_fog"); // Fog | undefined
 
-fog.id        // "minecraft:fog_bamboo_jungle"
-fog.data      // raw fog settings JSON
-fog.filePath  // absolute path to RP fogs file
+fog.id         // "mypack:maple_forest_fog"
+fog.data       // raw fog settings JSON
+fog.filePath   // absolute path to RP fogs file
 fog.docstrings // CommentBlock[]
 ```
 
@@ -329,15 +339,24 @@ fog.docstrings // CommentBlock[]
 ## Feature & FeatureRule
 
 ```ts
-const feature = addon.features.get("minecraft:tree_feature");
-feature.id           // "minecraft:tree_feature"
-feature.featureType  // full JSON root key, e.g. "minecraft:tree_feature"
-feature.placedByFeatureRules  // FeatureRule[] — rules that place this feature
+const feature = addon.features.get("mypack:maple_tree"); // Feature | undefined
 
-const rule = addon.featureRules.get("minecraft:birch_trees");
-rule.id               // "minecraft:birch_trees"
-rule.placesFeatureId  // string | undefined
-rule.placesFeature    // Feature | undefined — resolved feature object
+feature.id                   // "mypack:maple_tree"
+feature.featureType          // full JSON root key, e.g. "minecraft:tree_feature"
+feature.placedByFeatureRules // FeatureRule[] — rules that place this feature
+feature.data                 // raw JSON
+feature.filePath             // absolute path
+feature.docstrings           // CommentBlock[]
+
+const rule = addon.featureRules.get("mypack:maple_tree_rule"); // FeatureRule | undefined
+
+rule.id               // "mypack:maple_tree_rule"
+rule.placesFeatureId  // string | undefined — raw feature ID
+rule.placesFeature    // Feature | undefined — resolved Feature object
+rule.placementPass    // string | undefined — e.g. "surface_pass", "after_surface_pass"
+rule.data             // raw JSON
+rule.filePath         // absolute path
+rule.docstrings       // CommentBlock[]
 ```
 
 ---
@@ -347,17 +366,37 @@ rule.placesFeature    // Feature | undefined — resolved feature object
 ```ts
 // sound_definitions.json
 const entry = addon.sounds?.get("mob.zombie.say"); // SoundDefinitionEntry | undefined
-entry.id        // "mob.zombie.say"
-entry.category  // string | undefined
-entry.sounds    // string[]
-addon.sounds?.all()   // SoundDefinitionEntry[]
-addon.sounds?.size    // number
+
+entry.id         // "mob.zombie.say"
+entry.category   // string | undefined — e.g. "mob", "ambient", "block"
+entry.files      // SoundFile[] — parsed audio file entries
+entry.parentFile // SoundDefinitionsFile
+
+addon.sounds?.all()  // SoundDefinitionEntry[]
+addon.sounds?.ids    // string[]
+addon.sounds?.size   // number
+
+// SoundFile shape
+file.name            // string — e.g. "sounds/mob/zombie/say1"
+file.volume          // number | undefined
+file.pitch           // number | undefined
+file.weight          // number | undefined
+file.is3D            // boolean | undefined
+file.stream          // boolean | undefined
+file.loadOnLowMemory // boolean | undefined
 
 // music_definitions.json
-const music = addon.music?.get("music.game");
-music.id          // "music.game"
-music.eventName   // string
+const music = addon.music?.get("bamboo_jungle"); // MusicDefinitionEntry | undefined
+
+music.id         // "bamboo_jungle"
+music.eventName  // string — e.g. "music.overworld.bamboo_jungle"
+music.minDelay   // number — seconds before music starts (min)
+music.maxDelay   // number — seconds before music starts (max)
+music.parentFile // MusicDefinitionsFile
+
 addon.music?.all()
+addon.music?.ids   // string[]
+addon.music?.size  // number
 ```
 
 ### SoundEventBinding
@@ -365,28 +404,62 @@ addon.music?.all()
 Returned by `entity.soundEvents`, `block.soundEvents`, `biome.resource.ambientSounds`.
 
 ```ts
-binding.event        // string — e.g. "step", "hurt"
+binding.event        // string — e.g. "step", "hurt", "ambient"
 binding.definitionId // string — maps to a sound_definitions.json key
+binding.volume       // number
+binding.pitch        // number
 ```
 
 ---
 
 ## Visuals
 
-All visual assets extend `Asset` and expose `id`, `data`, `filePath`, `docstrings`.
+### Animation / AnimationController
 
 ```ts
-addon.animations.get("animation.zombie.walk")
-addon.animationControllers.get("controller.animation.zombie.general")
-addon.renderControllers.get("controller.render.zombie")
-addon.particles.get("minecraft:smoke_particle")
-// particle.texture  // Texture | undefined
+const anim = addon.animations.get("animation.zombie.walk");
+anim.id        // "animation.zombie.walk"
+anim.data      // raw animation data
+anim.filePath
+anim.docstrings
 
-addon.geometries.get("geometry.zombie")
-addon.attachables.get("minecraft:copper_spear")
-// attachable.textures   // Record<string, Texture>
-// attachable.materials  // Record<string, string>
-// attachable.geometry   // Record<string, string>
+const ctrl = addon.animationControllers.get("controller.animation.zombie.general");
+ctrl.id    // "controller.animation.zombie.general"
+ctrl.data  // raw controller data — access states, initial_state etc. via data
+```
+
+### RenderController
+
+```ts
+const rc = addon.renderControllers.get("controller.render.zombie");
+rc.id    // "controller.render.zombie"
+rc.data  // raw controller data — access geometry, textures, materials via data
+```
+
+### Particle
+
+```ts
+const particle = addon.particles.get("minecraft:smoke_particle");
+particle.id       // "minecraft:smoke_particle"
+particle.texture  // Texture | undefined — resolved from basic_render_parameters.texture
+particle.data     // raw particle data — access components, emitter settings via data
+```
+
+### GeometryModel
+
+```ts
+const geo = addon.geometries.get("geometry.humanoid");
+geo.id    // "geometry.humanoid"
+geo.data  // raw geometry data — access bones, textureWidth, textureHeight via data
+```
+
+### Attachable
+
+```ts
+const att = addon.attachables.get("mypack:copper_spear");
+att.id       // "mypack:copper_spear"
+att.textures // Record<string, Texture> — shortname → resolved Texture
+att.data     // raw attachable data — access materials, geometry via data
 ```
 
 ---
@@ -395,7 +468,7 @@ addon.attachables.get("minecraft:copper_spear")
 
 ```ts
 const en = addon.languages.get("en_US"); // LangFile | undefined
-en?.get("item.minecraft.stick.name")     // "Stick" | the key if not found
+en?.get("item.minecraft.stick.name")     // "Stick" | key if not found
 ```
 
 ---
@@ -411,32 +484,26 @@ addon.rpManifest?.data
 
 ## File Path Lookup
 
-Resolve any file path to its addon object. Accepts an absolute path or any suffix that uniquely identifies the file (e.g. a relative path or just the filename).
-
 ```ts
-// Untyped — returns Asset | undefined
-const asset = addon.getAssetByPath("entities/zombie.json");
+// Untyped
+const asset = addon.getAssetByPath("entities/zombie.json"); // Asset | undefined
 
-// Typed — pass the class constructor, get back that type or undefined
-// Returns undefined if the file is found but is not an instance of the requested class
+// Typed — returns undefined if found but wrong type
 const entity = addon.getAssetByPath("entities/zombie.json", BehaviorEntity);
-//    ^? BehaviorEntity | undefined
-const recipe = addon.getAssetByPath("recipes/acacia_chest_boat.json", Recipe);
-//    ^? Recipe | undefined
+const recipe = addon.getAssetByPath("recipes/copper_spear.json", Recipe);
 const item   = addon.getAssetByPath("items/copper_spear.json", Item);
-//    ^? Item | undefined
 ```
 
-Matching is case-insensitive. For BP entity files, the linked `ResourceEntity` is also reachable via the same call.
+Matching is case-insensitive and suffix-based. For BP entity files the linked `ResourceEntity` is also reachable via the same path.
 
 ---
 
 ## Asset Base Class
 
-All file-backed classes (`Item`, `Block`, `BehaviorEntity`, `ResourceEntity`, `Recipe`, `LootTable`, `BehaviorBiome`, `ClientBiome`, `SpawnRule`, `Animation`, `AnimationController`, `RenderController`, `Particle`, `Attachable`, `GeometryModel`, `TradingTable`, `Feature`, `FeatureRule`, `Fog`) extend `Asset`:
+All file-backed classes extend `Asset`:
 
 ```ts
-asset.filePath    // absolute path to the file (empty string in browser mode)
+asset.filePath    // absolute path (empty string in browser mode)
 asset.data        // Record<string, unknown> — raw parsed JSON
 asset.docstrings  // CommentBlock[] — JSDoc blocks parsed from the source file
 ```
@@ -451,8 +518,10 @@ asset.docstrings  // CommentBlock[] — JSDoc blocks parsed from the source file
 const table = addon.trading.get("economy_trade_table.json");
 table.id      // filename
 table.tiers   // TradeTier[]
-// tier.trades → Trade[]
-// trade.gives → TradeItem[], trade.wants → TradeItem[]
+
+// tier.trades   → Trade[]
+// trade.gives   → TradeItem[]
+// trade.wants   → TradeItem[]
 ```
 
 ---
@@ -462,6 +531,6 @@ table.tiers   // TradeTier[]
 Used in recipe ingredients when the ingredient is a tag rather than a specific item.
 
 ```ts
-ingredient instanceof Tag   // true
-ingredient.id               // "minecraft:planks"
+ingredient instanceof Tag  // true
+ingredient.id              // "minecraft:planks"
 ```

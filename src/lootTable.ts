@@ -25,8 +25,6 @@ export class LootTable extends Asset {
    * e.g. `"loot_tables/entities/zombie.json"`.
    */
   readonly id: string;
-  /** The parsed list of loot pools. */
-  readonly pools: LootPool[];
 
   private readonly _addon: AddOn;
 
@@ -34,7 +32,6 @@ export class LootTable extends Asset {
     super(filePath, data, rawText);
     this.id = id;
     this._addon = addon;
-    this.pools = this._parsePools(data);
   }
 
   /**
@@ -42,10 +39,17 @@ export class LootTable extends Asset {
    * from this loot table.
    */
   get itemIds(): string[] {
+    const raw = this.data["pools"];
+    if (!Array.isArray(raw)) return [];
     const ids: string[] = [];
-    for (const pool of this.pools)
-      for (const entry of pool.entries)
-        if (entry.type === "item" && entry.name) ids.push(entry.name);
+    for (const pool of raw as Record<string, unknown>[]) {
+      if (!Array.isArray(pool["entries"])) continue;
+      for (const e of pool["entries"] as Record<string, unknown>[]) {
+        if ((e["type"] === "item" || e["type"] === undefined) && typeof e["name"] === "string") {
+          ids.push(e["name"] as string);
+        }
+      }
+    }
     return [...new Set(ids)];
   }
 
@@ -72,26 +76,5 @@ export class LootTable extends Asset {
    */
   get sourceBlocks(): Block[] {
     return this._addon._reverseIndex.getBlocksForLootTable(this.id);
-  }
-
-  private _parsePools(data: Record<string, unknown>): LootPool[] {
-    const raw = data["pools"];
-    if (!Array.isArray(raw)) return [];
-    return raw.map((p: unknown) => {
-      const pool = p as Record<string, unknown>;
-      const entries: LootEntry[] = [];
-      if (Array.isArray(pool["entries"])) {
-        for (const e of pool["entries"] as Record<string, unknown>[]) {
-          entries.push({
-            type: (e["type"] as string) ?? "item",
-            name: (e["name"] as string) ?? null,
-            weight: (e["weight"] as number) ?? 1,
-            functions: Array.isArray(e["functions"])
-              ? (e["functions"] as Record<string, unknown>[]) : [],
-          });
-        }
-      }
-      return { rolls: pool["rolls"] as LootPool["rolls"], entries };
-    });
   }
 }

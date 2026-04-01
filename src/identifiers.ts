@@ -61,7 +61,9 @@ export function resolveDisplayName(
     const v =
       lang.getOrNull(`${prefix}.${ns}.${short}.name`) ??
       lang.getOrNull(`${prefix}.${ns}:${short}.name`) ??
-      lang.getOrNull(`${prefix}.${short}.name`);
+      lang.getOrNull(`${prefix}.${short}.name`) ??
+      lang.getOrNull(`${prefix}.${ns}:${short}`) ??
+      lang.getOrNull(`${prefix}.${ns}.${short}`);
     if (v) return v;
   }
   return id;

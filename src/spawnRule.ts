@@ -11,22 +11,13 @@ import type { Entity } from "./entity.js";
  * @example
  * ```ts
  * const entity = addon.entities.get("minecraft:zombie");
- * console.log(entity?.spawnRule?.populationControl); // "monster"
- * console.log(entity?.spawnRule?.biomeTags);         // ["monster", "overworld"]
- * console.log(entity?.spawnRule?.entity?.id);        // "minecraft:zombie"
+ * console.log(entity?.spawnRule?.biomeTags);  // ["monster", "overworld"]
+ * console.log(entity?.spawnRule?.entity?.id); // "minecraft:zombie"
  * ```
  */
 export class SpawnRule extends Asset {
   /** The namespaced entity identifier this spawn rule applies to, e.g. `"minecraft:zombie"`. */
   readonly id: string;
-  /**
-   * The population control group that limits how many of this entity spawn together.
-   * Common values: `"animal"`, `"monster"`, `"ambient"`, `"water_animal"`.
-   * `undefined` if not specified.
-   */
-  readonly populationControl: string | undefined;
-  /** The raw condition objects from the spawn rule. Each condition defines spawn requirements. */
-  readonly conditions: Record<string, unknown>[];
 
   private readonly _addon: AddOn;
 
@@ -34,11 +25,6 @@ export class SpawnRule extends Asset {
     super(filePath, data, rawText);
     this.id = id;
     this._addon = addon;
-    const inner = (data["minecraft:spawn_rules"] as Record<string, unknown>) ?? {};
-    const desc = (inner["description"] as Record<string, unknown>) ?? {};
-    this.populationControl = (desc["population_control"] as string) ?? undefined;
-    this.conditions = Array.isArray(inner["conditions"])
-      ? (inner["conditions"] as Record<string, unknown>[]) : [];
   }
 
   /**
@@ -51,18 +37,15 @@ export class SpawnRule extends Asset {
 
   /**
    * All biome tag values referenced in this spawn rule's `minecraft:biome_filter`
-   * conditions. Tags are used to match biomes — e.g. `"monster"`, `"savanna"`, `"mesa"`.
+   * conditions. Used to match biomes — e.g. `"monster"`, `"savanna"`, `"mesa"`.
    * Deduplicated.
-   *
-   * @example
-   * ```ts
-   * addon.entities.get("minecraft:armadillo")?.spawnRule?.biomeTags;
-   * // ["savanna", "mesa", "plateau"]
-   * ```
    */
   get biomeTags(): string[] {
+    const inner = (this.data["minecraft:spawn_rules"] as Record<string, unknown>) ?? {};
+    const conditions = Array.isArray(inner["conditions"])
+      ? (inner["conditions"] as Record<string, unknown>[]) : [];
     const tags: string[] = [];
-    for (const cond of this.conditions) {
+    for (const cond of conditions) {
       const filter = cond["minecraft:biome_filter"];
       if (!filter) continue;
       const filters = Array.isArray(filter) ? filter : [filter];

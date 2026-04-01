@@ -31,27 +31,11 @@ export class Particle extends Asset {
 
   /**
    * The texture used by this particle effect, resolved from
-   * `basic_render_parameters.texture`. `undefined` if not specified or not found
-   * in the addon's texture collection.
+   * `basic_render_parameters.texture`. `undefined` if not specified or not found.
    */
   get texture(): Texture | undefined {
     const params = this._description["basic_render_parameters"] as Record<string, unknown> | undefined;
     const path = params?.["texture"] as string | undefined;
     return path ? this._addon.textures.get(path) : undefined;
-  }
-
-  /**
-   * The material used by this particle effect, as defined in
-   * `basic_render_parameters.material`. `undefined` if not specified.
-   */
-  get material(): string | undefined {
-    const params = this._description["basic_render_parameters"] as Record<string, unknown> | undefined;
-    return (params?.["material"] as string) ?? undefined;
-  }
-
-  /** The full components object for this particle effect. */
-  get components(): Record<string, unknown> {
-    const inner = (this.data["particle_effect"] as Record<string, unknown>) ?? {};
-    return (inner["components"] as Record<string, unknown>) ?? {};
   }
 }

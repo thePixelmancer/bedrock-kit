@@ -58,24 +58,14 @@ export class MusicDefinitionsFile extends Asset implements DefinitionFile<MusicD
 export class MusicDefinitionEntry {
   /** The context key, e.g. `"bamboo_jungle"`, `"game"`, `"menu"`. */
   readonly id: string;
+  /** The raw data for this music definition entry. */
+  readonly data: Record<string, unknown>;
   /** The sound event ID to play, e.g. `"music.overworld.bamboo_jungle"`. */
   readonly eventName: string;
-  /** Minimum seconds before music starts. */
-  readonly minDelay: number;
-  /** Maximum seconds before music starts. */
-  readonly maxDelay: number;
-  private readonly _parentFile: MusicDefinitionsFile;
 
-  constructor(id: string, data: Record<string, unknown>, parentFile: MusicDefinitionsFile) {
+  constructor(id: string, data: Record<string, unknown>, _parentFile: MusicDefinitionsFile) {
     this.id = id;
-    this._parentFile = parentFile;
+    this.data = data;
     this.eventName = (data["event_name"] as string) ?? "";
-    this.minDelay = (data["min_delay"] as number) ?? 0;
-    this.maxDelay = (data["max_delay"] as number) ?? 0;
-  }
-
-  /** Returns the parent `MusicDefinitionsFile` that this entry belongs to. */
-  get parentFile(): MusicDefinitionsFile {
-    return this._parentFile;
   }
 }

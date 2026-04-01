@@ -12,7 +12,6 @@ import type { Texture } from "./texture.js";
  * ```ts
  * const att = addon.attachables.get("minecraft:bow");
  * console.log(att?.textures.default?.id);  // "textures/items/bow_standby"
- * console.log(att?.materials);             // { default: "entity_alphatest", ... }
  * ```
  */
 export class Attachable extends Asset {
@@ -43,15 +42,5 @@ export class Attachable extends Asset {
       if (tex) result[shortname] = tex;
     }
     return result;
-  }
-
-  /** Map of shortname → material name, e.g. `{ "default": "entity_alphatest" }`. */
-  get materials(): Record<string, string> {
-    return (this._description["materials"] as Record<string, string>) ?? {};
-  }
-
-  /** Map of shortname → geometry identifier. */
-  get geometry(): Record<string, string> {
-    return (this._description["geometry"] as Record<string, string>) ?? {};
   }
 }
