@@ -1,0 +1,61 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:mandrake_root",
+			"menu_category": {
+				"category": "nature"
+			}
+		},
+		"components": {
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0
+			},
+			"tag:crop": {},
+			"tag:minecraft:is_shovel_item_destructible": {},
+			"minecraft:placement_filter": {
+				"conditions": [
+					{
+						"allowed_faces": [
+							"up"
+						],
+						"block_filter": [
+							"minecraft:mycelium",
+							"tsu_nat:glowing_mycelium",
+							"tsu_nat:rotting_soil"
+						]
+					}
+				]
+			},
+			"tag:minecraft:is_hoe_item_destructible": {},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 1
+			},
+			"tsu_nat:turn_to_entity_at_night": {
+				"type": "tsu_nat:mandrake_root"
+			},
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"can_contain_liquid": true,
+						"liquid_type": "water",
+						"on_liquid_touches": "no_reaction"
+					}
+				]
+			},
+			"minecraft:loot": "loot_tables/tsu/nat/mandrake_root_block.loot.json",
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.mandrake_root",
+					"ambient_occlusion": false,
+					"face_dimming": false,
+					"render_method": "alpha_test_single_sided"
+				}
+			},
+			"minecraft:flammable": false,
+			"minecraft:collision_box": false,
+			"minecraft:geometry": "minecraft:geometry.cross",
+			"minecraft:light_dampening": 0
+		}
+	}
+}

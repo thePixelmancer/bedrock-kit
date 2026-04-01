@@ -1,0 +1,61 @@
+{
+  "format_version": "1.21.110",
+  "minecraft:biome": {
+    "description": {
+      "identifier": "tsu_nat:maple_forest"
+    },
+    "components": {
+      "minecraft:replace_biomes": {
+        "replacements": [
+          {
+            "dimension": "minecraft:overworld",
+            "targets": [
+              "minecraft:forest",
+              "minecraft:forest_hills",
+              "minecraft:birch_forest",
+              "minecraft:birch_forest_hills",
+              "minecraft:extreme_hills",
+              "minecraft:extreme_hills_mutated",
+              "minecraft:extreme_hills_plus_trees",
+              "minecraft:savanna",
+              "minecraft:savanna_plateau",
+              "minecraft:roofed_forest",
+              "minecraft:taiga",
+              "minecraft:mega_taiga",
+              "minecraft:redwood_taiga_mutated",
+              "minecraft:redwood_taiga_hills_mutated",
+              "minecraft:taiga_mutated",
+              "minecraft:mega_taiga_hills",
+              "minecraft:swampland",
+              "minecraft:mangrove_swamp",
+              "minecraft:plains"
+            ],
+            "amount": 0.2,
+            "noise_frequency_scale": 0.3
+          }
+        ]
+      },
+      "minecraft:climate": {
+        "downfall": 0.6,
+        "temperature": 0.5
+      },
+      "minecraft:overworld_height": {
+        "noise_type": "taiga"
+      },
+      "minecraft:surface_builder": {
+        "builder": {
+          "type": "minecraft:overworld",
+          "sea_floor_depth": 7,
+          "sea_floor_material": "minecraft:gravel",
+          "foundation_material": "minecraft:stone",
+          "mid_material": "minecraft:dirt",
+          "top_material": "tsu_nat:duff",
+          "sea_material": "minecraft:water"
+        }
+      },
+      "minecraft:tags": {
+        "tags": ["animal", "monster", "overworld", "maple_forest", "tsu_nat"]
+      }
+    }
+  }
+}

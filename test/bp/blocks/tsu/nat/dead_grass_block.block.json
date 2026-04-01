@@ -1,0 +1,33 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:dead_grass_block",
+			"menu_category": {
+				"category": "nature"
+			}
+		},
+		"components": {
+			"tsu_nat:custom_grass_block": {
+				"dirt_block": "minecraft:coarse_dirt"
+			},
+			"tsu_nat:particle_emitter": {
+				"particles": [
+					"tsu_nat:vapor",
+					"tsu_nat:ground_fog_1"
+				]
+			},
+			"tag:dirt": {},
+			"tag:grass": {},
+			"tag:minecraft:is_shovel_item_destructible": {},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0.2
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 1
+			},
+			"minecraft:light_dampening": 15,
+			"minecraft:light_emission": 0
+		}
+	}
+}

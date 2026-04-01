@@ -1,0 +1,76 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_blue_mushroom_tree_1.feature"
+    },
+    "trunk": {
+      "trunk_height": {
+        "range_min": 6,
+        "range_max": 20
+      },
+      "trunk_block": {
+        "name": "minecraft:mushroom_stem"
+      }
+    },
+    "canopy": {
+      "leaf_block": "tsu_nat:blue_mushroom_block",
+      "canopy_offset": {
+        "min": -1,
+        "max": 1
+      },
+      "min_width": 3,
+      "canopy_slope": {
+        "rise": 1,
+        "run": 1
+      },
+      "variation_chance": [
+        {
+          "numerator": 1,
+          "denominator": 1
+        },
+        {
+          "numerator": 1,
+          "denominator": 1
+        },
+        {
+          "numerator": 1,
+          "denominator": 1
+        },
+        {
+          "numerator": 1,
+          "denominator": 1
+        }
+      ]
+    },
+    "base_cluster": {
+      "may_replace": [
+        {
+          "tags": "query.any_tag('dirt')"
+        }
+      ],
+      "num_clusters": 6,
+      "cluster_radius": 5
+    },
+    "may_grow_on": [
+      "tsu_nat:glowing_mycelium",
+      {
+        "tags": "query.any_tag('dirt')"
+      }
+    ],
+    "base_block": [
+      "tsu_nat:rotting_soil"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:snow_layer"
+    ],
+    "may_grow_through": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "tsu_nat:rotting_soil",
+      "tsu_nat:glowing_mycelium"
+    ]
+  }
+}

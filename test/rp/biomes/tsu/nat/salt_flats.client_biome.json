@@ -1,0 +1,13 @@
+{
+  "format_version": "1.21.110",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "tsu_nat:salt_flats"
+    },
+    "components": {
+      "minecraft:sky_color": {
+        "sky_color": "#e4dfd6"
+      }
+    }
+  }
+}

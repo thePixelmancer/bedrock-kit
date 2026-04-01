@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "tsu_nat:rope"
+    },
+    "unlock": [
+      {
+        "item": "tsu_nat:cattail"
+      },
+      {
+        "item": "minecraft:lead"
+      }
+    ],
+    "pattern": ["C", "C", "C"],
+    "key": {
+      "C": {
+        "item": "minecraft:lead"
+      }
+    },
+    "result": {
+      "item": "tsu_nat:rope",
+      "count": 12
+    },
+    "tags": ["crafting_table"]
+  }
+}

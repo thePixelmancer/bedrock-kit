@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "tsu_nat:mandrake_root",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "geometry": {
+        "default": "geometry.tsu_nat.mandrake_root"
+      },
+      "textures": {
+        "default": "textures/tsu/nat/mandrake_root"
+      },
+      "animations": {
+        "walk": "animation.tsu_nat.mandrake_root.walk"
+      },
+      "scripts": {
+        "animate": [{ "walk": "q.modified_move_speed" }]
+      },
+      "render_controllers": ["controller.render.default"],
+      "spawn_egg": {
+        "base_color": "#968a86",
+        "overlay_color": "#534664"
+      }
+    }
+  }
+}

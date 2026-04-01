@@ -1,0 +1,32 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "tsu_nat:soap"
+    },
+    "tags": ["crafting_table"],
+    "unlock": [
+      {
+        "item": "tsu_nat:ash"
+      },
+      {
+        "item": "tsu_nat:aloe"
+      }
+    ],
+    "ingredients": [
+      {
+        "item": "tsu_nat:ash"
+      },
+      {
+        "item": "tsu_nat:raw_sap"
+      },
+      {
+        "item": "tsu_nat:aloe"
+      }
+    ],
+    "result": {
+      "item": "tsu_nat:soap",
+      "count": 1
+    }
+  }
+}

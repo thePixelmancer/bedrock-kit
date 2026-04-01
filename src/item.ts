@@ -4,6 +4,8 @@ import type { Attachable } from "./attachable.js";
 import type { Recipe } from "./recipe.js";
 import type { Entity } from "./entity.js";
 import type { Block } from "./block.js";
+import type { Texture } from "./texture.js";
+import { resolveDisplayName } from "./identifiers.js";
 
 /**
  * Represents an item definition file from the behavior pack's `items/` directory.
@@ -14,7 +16,7 @@ import type { Block } from "./block.js";
  * ```ts
  * const spear = addon.items.get("minecraft:copper_spear");
  * console.log(spear?.displayName);   // "Copper Spear"
- * console.log(spear?.texturePath);   // "textures/items/copper_spear"
+ * console.log(spear?.texture?.id);   // "textures/items/copper_spear"
  * console.log(spear?.recipes.length); // 1
  * ```
  */
@@ -35,25 +37,23 @@ export class Item extends Asset {
    * which itself falls back to the identifier if the key is missing.
    */
   get displayName(): string {
-    const lang = this._addon.getLangFile("en_US");
-    if (!lang) return this.id;
-    const short = this.id.includes(":") ? this.id.split(":")[1] : this.id;
-    const namespace = this.id.includes(":") ? this.id.split(":")[0] : "minecraft";
-    return lang.get(`item.${namespace}.${short}.name`);
+    return resolveDisplayName(this._addon.getLangFile("en_US"), this.id, ["item"]);
   }
 
   /**
-   * The resolved display texture path for this item, or `undefined` if it
-   * cannot be resolved from the resource pack's `item_texture.json`.
+   * The resolved display texture for this item, or `undefined` if it cannot be
+   * resolved from the resource pack's `item_texture.json` or the texture file
+   * is not present in the addon.
    */
-  get texturePath(): string | undefined {
-    const textures = this._addon._state.itemTextures;
-    if (!textures) return undefined;
-    const icon = this._extractIcon(this._getComponents());
+  get texture(): Texture | undefined {
+    const atlas = this._addon._state.itemTextures;
+    if (!atlas) return undefined;
+    const icon = this._extractIcon(this._components);
     if (!icon) return undefined;
-    const tex = textures.get(icon);
-    if (!tex) return undefined;
-    return Array.isArray(tex) ? (tex[0] ?? undefined) : tex;
+    const entry = atlas.get(icon);
+    if (!entry) return undefined;
+    const path = Array.isArray(entry) ? entry[0] : entry;
+    return path ? this._addon.textures.get(path) : undefined;
   }
 
   /**
@@ -68,29 +68,24 @@ export class Item extends Asset {
    * All recipes in the addon whose result is this item.
    */
   get recipes(): Recipe[] {
-    return this._addon.recipes.filter(r => r.result?.id === this.id).all();
+    return this._addon._reverseIndex.getRecipesForItem(this.id);
   }
 
   /**
    * All unified entities that can drop this item via their loot tables.
    */
   get entities(): Entity[] {
-    return this._addon.entities.all().filter(entity =>
-      entity.lootTables.some(lt => lt.itemIds.includes(this.id))
-    );
+    return this._addon._reverseIndex.getEntitiesForItem(this.id);
   }
 
   /**
    * All blocks that drop this item via their loot table.
    */
   get droppedByBlocks(): Block[] {
-    return this._addon.blocks.all().filter(block => {
-      const lt = block.lootTable;
-      return lt !== undefined && lt.itemIds.includes(this.id);
-    });
+    return this._addon._reverseIndex.getBlocksForItem(this.id);
   }
 
-  private _getComponents(): Record<string, unknown> {
+  private get _components(): Record<string, unknown> {
     const itemDef = (this.data["minecraft:item"] as Record<string, unknown>) ?? {};
     return (itemDef["components"] as Record<string, unknown>) ?? {};
   }

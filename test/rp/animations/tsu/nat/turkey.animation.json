@@ -1,0 +1,59 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.tsu_nat.turkey.walk": {
+			"loop": true,
+			"anim_time_update": "q.modified_distance_moved / 8",
+			"bones": {
+				"tail": {
+					"rotation": ["math.sin(q.anim_time*360*2) * -4", 0, 0]
+				},
+				"body": {
+					"rotation": [0, 0, "math.sin(q.anim_time*360) * 2"],
+					"position": [0, "math.sin(q.anim_time*360*2) * 0.2 + 0.2", 0]
+				},
+				"rightLeg": {
+					"rotation": ["math.sin(q.anim_time*360) * -30", 0, 0]
+				},
+				"leftWing": {
+					"rotation": ["math.cos(q.anim_time*360*2) * -5", 0, "math.sin(q.anim_time*360*2) * 5 - 5"]
+				},
+				"neck": {
+					"rotation": ["math.sin(q.anim_time*360*2) * 2", 0, 0],
+					"position": [0, 0, "math.cos(q.anim_time*360*2) * -0.2"]
+				},
+				"rightWing": {
+					"rotation": ["math.cos(q.anim_time*360*2) * -5", 0, "-(math.sin(q.anim_time*360*2) * 5 - 5)"]
+				},
+				"leftLeg": {
+					"rotation": ["math.sin(q.anim_time*360) * 30", 0, 0]
+				}
+			}
+		},
+		"animation.tsu_nat.turkey.look_at_target": {
+			"loop": true,
+			"bones": {
+				"neck": {
+					"rotation": [0, "q.target_y_rotation", 0]
+				},
+				"head": {
+					"rotation": ["q.target_x_rotation", 0, 0]
+				}
+			}
+		},
+		"animation.tsu_nat.turkey.baby": {
+			"loop": true,
+			"bones": {
+				"root": {
+					"scale": 0.7
+				},
+				"neck": {
+					"scale": 1.2
+				},
+				"head": {
+					"scale": 1.5
+				}
+			}
+		}
+	}
+}

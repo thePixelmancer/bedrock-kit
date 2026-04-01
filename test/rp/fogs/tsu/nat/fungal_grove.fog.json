@@ -1,0 +1,48 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "tsu_nat:fungal_grove_fog"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 0.0,
+        "fog_end": 60.0,
+        "fog_color": "#00629b",
+        "render_distance_type": "fixed"
+      },
+      "water": {
+        "fog_color": "#1a7eb8",
+        "fog_end": 32,
+        "fog_start": 16,
+        "render_distance_type": "fixed"
+      },
+      "weather": {
+        "fog_color": "#0f4666",
+        "fog_end": 64,
+        "fog_start": 32,
+        "render_distance_type": "fixed"
+      }
+    },
+    "volumetric": {
+      "density": {
+        "air": {
+          "max_density": 0.05,
+          "zero_density_height": 128.0,
+          "max_density_height": 64.0
+        }
+      },
+      "media_coefficients": {
+        "air": {
+          "scattering": [0.01, 0.01, 0.01],
+          "absorption": [0.042, 0.137, 0.012]
+        }
+      },
+      "henyey_greenstein_g": {
+        "air": {
+          "henyey_greenstein_g": 0.3
+        }
+      }
+    }
+  }
+}

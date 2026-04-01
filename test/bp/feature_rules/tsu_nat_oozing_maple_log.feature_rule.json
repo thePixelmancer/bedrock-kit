@@ -1,0 +1,45 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_oozing_maple_log.feature_rule",
+      "places_feature": "tsu_nat:tsu_nat_oozing_maple_log_block.feature"
+    },
+    "conditions": {
+      "placement_pass": "after_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "maple_forest"
+        }
+      ]
+    },
+    "distribution": {
+      "coordinate_eval_order": "xzy",
+      "scatter_chance": 100,
+      "iterations": 30,
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "y": {
+        "distribution": "uniform",
+        "extent": [
+          "q.heightmap(v.worldx, v.worldz)+0",
+          "q.heightmap(v.worldx, v.worldz)+3"
+        ]
+      }
+    }
+  }
+}

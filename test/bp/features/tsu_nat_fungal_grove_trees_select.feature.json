@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fungal_grove_trees_select.feature"
+    },
+    "features": [
+      [
+        "tsu_nat:tsu_nat_giant_pine_tree.feature",
+        8
+      ],
+      [
+        "tsu_nat:tsu_nat_blue_mushroom_tree_1.feature",
+        6
+      ],
+      [
+        "tsu_nat:tsu_nat_thin_blue_mushroom.feature",
+        10
+      ]
+    ]
+  }
+}

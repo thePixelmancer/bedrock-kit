@@ -1,0 +1,73 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_baobab_tree.feature"
+    },
+    "may_grow_on": [
+      {
+        "tags": "query.any_tag('dirt')"
+      }
+    ],
+    "base_block": [
+      "minecraft:dirt",
+      "minecraft:coarse_dirt"
+    ],
+    "may_grow_through": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "minecraft:grass",
+      "minecraft:tall_grass"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:snow_layer"
+    ],
+    "mega_trunk": {
+      "trunk_decoration": {
+        "decoration_block": "minecraft:vine",
+        "decoration_chance": 10.0,
+        "num_steps": 3,
+        "step_direction": "up"
+      },
+      "trunk_width": 3,
+      "trunk_height": {
+        "base": 13,
+        "intervals": [
+          1,
+          6
+        ]
+      },
+      "trunk_block": {
+        "name": "minecraft:stripped_birch_log"
+      },
+      "branches": {
+        "branch_length": 4,
+        "branch_slope": 0.25,
+        "branch_altitude_factor": {
+          "max": 1.0,
+          "min": 0.65
+        },
+        "branch_interval": [
+          1,
+          3
+        ],
+        "branch_canopy": {
+          "fancy_canopy": {
+            "leaf_block": "minecraft:acacia_leaves",
+            "radius": 3,
+            "height": 3
+          }
+        }
+      }
+    },
+    "mega_canopy": {
+      "base_radius": 1,
+      "canopy_height": 3,
+      "core_width": 3,
+      "leaf_block": "minecraft:acacia_leaves",
+      "simplify_canopy": false
+    }
+  }
+}

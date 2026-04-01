@@ -1,0 +1,9 @@
+{
+  "materials": {
+    "version": "1.0.0",
+    "tsu_nat_entity_additive_blend:entity_alphablend": {
+      "blendSrc": "SourceAlpha",
+      "blendDst": "One"
+    }
+  }
+}

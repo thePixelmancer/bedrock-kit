@@ -1,0 +1,41 @@
+{
+  "format_version": "1.21.110",
+  "minecraft:biome": {
+    "description": {
+      "identifier": "tsu_nat:salt_flats"
+    },
+    "components": {
+      "minecraft:replace_biomes": {
+        "replacements": [
+          {
+            "dimension": "minecraft:overworld",
+            "targets": ["minecraft:desert", "minecraft:mesa"],
+            "amount": 0.2,
+            "noise_frequency_scale": 1
+          }
+        ]
+      },
+      "minecraft:climate": {
+        "downfall": 0.0,
+        "temperature": 1.0
+      },
+      "minecraft:overworld_height": {
+        "noise_type": "lowlands"
+      },
+      "minecraft:surface_builder": {
+        "builder": {
+          "type": "minecraft:overworld",
+          "sea_floor_depth": 4,
+          "sea_floor_material": "minecraft:clay",
+          "foundation_material": "tsu_nat:salt_block",
+          "mid_material": "tsu_nat:salt_block",
+          "top_material": "tsu_nat:salt_block",
+          "sea_material": "minecraft:water"
+        }
+      },
+      "minecraft:tags": {
+        "tags": ["animal", "monster", "overworld", "salt_flats", "tsu_nat"]
+      }
+    }
+  }
+}

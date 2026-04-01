@@ -2,7 +2,8 @@ import { Asset } from "./asset.js";
 import type { AddOn } from "./addon.js";
 import type { LootTable } from "./lootTable.js";
 import type { SoundEventBinding } from "./sounds.js";
-import { shortname } from "./identifiers.js";
+import type { Texture } from "./texture.js";
+import { shortname, resolveDisplayName } from "./identifiers.js";
 
 /**
  * Represents a block definition file from the behavior pack's `blocks/` directory.
@@ -13,7 +14,7 @@ import { shortname } from "./identifiers.js";
  * ```ts
  * const ore = addon.blocks.get("mypack:copper_ore");
  * console.log(ore?.displayName);         // "Copper Ore"
- * console.log(ore?.texturePath);         // "textures/blocks/copper_ore"
+ * console.log(ore?.texture?.id);         // "textures/blocks/copper_ore"
  * console.log(ore?.lootTable?.itemIds);  // ["minecraft:raw_copper"]
  * ```
  */
@@ -33,44 +34,33 @@ export class Block extends Asset {
    * Tries the `tile.*` key first (legacy), then `block.*`. Falls back to the identifier.
    */
   get displayName(): string {
-    const lang = this._addon.getLangFile("en_US");
-    if (!lang) return this.id;
-    const short = this.id.includes(":") ? this.id.split(":")[1] : this.id;
-    const namespace = this.id.includes(":") ? this.id.split(":")[0] : "minecraft";
-    const tileResult =
-      lang.getOrNull(`entity.${short}.name`) ||
-      lang.getOrNull(`item.${short}.name`) ||
-      lang.getOrNull(`tile.${short}.name`) ||
-      lang.getOrNull(`block.${short}.name`) ||
-      lang.getOrNull(`entity.${namespace}:${short}.name`) ||
-      lang.getOrNull(`item.${namespace}:${short}.name`) ||
-      lang.getOrNull(`tile.${namespace}:${short}.name`) ||
-      lang.getOrNull(`block.${namespace}:${short}.name`);
-    return tileResult ?? short;
+    return resolveDisplayName(this._addon.getLangFile("en_US"), this.id, ["tile", "block", "item", "entity"]);
   }
 
   /**
-   * The resolved texture path for the default (`*`) face of this block,
-   * or `undefined` if it cannot be resolved from `terrain_texture.json`.
+   * The resolved texture for the default (`*`) face of this block, or `undefined`
+   * if it cannot be resolved from `terrain_texture.json` or the texture file
+   * is not present in the addon.
    */
-  get texturePath(): string | undefined {
-    const textures = this._addon._state.terrainTextures;
-    if (!textures) return undefined;
-    const materialInstances = this._getComponents()["minecraft:material_instances"] as Record<string, unknown> | undefined;
+  get texture(): Texture | undefined {
+    const atlas = this._addon._state.terrainTextures;
+    if (!atlas) return undefined;
+    const materialInstances = this._components["minecraft:material_instances"] as Record<string, unknown> | undefined;
     if (!materialInstances) return undefined;
     const instance = (materialInstances["*"] as Record<string, unknown>) ?? (materialInstances["up"] as Record<string, unknown>);
     const sn = instance?.["texture"] as string | undefined;
     if (!sn) return undefined;
-    const tex = textures.get(sn);
-    if (!tex) return undefined;
-    return Array.isArray(tex) ? (tex[0] ?? undefined) : tex;
+    const entry = atlas.get(sn);
+    if (!entry) return undefined;
+    const path = Array.isArray(entry) ? entry[0] : entry;
+    return path ? this._addon.textures.get(path) : undefined;
   }
 
   /**
    * The loot table for this block, or `undefined` if none is referenced or found.
    */
   get lootTable(): LootTable | undefined {
-    const lootPath = this._getComponents()["minecraft:loot"];
+    const lootPath = this._components["minecraft:loot"];
     if (typeof lootPath !== "string") return undefined;
     return this._addon.lootTables.get(lootPath);
   }
@@ -82,7 +72,7 @@ export class Block extends Asset {
     return this._addon._state.sounds?.getBlockSoundEvents(shortname(this.id))?.all ?? [];
   }
 
-  private _getComponents(): Record<string, unknown> {
+  private get _components(): Record<string, unknown> {
     const blockDef = (this.data["minecraft:block"] as Record<string, unknown>) ?? {};
     return (blockDef["components"] as Record<string, unknown>) ?? {};
   }

@@ -1,0 +1,146 @@
+{
+	"format_version": "1.21.110",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:glowing_mold",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.mushroom"
+			},
+			"states": {
+				"tsu_nat:litter_amount": [
+					0,
+					1,
+					2,
+					3
+				]
+			}
+		},
+		"components": {
+			"minecraft:movable": {
+				"movement_type": "popped"
+			},
+			"tsu_nat:leaf_litter": {},
+			"minecraft:placement_filter": {
+				"conditions": [
+					{
+						"allowed_faces": [
+							"up"
+						],
+						"block_filter": [
+							"minecraft:grass_block",
+							"minecraft:dirt",
+							"minecraft:mud",
+							"minecraft:podzol",
+							"minecraft:mycelium",
+							"minecraft:coarse_dirt",
+							"minecraft:sand",
+							"tsu_nat:rotting_soil",
+							"tsu_nat:glowing_mycelium",
+							"tsu_nat:dead_grass_block",
+							"tsu_nat:duff",
+							"tsu_nat:glowing_mold"
+						]
+					}
+				]
+			},
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"can_contain_liquid": true,
+						"liquid_type": "water",
+						"on_liquid_touches": "no_reaction"
+					}
+				]
+			},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.glowing_mold",
+					"ambient_occlusion": false,
+					"face_dimming": true,
+					"render_method": "alpha_test_single_sided"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": false,
+			"minecraft:selection_box": {
+				"origin": [
+					-8,
+					0,
+					-8
+				],
+				"size": [
+					16,
+					1,
+					16
+				]
+			},
+			"minecraft:geometry": {
+				"identifier": "geometry.tsu_nat.leaf_litter"
+			},
+			"minecraft:light_dampening": 0
+		},
+		"permutations": [
+			{
+				"condition": "q.block_state('tsu_nat:litter_amount') == 0",
+				"components": {
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.leaf_litter",
+						"bone_visibility": {
+							"part0": true,
+							"part1": false,
+							"part2": false,
+							"part3": false
+						}
+					},
+					"minecraft:light_emission": 2
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:litter_amount') == 1",
+				"components": {
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.leaf_litter",
+						"bone_visibility": {
+							"part0": true,
+							"part1": true,
+							"part2": false,
+							"part3": false
+						}
+					},
+					"minecraft:light_emission": 4
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:litter_amount') == 2",
+				"components": {
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.leaf_litter",
+						"bone_visibility": {
+							"part0": true,
+							"part1": true,
+							"part2": true,
+							"part3": false
+						}
+					},
+					"minecraft:light_emission": 6
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:litter_amount') == 3",
+				"components": {
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.leaf_litter",
+						"bone_visibility": {
+							"part0": true,
+							"part1": true,
+							"part2": true,
+							"part3": true
+						}
+					},
+					"minecraft:light_emission": 8
+				}
+			}
+		]
+	}
+}

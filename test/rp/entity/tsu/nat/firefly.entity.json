@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "tsu_nat:firefly",
+      "materials": {
+        "default": "entity_alphablend",
+        "glow": "entity_emissive_alpha",
+        "additive": "tsu_nat_entity_additive_blend"
+      },
+      "geometry": {
+        "default": "geometry.tsu_nat.firefly"
+      },
+      "textures": {
+        "default": "textures/tsu/nat/firefly"
+      },
+      "animations": {
+        "wing_flap": "animation.tsu_nat.firefly.wing_flap",
+        "hover": "animation.tsu_nat.firefly.hover",
+        "on_block": "animation.tsu_nat.firefly.on_block"
+      },
+      "scripts": {
+        "animate": ["wing_flap", "hover"]
+      },
+      "render_controllers": ["controller.render.tsu_nat.firefly"],
+      "spawn_egg": {
+        "texture": "tsu_nat.spawn_egg_firefly"
+      }
+    }
+  }
+}

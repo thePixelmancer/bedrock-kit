@@ -1,0 +1,38 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:structure_template_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_great_pyramid.feature"
+    },
+    "structure_name": "tsu_nat:great_pyramid",
+    "facing_direction": "south",
+    "adjustment_radius": 10,
+    "constraints": {
+      "unburied": {},
+      "grounded": {},
+      "block_intersection": {
+        "block_allowlist": [
+          "minecraft:air",
+          "minecraft:grass_block",
+          "minecraft:stone",
+          "minecraft:sand",
+          "minecraft:red_sand",
+          "minecraft:red_sandstone",
+          "minecraft:sandstone",
+          "minecraft:grass",
+          "minecraft:tall_grass",
+          "minecraft:short_grass",
+          "minecraft:gravel",
+          "minecraft:dirt",
+          "minecraft:diorite",
+          "minecraft:granite",
+          "minecraft:andesite",
+          "minecraft:podzol",
+          "minecraft:leaf_litter",
+          "tsu_nat:dead_grass_block",
+          "tsu_nat:glowing_mycelium"
+        ]
+      }
+    }
+  }
+}

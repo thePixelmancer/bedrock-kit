@@ -1,0 +1,121 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:smoked_gamey_meat",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.cookedFood"
+			},
+			"states": {
+				"tsu_nat:cured": [
+					false,
+					true
+				]
+			}
+		},
+		"components": {
+			"tsu_nat:cure_timer": {
+				"cured_state": "tsu_nat:cured",
+				"chance": 0.25
+			},
+			"tag:minecraft:is_sword_item_destructible": {},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 0.2
+			},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0
+			},
+			"minecraft:placement_filter": {
+				"conditions": [
+					{
+						"allowed_faces": [
+							"up"
+						],
+						"block_filter": [
+							{
+								"name": "tsu_nat:salt_block"
+							}
+						]
+					}
+				]
+			},
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"can_contain_liquid": true,
+						"liquid_type": "water",
+						"on_liquid_touches": "popped"
+					}
+				]
+			},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.smoked_gamey_meat",
+					"ambient_occlusion": false,
+					"face_dimming": false,
+					"render_method": "alpha_test_single_sided"
+				}
+			},
+			"minecraft:flammable": false,
+			"minecraft:collision_box": {
+				"origin": [
+					-8,
+					0,
+					-8
+				],
+				"size": [
+					16,
+					1,
+					16
+				]
+			},
+			"minecraft:selection_box": {
+				"origin": [
+					-8,
+					0,
+					-8
+				],
+				"size": [
+					16,
+					1,
+					16
+				]
+			},
+			"minecraft:geometry": {
+				"identifier": "geometry.tsu_nat.meat"
+			},
+			"minecraft:light_dampening": 0
+		},
+		"permutations": [
+			{
+				"condition": "q.block_state('tsu_nat:cured') == false",
+				"components": {
+					"minecraft:loot": "loot_tables/tsu/nat/smoked_gamey_meat.loot.json",
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.smoked_gamey_meat",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test_single_sided"
+						}
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:cured') == true",
+				"components": {
+					"minecraft:loot": "loot_tables/tsu/nat/jerky.loot.json",
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.jerky",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test_single_sided"
+						}
+					}
+				}
+			}
+		]
+	}
+}

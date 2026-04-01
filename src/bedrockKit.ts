@@ -15,8 +15,12 @@ import type { Block } from "./block.js";
 import type { Entity, BehaviorEntity, ResourceEntity } from "./entity.js";
 import type { LootTable } from "./lootTable.js";
 import type { TradingTable } from "./tradingTable.js";
-import type { Biome } from "./biome.js";
+import type { Biome, BehaviorBiome, ClientBiome } from "./biome.js";
 import type { Animation, AnimationController } from "./animation.js";
+import type { Feature } from "./feature.js";
+import type { FeatureRule } from "./featureRule.js";
+import type { Fog } from "./fogSettings.js";
+import type { Texture } from "./texture.js";
 import type { RenderController } from "./renderController.js";
 import type { Particle } from "./particle.js";
 import type { Attachable } from "./attachable.js";
@@ -36,8 +40,20 @@ export type ResourceEntityCollection   = AssetCollection<ResourceEntity>;
 export type LootTableCollection        = AssetCollection<LootTable>;
 /** All villager trading tables. Access via `addon.trading`. */
 export type TradingTableCollection     = AssetCollection<TradingTable>;
-/** All biome definitions from the behavior pack. Access via `addon.biomes`. */
+/** All unified biome views (BP + RP merged). Access via `addon.biomes`. */
 export type BiomeCollection            = AssetCollection<Biome>;
+/** All behavior-pack biome files. Accessed through `biome.behavior`. */
+export type BehaviorBiomeCollection    = AssetCollection<BehaviorBiome>;
+/** All resource-pack client biome files. Accessed through `biome.resource`. */
+export type ClientBiomeCollection      = AssetCollection<ClientBiome>;
+/** All world generation feature definitions. Access via `addon.features`. */
+export type FeatureCollection          = AssetCollection<Feature>;
+/** All feature rule definitions. Access via `addon.featureRules`. */
+export type FeatureRuleCollection      = AssetCollection<FeatureRule>;
+/** All fog definitions. Access via `addon.fogs`. */
+export type FogCollection              = AssetCollection<Fog>;
+/** All texture files from the resource pack. Access via `addon.textures`. */
+export type TextureCollection          = AssetCollection<Texture>;
 /** All animation definitions from the resource pack. Access via `addon.animations`. */
 export type AnimationCollection        = AssetCollection<Animation>;
 /** All animation controller definitions. Access via `addon.animationControllers`. */
@@ -66,8 +82,13 @@ export { Tag } from "./tag.js";
 export type { Ingredient, ShapelessIngredient, FurnaceResolved, BrewingResolved } from "./tag.js";
 
 // ─── World ────────────────────────────────────────────────────────────────────
-export { Biome } from "./biome.js";
+export { Biome, BehaviorBiome, ClientBiome } from "./biome.js";
 export { SpawnRule } from "./spawnRule.js";
+export { Feature } from "./feature.js";
+export type { FeatureType } from "./feature.js";
+export { FeatureRule } from "./featureRule.js";
+export { Fog } from "./fogSettings.js";
+export { Texture } from "./texture.js";
 
 // ─── Loot & Trading ───────────────────────────────────────────────────────────
 export { LootTable } from "./lootTable.js";
@@ -86,6 +107,7 @@ export type { GeometryBone } from "./geometry.js";
 
 // ─── Sounds ───────────────────────────────────────────────────────────────────
 export { SoundDefinitionsFile, SoundDefinitionEntry } from "./soundDefinitions.js";
+export type { DefinitionFile } from "./soundDefinitions.js";
 export { MusicDefinitionsFile, MusicDefinitionEntry } from "./musicDefinitions.js";
 export { SoundsFile, ObjectSoundEvents } from "./sounds.js";
 export type { SoundEventBinding } from "./sounds.js";

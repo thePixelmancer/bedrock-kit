@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_mushroom_ring.feature"
+    },
+    "places_feature": "tsu_nat:tsu_nat_mushroom_block.feature",
+    "project_input_to_floor": true,
+    "distribution": {
+      "coordinate_eval_order": "yxz",
+      "scatter_chance": 100,
+      "iterations": 90,
+      "y": "v.angle = (v.angle ?? 0) + 4; v.radius = 5; return 0;",
+      "x": "return math.sin(v.angle) * v.radius;",
+      "z": "return math.cos(v.angle) * v.radius;"
+    }
+  }
+}

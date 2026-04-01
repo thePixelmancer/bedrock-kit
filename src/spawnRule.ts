@@ -1,4 +1,6 @@
 import { Asset } from "./asset.js";
+import type { AddOn } from "./addon.js";
+import type { Entity } from "./entity.js";
 
 /**
  * Represents a spawn rule file from the behavior pack's `spawn_rules/` directory.
@@ -11,6 +13,7 @@ import { Asset } from "./asset.js";
  * const entity = addon.entities.get("minecraft:zombie");
  * console.log(entity?.spawnRule?.populationControl); // "monster"
  * console.log(entity?.spawnRule?.biomeTags);         // ["monster", "overworld"]
+ * console.log(entity?.spawnRule?.entity?.id);        // "minecraft:zombie"
  * ```
  */
 export class SpawnRule extends Asset {
@@ -25,14 +28,25 @@ export class SpawnRule extends Asset {
   /** The raw condition objects from the spawn rule. Each condition defines spawn requirements. */
   readonly conditions: Record<string, unknown>[];
 
-  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string) {
+  private readonly _addon: AddOn;
+
+  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
     super(filePath, data, rawText);
     this.id = id;
+    this._addon = addon;
     const inner = (data["minecraft:spawn_rules"] as Record<string, unknown>) ?? {};
     const desc = (inner["description"] as Record<string, unknown>) ?? {};
     this.populationControl = (desc["population_control"] as string) ?? undefined;
     this.conditions = Array.isArray(inner["conditions"])
       ? (inner["conditions"] as Record<string, unknown>[]) : [];
+  }
+
+  /**
+   * The unified entity this spawn rule belongs to.
+   * `undefined` if the entity is not present in the addon.
+   */
+  get entity(): Entity | undefined {
+    return this._addon.entities.get(this.id);
   }
 
   /**

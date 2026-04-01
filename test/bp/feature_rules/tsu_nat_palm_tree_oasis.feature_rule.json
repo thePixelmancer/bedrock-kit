@@ -1,0 +1,42 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_palm_tree_oasis.feature_rule",
+      "places_feature": "tsu_nat:tsu_nat_palm_tree_random.feature"
+    },
+    "conditions": {
+      "placement_pass": "surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "all_of": [
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "oasis"
+            }
+          ]
+        }
+      ]
+    },
+    "distribution": {
+      "scatter_chance": 5,
+      "iterations": "math.random_integer(1,3)",
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "y": "query.heightmap(v.worldx, v.worldz)"
+    }
+  }
+}

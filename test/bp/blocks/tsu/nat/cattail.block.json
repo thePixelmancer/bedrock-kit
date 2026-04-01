@@ -1,0 +1,205 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:cattail",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.crop"
+			},
+			"states": {
+				"tsu_nat:growth": [
+					0,
+					1,
+					2,
+					3
+				]
+			}
+		},
+		"components": {
+			"minecraft:placement_filter": {
+				"conditions": [
+					{
+						"allowed_faces": [
+							"up"
+						],
+						"block_filter": [
+							"minecraft:grass",
+							"minecraft:farmland",
+							"minecraft:sand",
+							"minecraft:grass_path",
+							"minecraft:dirt",
+							"minecraft:mud",
+							"minecraft:podzol",
+							"minecraft:gravel"
+						]
+					}
+				]
+			},
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"can_contain_liquid": true,
+						"liquid_type": "water",
+						"on_liquid_touches": "no_reaction"
+					}
+				]
+			},
+			"minecraft:geometry": {
+				"identifier": "geometry.tsu_nat.crop"
+			},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.cattail_0",
+					"ambient_occlusion": false,
+					"face_dimming": false,
+					"render_method": "alpha_test"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": false,
+			"minecraft:light_dampening": 0
+		},
+		"permutations": [
+			{
+				"condition": "q.block_state('tsu_nat:growth') < 3",
+				"components": {
+					"tsu_nat:growable": {
+						"growth_state": "tsu_nat:growth",
+						"growth_chance": 0.1,
+						"moisturized_amount_bonus": 0.05,
+						"max_growth": 3
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:growth') == 0",
+				"components": {
+					"minecraft:loot": "loot_tables/tsu/nat/cattail_seeds.loot.json",
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.crop"
+					},
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.cattail_0",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test"
+						}
+					},
+					"minecraft:selection_box": {
+						"origin": [
+							-8,
+							0,
+							-8
+						],
+						"size": [
+							16,
+							16,
+							16
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:growth') == 1",
+				"components": {
+					"minecraft:loot": "loot_tables/tsu/nat/cattail_seeds.loot.json",
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.crop"
+					},
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.cattail_1",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test"
+						}
+					},
+					"minecraft:selection_box": {
+						"origin": [
+							-8,
+							0,
+							-8
+						],
+						"size": [
+							16,
+							16,
+							16
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:growth') == 2",
+				"components": {
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.tall_crop"
+					},
+					"minecraft:loot": "loot_tables/tsu/nat/cattail_seeds.loot.json",
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.cattail_2_top",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test"
+						},
+						"bottom": {
+							"texture": "tsu_nat.cattail_2_bottom",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test"
+						}
+					},
+					"minecraft:selection_box": {
+						"origin": [
+							-8,
+							0,
+							-8
+						],
+						"size": [
+							16,
+							16,
+							16
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:growth') == 3",
+				"components": {
+					"minecraft:geometry": {
+						"identifier": "geometry.tsu_nat.tall_crop"
+					},
+					"minecraft:loot": "loot_tables/tsu/nat/cattail.loot.json",
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.cattail_3_top",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test"
+						},
+						"bottom": {
+							"texture": "tsu_nat.cattail_3_bottom",
+							"ambient_occlusion": false,
+							"face_dimming": false,
+							"render_method": "alpha_test"
+						}
+					},
+					"minecraft:selection_box": {
+						"origin": [
+							-8,
+							0,
+							-8
+						],
+						"size": [
+							16,
+							16,
+							16
+						]
+					}
+				}
+			}
+		]
+	}
+}

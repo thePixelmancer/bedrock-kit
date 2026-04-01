@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "tsu_nat:kombucha"
+    },
+    "tags": ["crafting_table"],
+    "unlock": [
+      {
+        "item": "tsu_nat:wild_yeast"
+      }
+    ],
+    "ingredients": [
+      {
+        "item": "tsu_nat:wild_yeast"
+      },
+      {
+        "item": "tsu_nat:glowshroom"
+      },
+      {
+        "item": "minecraft:bowl"
+      }
+    ],
+    "result": {
+      "item": "tsu_nat:kombucha",
+      "count": 4
+    }
+  }
+}

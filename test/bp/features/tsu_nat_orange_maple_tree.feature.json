@@ -1,0 +1,60 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_orange_maple_tree.feature"
+    },
+    "trunk": {
+      "trunk_decoration": {
+        "decoration_block": "tsu_nat:small_maple_log",
+        "decoration_chance": {
+          "numerator": 1,
+          "denominator": 20
+        },
+        "step_direction": "away",
+        "num_steps": 0
+      },
+      "trunk_height": {
+        "range_min": 6,
+        "range_max": 12
+      },
+      "trunk_block": {
+        "name": "tsu_nat:maple_log"
+      }
+    },
+    "pine_canopy": {
+      "base_radius": 2,
+      "canopy_height": {
+        "range_min": 3,
+        "range_max": 6
+      },
+      "leaf_block": {
+        "name": "tsu_nat:orange_maple_leaves"
+      }
+    },
+    "may_grow_on": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "tsu_nat:duff"
+    ],
+    "base_block": [
+      "minecraft:dirt"
+    ],
+    "may_grow_through": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "minecraft:leaf_litter"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:snow_layer",
+      "minecraft:leaf_litter",
+      "tsu_nat:red_maple_leaves",
+      "tsu_nat:yellow_maple_leaves",
+      "tsu_nat:orange_maple_leaves",
+      "tsu_nat:maple_sapling"
+    ]
+  }
+}

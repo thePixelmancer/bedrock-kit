@@ -1,0 +1,24 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:charred_wood"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"pp",
+			"pp"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:charred_log"
+			}
+		},
+		"result": {
+			"item": "tsu_nat:charred_wood",
+			"count": 4
+		}
+	}
+}

@@ -1,0 +1,52 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_cattail_patch_1.feature_rule",
+      "description": "Starts a tree of features for the cattail patches that spawn in swamps",
+      "places_feature": "tsu_nat:tsu_nat_cattail_patch_1.feature"
+    },
+    "conditions": {
+      "placement_pass": "before_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "any_of": [
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "swamp"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "mangrove_swamp"
+            }
+          ]
+        }
+      ]
+    },
+    "distribution": {
+      "coordinate_eval_order": "xzy",
+      "scatter_chance": {
+        "numerator": 1,
+        "denominator": 25
+      },
+      "iterations": 1,
+      "x": {
+        "distribution": "fixed_grid",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "z": {
+        "distribution": "fixed_grid",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "y": 0
+    }
+  }
+}

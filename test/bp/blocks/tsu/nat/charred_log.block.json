@@ -1,0 +1,87 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:charred_log",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.log"
+			},
+			"traits": {
+				"minecraft:placement_position": {
+					"enabled_states": [
+						"minecraft:block_face"
+					]
+				}
+			}
+		},
+		"components": {
+			"minecraft:loot": "loot_tables/tsu/nat/charred_log.loot.json",
+			"tag:minecraft:is_axe_item_destructible": {},
+			"tag:log": {},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0.5
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 5
+			},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.charred_log",
+					"render_method": "opaque"
+				},
+				"up": {
+					"texture": "tsu_nat.charred_log_top",
+					"render_method": "opaque"
+				},
+				"down": {
+					"texture": "tsu_nat.charred_log_top",
+					"render_method": "opaque"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": true,
+			"minecraft:selection_box": true,
+			"minecraft:geometry": "minecraft:geometry.full_block",
+			"minecraft:light_dampening": 15
+		},
+		"permutations": [
+			{
+				"condition": "q.block_state('minecraft:block_face') == 'west' || q.block_state('minecraft:block_face') == 'east'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							90
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:block_face') == 'down' || q.block_state('minecraft:block_face') == 'up'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:block_face') == 'north' || q.block_state('minecraft:block_face') == 'south'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							90,
+							0,
+							0
+						]
+					}
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,12 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:partially_exposed_blob_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_farm_water_supply.feature"
+    },
+    "places_block": "minecraft:water",
+    "placement_radius_around_floor": 1,
+    "placement_probability_per_valid_position": 0.5,
+    "exposed_face": "up"
+  }
+}

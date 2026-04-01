@@ -1,0 +1,17 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "tsu_nat:maple_syrup"
+    },
+
+    "unlock": [
+      {
+        "item": "tsu_nat:raw_sap"
+      }
+    ],
+    "tags": ["furnace", "smoker"],
+    "input": "tsu_nat:raw_sap",
+    "output": "tsu_nat:maple_syrup"
+  }
+}

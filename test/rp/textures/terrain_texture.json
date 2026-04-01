@@ -1,0 +1,208 @@
+{
+	"texture_data": {
+		"tsu_nat.rotting_soil": {
+			"textures": "textures/tsu/nat/blocks/rotting_soil"
+		},
+		"tsu_nat.umbral_shrub": {
+			"textures": "textures/tsu/nat/blocks/umbral_shrub"
+		},
+		"tsu_nat.burnt_shrub": {
+			"textures": "textures/tsu/nat/blocks/burnt_shrub"
+		},
+		"tsu_nat.salt_bud": {
+			"textures": "textures/tsu/nat/blocks/salt_bud"
+		},
+		"tsu_nat.salt_crystal": {
+			"textures": "textures/tsu/nat/blocks/salt_crystal"
+		},
+		"tsu_nat.omphalotus": {
+			"textures": "textures/tsu/nat/blocks/omphalotus"
+		},
+		"tsu_nat.glowshroom": {
+			"textures": "textures/tsu/nat/blocks/glowshroom"
+		},
+		"tsu_nat.sporepuff": {
+			"textures": "textures/tsu/nat/blocks/sporepuff"
+		},
+		"tsu_nat.maple_door_top": {
+			"textures": "textures/tsu/nat/blocks/maple_door_top"
+		},
+		"tsu_nat.charred_door_top": {
+			"textures": "textures/tsu/nat/blocks/charred_door_top"
+		},
+		"tsu_nat.maple_door_bottom": {
+			"textures": "textures/tsu/nat/blocks/maple_door_bottom"
+		},
+		"tsu_nat.charred_door_bottom": {
+			"textures": "textures/tsu/nat/blocks/charred_door_bottom"
+		},
+		"tsu_nat.maple_fence": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.maple_planks"
+		},
+		"tsu_nat.charred_fence": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.charred_planks"
+		},
+		"tsu_nat.dead_grass_block": {
+			"textures": "textures/tsu/nat/blocks/dead_grass_block"
+		},
+		"tsu_nat.duff": {
+			"textures": "textures/tsu/nat/blocks/duff"
+		},
+		"tsu_nat.glowing_mycelium": {
+			"textures": "textures/tsu/nat/blocks/glowing_mycelium"
+		},
+		"tsu_nat.dead_grass_block_top": {
+			"textures": "textures/tsu/nat/blocks/dead_grass_block_top"
+		},
+		"tsu_nat.duff_top": {
+			"textures": "textures/tsu/nat/blocks/duff_top"
+		},
+		"tsu_nat.glowing_mycelium_top": {
+			"textures": "textures/tsu/nat/blocks/glowing_mycelium_top"
+		},
+		"tsu_nat.dead_grass_block_bottom": {
+			"textures": "textures/tsu/nat/blocks/dead_grass_block_bottom"
+		},
+		"tsu_nat.duff_bottom": {
+			"textures": "textures/tsu/nat/blocks/duff_bottom"
+		},
+		"tsu_nat.glowing_mycelium_bottom": {
+			"textures": "textures/tsu/nat/blocks/glowing_mycelium_bottom"
+		},
+		"tsu_nat.glowing_mold": {
+			"textures": "textures/tsu/nat/blocks/glowing_mold"
+		},
+		"tsu_nat.red_maple_leaves": {
+			"textures": "textures/tsu/nat/blocks/red_maple_leaves"
+		},
+		"tsu_nat.orange_maple_leaves": {
+			"textures": "textures/tsu/nat/blocks/orange_maple_leaves"
+		},
+		"tsu_nat.yellow_maple_leaves": {
+			"textures": "textures/tsu/nat/blocks/yellow_maple_leaves"
+		},
+		"tsu_nat.maple_log": {
+			"textures": "textures/tsu/nat/blocks/maple_log"
+		},
+		"tsu_nat.stripped_maple_log": {
+			"textures": "textures/tsu/nat/blocks/stripped_maple_log"
+		},
+		"tsu_nat.charred_log": {
+			"textures": "textures/tsu/nat/blocks/charred_log"
+		},
+		"tsu_nat.stripped_charred_log": {
+			"textures": "textures/tsu/nat/blocks/stripped_charred_log"
+		},
+		"tsu_nat.maple_log_top": {
+			"textures": "textures/tsu/nat/blocks/maple_log_top"
+		},
+		"tsu_nat.stripped_maple_log_top": {
+			"textures": "textures/tsu/nat/blocks/stripped_maple_log_top"
+		},
+		"tsu_nat.charred_log_top": {
+			"textures": "textures/tsu/nat/blocks/charred_log_top"
+		},
+		"tsu_nat.stripped_charred_log_top": {
+			"textures": "textures/tsu/nat/blocks/stripped_charred_log_top"
+		},
+		"tsu_nat.maple_planks": {
+			"textures": "textures/tsu/nat/blocks/maple_planks"
+		},
+		"tsu_nat.charred_planks": {
+			"textures": "textures/tsu/nat/blocks/charred_planks"
+		},
+		"tsu_nat.maple_double_slab": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.maple_planks"
+		},
+		"tsu_nat.charred_double_slab": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.charred_planks"
+		},
+		"tsu_nat.maple_sapling": {
+			"textures": "textures/tsu/nat/blocks/maple_sapling"
+		},
+		"tsu_nat.maple_slab": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.maple_planks"
+		},
+		"tsu_nat.charred_slab": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.charred_planks"
+		},
+		"tsu_nat.maple_stairs": {
+			"textures": "textures/tsu/nat/blocks/maple_planks"
+		},
+		"tsu_nat.charred_stairs": {
+			"textures": "textures/tsu/nat/blocks/charred_planks"
+		},
+		"tsu_nat.maple_wood": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.maple_log"
+		},
+		"tsu_nat.charred_wood": {
+			"textures": "textures/tsu/nat/blocks/tsu_nat.charred_log"
+		},
+		"tsu_nat.aloe": {
+			"textures": "textures/tsu/nat/aloe"
+		},
+		"tsu_nat.ash": {
+			"textures": "textures/tsu/nat/blocks/ash"
+		},
+		"tsu_nat.blue_mushroom_block": {
+			"textures": "textures/tsu/nat/blocks/blue_mushroom_block"
+		},
+		"tsu_nat.blue_mushroom_gills": {
+			"textures": "textures/tsu/nat/blocks/blue_mushroom_gills"
+		},
+		"tsu_nat.cattail_0": {
+			"textures": "textures/tsu/nat/blocks/cattail_0"
+		},
+		"tsu_nat.cattail_1": {
+			"textures": "textures/tsu/nat/blocks/cattail_1"
+		},
+		"tsu_nat.cattail_2_top": {
+			"textures": "textures/tsu/nat/blocks/cattail_2_top"
+		},
+		"tsu_nat.cattail_2_bottom": {
+			"textures": "textures/tsu/nat/blocks/cattail_2_bottom"
+		},
+		"tsu_nat.cattail_3_top": {
+			"textures": "textures/tsu/nat/blocks/cattail_3_top"
+		},
+		"tsu_nat.cattail_3_bottom": {
+			"textures": "textures/tsu/nat/blocks/cattail_3_bottom"
+		},
+		"tsu_nat.oozing_maple_log": {
+			"textures": "textures/tsu/nat/blocks/oozing_maple_log"
+		},
+		"tsu_nat.oozing_maple_log_top": {
+			"textures": "textures/tsu/nat/blocks/oozing_maple_log_top"
+		},
+		"tsu_nat.rope": {
+			"textures": "textures/tsu/nat/blocks/rope"
+		},
+		"tsu_nat.salt_block": {
+			"textures": "textures/tsu/nat/blocks/salt_block"
+		},
+		"tsu_nat.crusty_salt": {
+			"textures": "textures/tsu/nat/blocks/crusty_salt"
+		},
+		"tsu_nat.sap_water": {
+			"textures": "textures/tsu/nat/blocks/sap_water"
+		},
+		"tsu_nat.scarecrow_straw": {
+			"textures": "textures/entity/villager2/profession/farmer"
+		},
+		"tsu_nat.scarecrow_clothes": {
+			"textures": "textures/entity/villager2/biomes/biome_savanna"
+		},
+		"tsu_nat.gamey_meat": {
+			"textures": "textures/tsu/nat/items/gamey_meat"
+		},
+		"tsu_nat.smoked_gamey_meat": {
+			"textures": "textures/tsu/nat/items/smoked_gamey_meat"
+		},
+		"tsu_nat.jerky": {
+			"textures": "textures/tsu/nat/items/jerky"
+		},
+		"tsu_nat.mandrake_root": {
+			"textures": "textures/tsu/nat/blocks/mandrake_root"
+		}
+	}
+}

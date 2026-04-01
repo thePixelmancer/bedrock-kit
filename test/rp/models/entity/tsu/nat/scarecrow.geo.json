@@ -1,0 +1,167 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.tsu_nat.scarecrow",
+				"texture_width": 16,
+				"texture_height": 16,
+				"visible_bounds_width": 8,
+				"visible_bounds_height": 5,
+				"visible_bounds_offset": [0, 1.5, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "body",
+					"parent": "root",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{
+							"origin": [-44, 43, -2],
+							"size": [4, 7, 4],
+							"pivot": [-41, 13, 0],
+							"rotation": [0, 0, 90],
+							"uv": {
+								"north": {"uv": [12, 6.5], "uv_size": [1, 1.75]},
+								"east": {"uv": [11, 6.5], "uv_size": [1, 1.75]},
+								"south": {"uv": [14, 6.5], "uv_size": [1, 1.75]},
+								"west": {"uv": [13, 6.5], "uv_size": [1, 1.75]}
+							}
+						},
+						{
+							"origin": [-51, 49, -2],
+							"size": [4, 1, 4],
+							"inflate": 0.1,
+							"pivot": [-48, 13, 0],
+							"rotation": [0, 0, 90],
+							"uv": {
+								"north": {"uv": [4, 9], "uv_size": [4, 1], "material_instance": "straw"},
+								"east": {"uv": [0, 9], "uv_size": [4, 1], "material_instance": "straw"},
+								"south": {"uv": [12, 9], "uv_size": [4, 1], "material_instance": "straw"},
+								"west": {"uv": [8, 9], "uv_size": [4, 1], "material_instance": "straw"},
+								"down": {"uv": [6, 10], "uv_size": [4, -4], "material_instance": "straw_top"}
+							}
+						},
+						{
+							"origin": [40, 43, -2],
+							"size": [4, 7, 4],
+							"inflate": 0.1,
+							"pivot": [41, 13, 0],
+							"rotation": [0, 0, -90],
+							"uv": {
+								"north": {"uv": [13, 6.5], "uv_size": [-1, 1.75]},
+								"east": {"uv": [14, 6.5], "uv_size": [-1, 1.75]},
+								"south": {"uv": [15, 6.5], "uv_size": [-1, 1.75]},
+								"west": {"uv": [12, 6.5], "uv_size": [-1, 1.75]}
+							}
+						},
+						{
+							"origin": [47, 49, -2],
+							"size": [4, 1, 4],
+							"pivot": [48, 13, 0],
+							"rotation": [0, 0, -90],
+							"uv": {
+								"north": {"uv": [8, 9], "uv_size": [-4, 1], "material_instance": "straw"},
+								"east": {"uv": [12, 9], "uv_size": [-4, 1], "material_instance": "straw"},
+								"south": {"uv": [16, 9], "uv_size": [-4, 1], "material_instance": "straw"},
+								"west": {"uv": [4, 9], "uv_size": [-4, 1], "material_instance": "straw"},
+								"down": {"uv": [10, 10], "uv_size": [-4, -4], "material_instance": "straw_top"}
+							}
+						},
+						{
+							"origin": [-4, 8, -2],
+							"size": [8, 8, 4],
+							"inflate": 0.1,
+							"uv": {
+								"north": {"uv": [1.5, 12], "uv_size": [2, 2]},
+								"east": {"uv": [0.5, 12], "uv_size": [1, 2]},
+								"south": {"uv": [4.5, 12], "uv_size": [2, 2]},
+								"west": {"uv": [3.5, 12], "uv_size": [1, 2]},
+								"up": {"uv": [1.5, 11], "uv_size": [2, 1]}
+							}
+						},
+						{
+							"origin": [-4, 3, -2],
+							"size": [8, 5, 4],
+							"inflate": 0.2,
+							"uv": {
+								"north": {"uv": [1.5, 14.5], "uv_size": [2, 1.25]},
+								"east": {"uv": [0.5, 14.5], "uv_size": [1, 1.25]},
+								"south": {"uv": [4.5, 14.5], "uv_size": [2, 1.25]},
+								"west": {"uv": [3.5, 14.5], "uv_size": [1, 1.25]}
+							}
+						},
+						{
+							"origin": [-2, 0, -2],
+							"size": [4, 16, 4],
+							"uv": {
+								"north": {"uv": [4, 0], "uv_size": [4, 16], "material_instance": "fence"},
+								"east": {"uv": [0, 0], "uv_size": [4, 16], "material_instance": "fence"},
+								"south": {"uv": [8, 0], "uv_size": [4, 16], "material_instance": "fence"},
+								"west": {"uv": [12, 0], "uv_size": [4, 16], "material_instance": "fence"},
+								"up": {"uv": [4, 4], "uv_size": [-4, -4], "material_instance": "fence"},
+								"down": {"uv": [4, 4], "uv_size": [-4, -4], "material_instance": "fence"}
+							}
+						}
+					]
+				},
+				{
+					"name": "head",
+					"parent": "root",
+					"pivot": [0, 16, 0],
+					"cubes": [
+						{
+							"origin": [-8, 24, -7],
+							"size": [16, 0, 14],
+							"uv": {
+								"up": {"uv": [16, 15], "uv_size": [-16, -14], "material_instance": "straw_top"}
+							}
+						},
+						{
+							"origin": [-7, 24, 7],
+							"size": [14, 0, 1],
+							"uv": {
+								"up": {"uv": [15, 1], "uv_size": [-14, -1], "material_instance": "straw_top"}
+							}
+						},
+						{
+							"origin": [-7, 24, -8],
+							"size": [14, 0, 1],
+							"uv": {
+								"up": {"uv": [15, 16], "uv_size": [-14, -1], "material_instance": "straw_top"}
+							}
+						},
+						{
+							"origin": [-4, 24, -4],
+							"size": [8, 4, 8],
+							"uv": {
+								"north": {"uv": [2, 0], "uv_size": [8, 4], "material_instance": "straw"},
+								"east": {"uv": [2, 0], "uv_size": [8, 4], "material_instance": "straw"},
+								"south": {"uv": [2, 0], "uv_size": [8, 4], "material_instance": "straw"},
+								"west": {"uv": [2, 0], "uv_size": [8, 4], "material_instance": "straw"},
+								"up": {"uv": [11, 12], "uv_size": [-8, -8], "material_instance": "straw_top"},
+								"down": {"uv": [10, 4], "uv_size": [-8, -4], "material_instance": "straw"}
+							}
+						},
+						{
+							"origin": [-4, 16, -4],
+							"size": [8, 8, 8],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "pumpkin_front"},
+								"east": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "pumpkin_side"},
+								"south": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "pumpkin_side"},
+								"west": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "pumpkin_side"},
+								"up": {"uv": [16, 16], "uv_size": [-16, -16], "material_instance": "pumpkin_top"},
+								"down": {"uv": [16, 16], "uv_size": [-16, -16], "material_instance": "pumpkin_side"}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

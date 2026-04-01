@@ -68,22 +68,34 @@ export class Recipe extends Asset {
   }
 
   /**
+   * The item this recipe produces, or `undefined` if the result is not in this addon
+   * (e.g. a vanilla item) or the recipe has no result.
+   * Shortcut for `recipe.result?.item`.
+   */
+  get item(): Item | undefined {
+    return this.result?.item;
+  }
+
+  /**
    * All resolved ingredients as a flat array of `Item` or `Tag` instances.
    * For shaped recipes the grid is flattened; empty slots are excluded.
    */
   get ingredients(): Array<Item | Tag> {
-    return this.getAllIngredients();
+    return this._allIngredientStrings().flatMap(s => {
+      const r = this._resolveIngredientStr(s);
+      return r ? [r] : [];
+    });
   }
 
   /**
    * Shaped: resolves the pattern into a 2D grid of `Item | Tag | null`.
-   * Returns `null` if this is not a shaped recipe.
+   * Returns `undefined` if this is not a shaped recipe.
    */
-  resolveShape(): Ingredient[][] | null {
-    if (this.type !== "shaped") return null;
+  resolveShape(): Ingredient[][] | undefined {
+    if (this.type !== "shaped") return undefined;
     const inner = this._inner;
     const shape = Array.isArray(inner["pattern"]) ? (inner["pattern"] as string[]) : null;
-    if (!shape) return null;
+    if (!shape) return undefined;
     const keyMap = inner["key"] && typeof inner["key"] === "object" && !Array.isArray(inner["key"])
       ? (inner["key"] as Record<string, unknown>)
       : {};
@@ -100,10 +112,10 @@ export class Recipe extends Asset {
 
   /**
    * Shapeless: returns each ingredient with its required count.
-   * Returns `null` if this is not a shapeless recipe.
+   * Returns `undefined` if this is not a shapeless recipe.
    */
-  resolveShapeless(): ShapelessIngredient[] | null {
-    if (this.type !== "shapeless") return null;
+  resolveShapeless(): ShapelessIngredient[] | undefined {
+    if (this.type !== "shapeless") return undefined;
     const raw = this._inner["ingredients"];
     if (!Array.isArray(raw)) return [];
     return (raw as Record<string, unknown>[]).flatMap(entry => {
@@ -115,40 +127,29 @@ export class Recipe extends Asset {
 
   /**
    * Furnace: returns the input and output.
-   * Returns `null` if this is not a furnace recipe.
+   * Returns `undefined` if this is not a furnace recipe.
    */
-  resolveFurnace(): FurnaceResolved | null {
-    if (this.type !== "furnace") return null;
+  resolveFurnace(): FurnaceResolved | undefined {
+    if (this.type !== "furnace") return undefined;
     const inner = this._inner;
     const input = this._resolveIngredientStr(parseIngredient(inner["input"]));
     const output = this._resolveIngredientStr(parseIngredient(inner["output"]));
-    if (!input || !output) return null;
+    if (!input || !output) return undefined;
     return { input, output };
   }
 
   /**
    * Brewing: returns the input, reagent, and output.
-   * Returns `null` if this is not a brewing recipe.
+   * Returns `undefined` if this is not a brewing recipe.
    */
-  resolveBrewing(): BrewingResolved | null {
-    if (this.type !== "brewing_mix" && this.type !== "brewing_container") return null;
+  resolveBrewing(): BrewingResolved | undefined {
+    if (this.type !== "brewing_mix" && this.type !== "brewing_container") return undefined;
     const inner = this._inner;
     const input = this._resolveIngredientStr(parseIngredient(inner["input"]));
     const reagent = this._resolveIngredientStr(parseIngredient(inner["reagent"]));
     const output = this._resolveIngredientStr(parseIngredient(inner["output"]));
-    if (!input || !reagent || !output) return null;
+    if (!input || !reagent || !output) return undefined;
     return { input, reagent, output };
-  }
-
-  /**
-   * Returns a flat array of all resolved ingredients (`Item` or `Tag` instances).
-   * Empty slots are excluded.
-   */
-  getAllIngredients(): Array<Item | Tag> {
-    return this._allIngredientStrings().flatMap(s => {
-      const r = this._resolveIngredientStr(s);
-      return r ? [r] : [];
-    });
   }
 
   /** Returns `true` if this recipe uses the given item identifier as an ingredient. */
@@ -156,8 +157,8 @@ export class Recipe extends Asset {
     return this._allIngredientStrings().some(s => s === id);
   }
 
-  private _resolveIngredientStr(raw: string): Item | Tag | null {
-    if (!raw) return null;
+  private _resolveIngredientStr(raw: string): Item | Tag | undefined {
+    if (!raw) return undefined;
     if (raw.startsWith("tag:")) return new Tag(raw.slice(4));
     return this._addon.items.get(raw) ?? new Tag(raw);
   }

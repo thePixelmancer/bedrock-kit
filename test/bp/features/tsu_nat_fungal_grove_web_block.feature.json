@@ -1,0 +1,19 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fungal_grove_web_block.feature"
+    },
+    "places_block": [
+      {
+        "block": "tsu_nat:rotting_soil",
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "may_replace": [
+      "tsu_nat:glowing_mycelium"
+    ]
+  }
+}

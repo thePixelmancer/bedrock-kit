@@ -1,0 +1,258 @@
+{
+	"individual_named_sounds": {
+		"sounds": {
+			"tsu_nat.charred_forest.loop": {
+				"pitch": 1,
+				"sound": "tsu_nat.charred_forest.loop",
+				"volume": 0.58
+			},
+			"tsu_nat.charred_forest.mood": {
+				"pitch": 1,
+				"sound": "tsu_nat.charred_forest.mood",
+				"volume": 0.58
+			},
+			"tsu_nat.maple_forest.mood": {
+				"pitch": [
+					1,
+					1.1
+				],
+				"sound": "tsu_nat.maple_forest.mood",
+				"volume": 1
+			},
+			"tsu_nat.maple_forest.loop": {
+				"pitch": 1,
+				"sound": "tsu_nat.maple_forest.loop",
+				"volume": 0.58
+			}
+		}
+	},
+	"entity_sounds": {
+		"entities": {
+			"tsu_nat:blooshroom": {
+				"events": {
+					"ambient": "mob.cow.say",
+					"death": "mob.cow.hurt",
+					"eat": "mob.mooshroom.eat",
+					"hurt": "mob.cow.hurt",
+					"step": {
+						"pitch": [
+							0.9,
+							1.1
+						],
+						"sound": "mob.cow.step",
+						"volume": 0.65
+					}
+				},
+				"pitch": [
+					0.8,
+					1.2
+				],
+				"volume": 1
+			},
+			"tsu_nat:boar": {
+				"events": {
+					"ambient": "mob.pig.say",
+					"boost": {
+						"pitch": 1,
+						"sound": "mob.pig.boost",
+						"volume": 1
+					},
+					"death": "mob.pig.death",
+					"death.to.zombie": {
+						"sound": "mob.pig.death",
+						"volume": 2
+					},
+					"eat": "",
+					"hurt": "mob.pig.say",
+					"step": {
+						"pitch": 1,
+						"sound": "mob.pig.step",
+						"volume": 0.2
+					}
+				},
+				"pitch": [
+					0.8,
+					1.2
+				],
+				"volume": 1
+			},
+			"tsu_nat:firefly": {
+				"events": {
+					"ambient.pollinate": {
+						"sound": "mob.bee.pollinate",
+						"volume": 0.85
+					},
+					"attack": {
+						"pitch": [
+							0.8,
+							1
+						],
+						"sound": "mob.bee.sting"
+					},
+					"death": {
+						"pitch": [
+							0.9,
+							1.1
+						],
+						"sound": "mob.bee.death",
+						"volume": 0.6
+					},
+					"eat": "",
+					"hurt": {
+						"pitch": [
+							0.9,
+							1.1
+						],
+						"sound": "mob.bee.hurt",
+						"volume": 0.6
+					}
+				},
+				"pitch": 2,
+				"volume": 0.6
+			},
+			"tsu_nat:flies": {
+				"events": {
+					"ambient": {
+						"sound": "tsu_nat.fly.buzz"
+					},
+					"ambient.pollinate": {
+						"sound": "tsu_nat.fly.buzz",
+						"volume": 0.85
+					},
+					"attack": {
+						"pitch": [
+							0.8,
+							1
+						],
+						"sound": "mob.bee.sting"
+					},
+					"death": {
+						"pitch": [
+							0.9,
+							1.1
+						],
+						"sound": "mob.bee.death",
+						"volume": 0.6
+					},
+					"eat": "",
+					"hurt": {
+						"pitch": [
+							0.9,
+							1.1
+						],
+						"sound": "mob.bee.hurt",
+						"volume": 0.6
+					}
+				},
+				"pitch": 1,
+				"volume": 1
+			},
+			"tsu_nat:mandrake_root": {
+				"events": {
+					"ambient": "tsu_nat.mandrake_root.scream",
+					"death": {
+						"sound": "mob.vex.death",
+						"pitch": 2,
+						"volume": 3
+					},
+					"hurt": {
+						"sound": "mob.vex.hurt",
+						"pitch": 2,
+						"volume": 3
+					},
+					"step": {
+						"pitch": 2,
+						"sound": "mob.zombie.step",
+						"volume": 1
+					}
+				},
+				"pitch": [
+					1.1,
+					2
+				],
+				"volume": 1
+			},
+			"tsu_nat:sap_slime": {
+				"events": {
+					"attack": {
+						"pitch": [
+							0.8,
+							1.2
+						],
+						"sound": "mob.attack"
+					},
+					"death": "mob.slime.small",
+					"hurt": "mob.slime.small",
+					"break": {
+						"pitch": [
+							0.8,
+							1
+						],
+						"sound": "mob.slime.big",
+						"volume": 1
+					},
+					"step": {
+						"pitch": 0.5,
+						"sound": "mob.slime.big",
+						"volume": 0.25
+					},
+					"squish.big": {
+						"pitch": [
+							0.64,
+							0.96
+						],
+						"sound": "mob.slime.big"
+					},
+					"squish.small": {
+						"pitch": [
+							0.64,
+							0.96
+						],
+						"sound": "mob.slime.small"
+					}
+				},
+				"pitch": [
+					0.8,
+					1.2
+				],
+				"volume": 1
+			},
+			"tsu_nat:tumbleweed": {
+				"events": {
+					"boost": {
+						"pitch": 1,
+						"sound": "fall.grass",
+						"volume": 1
+					},
+					"death": "fall.grass",
+					"hurt": "fall.grass",
+					"step": "fall.grass"
+				},
+				"pitch": [
+					0.8,
+					1.2
+				],
+				"volume": 1
+			},
+			"tsu_nat:turkey": {
+				"events": {
+					"ambient": "mob.chicken.say",
+					"death": "mob.chicken.hurt",
+					"eat": "",
+					"hurt": "mob.chicken.hurt",
+					"plop": "mob.chicken.plop",
+					"step": {
+						"pitch": 1,
+						"sound": "mob.chicken.step",
+						"volume": 0.25
+					}
+				},
+				"pitch": [
+					0.7,
+					1.1
+				],
+				"volume": 1
+			}
+		}
+	}
+}

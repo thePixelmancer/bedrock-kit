@@ -1,0 +1,25 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:charred_stairs"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"p",
+			"pp",
+			"ppp"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:charred_planks"
+			}
+		},
+		"result": {
+			"item": "tsu_nat:charred_stairs",
+			"count": 4
+		}
+	}
+}

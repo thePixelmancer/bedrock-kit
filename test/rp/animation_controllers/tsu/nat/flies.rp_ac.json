@@ -1,0 +1,13 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.tsu_nat.flies": {
+      "initial_state": "default",
+      "states": {
+        "default": {
+          "particle_effects": [{ "effect": "flies", "locator": "locator" }]
+        }
+      }
+    }
+  }
+}

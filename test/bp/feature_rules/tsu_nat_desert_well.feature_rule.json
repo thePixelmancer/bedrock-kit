@@ -1,0 +1,45 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_desert_well.feature_rule",
+      "places_feature": "tsu_nat:tsu_nat_desert_well.feature"
+    },
+    "conditions": {
+      "placement_pass": "before_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "any_of": [
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "desert"
+            }
+          ]
+        }
+      ]
+    },
+    "distribution": {
+      "scatter_chance": {
+        "numerator": 1,
+        "denominator": 600
+      },
+      "iterations": 1,
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "y": "query.heightmap(variable.worldx, variable.worldz)-7",
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      }
+    }
+  }
+}

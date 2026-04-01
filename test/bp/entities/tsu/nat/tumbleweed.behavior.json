@@ -1,0 +1,163 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:entity": {
+		"description": {
+			"identifier": "tsu_nat:tumbleweed",
+			"is_spawnable": true,
+			"is_summonable": true
+		},
+		"component_groups": {
+			"tsu_nat:despawn": {
+				"minecraft:instant_despawn": {}
+			},
+			"tsu_nat:not_on_fire": {
+				"minecraft:behavior.move_to_block": {
+					"start_chance": 1,
+					"search_range": 32,
+					"goal_radius": 0.5,
+					"stay_duration": 0.1,
+					"target_blocks": [
+						"minecraft:fire"
+					]
+				},
+				"minecraft:damage_sensor": {
+					"triggers": [
+						{
+							"cause": "fire",
+							"deals_damage": "yes",
+							"on_damage": {
+								"event": "set_on_fire"
+							}
+						},
+						{
+							"cause": "fire_tick",
+							"deals_damage": "yes",
+							"on_damage": {
+								"event": "set_on_fire"
+							}
+						}
+					]
+				}
+			},
+			"tsu_nat:on_fire": {
+				"minecraft:fire_immune": {},
+				"minecraft:behavior.avoid_block": {
+					"search_range": 8,
+					"search_height": 8,
+					"sprint_speed_modifier": 0,
+					"target_selection_method": "nearest",
+					"target_blocks": [
+						"tsu_nat:fire"
+					],
+					"walk_speed_modifier": 0
+				},
+				"minecraft:trail": {
+					"block_type": "minecraft:fire",
+					"spawn_offset": [
+						0,
+						0,
+						-1
+					]
+				}
+			}
+		},
+		"components": {
+			"minecraft:health": {
+				"value": 20,
+				"max": 20
+			},
+			"minecraft:renders_when_invisible": {},
+			"minecraft:spell_effects": {
+				"add_effects": [
+					{
+						"effect": "invisibility",
+						"amplifier": 1,
+						"duration": "infinite",
+						"visible": false
+					}
+				]
+			},
+			"minecraft:behavior.float": {
+				"priority": 2
+			},
+			"minecraft:behavior.random_stroll": {
+				"priority": 10,
+				"speed_multiplier": 1.0,
+				"xz_dist": 24,
+				"y_dist": 3
+			},
+			"minecraft:pushable": {
+				"is_pushable": true,
+				"is_pushable_by_piston": true
+			},
+			"minecraft:movement": {
+				"value": 0.25
+			},
+			"minecraft:navigation.walk": {
+				"can_path_over_water": false,
+				"avoid_water": true,
+				"avoid_damage_blocks": true
+			},
+			"minecraft:movement.basic": {},
+			"minecraft:physics": {},
+			"minecraft:type_family": {
+				"family": [
+					"tumbleweed",
+					"plant",
+					"nature",
+					"tsu_nat"
+				]
+			},
+			"minecraft:knockback_resistance": {
+				"value": 100
+			},
+			"minecraft:collision_box": {
+				"width": 1,
+				"height": 1
+			},
+			"minecraft:loot": {
+				"table": "loot_tables/tsu/nat/tumbleweed.loot.json"
+			}
+		},
+		"events": {
+			"minecraft:entity_spawned": {
+				"add": {
+					"component_groups": [
+						"tsu_nat:not_on_fire"
+					]
+				}
+			},
+			"set_on_fire": {
+				"add": {
+					"component_groups": [
+						"tsu_nat:on_fire"
+					]
+				},
+				"remove": {
+					"component_groups": [
+						"tsu_nat:not_on_fire"
+					]
+				}
+			},
+			"extinguish": {
+				"add": {
+					"component_groups": [
+						"tsu_nat:not_on_fire"
+					]
+				},
+				"remove": {
+					"component_groups": [
+						"tsu_nat:on_fire"
+					]
+				}
+			},
+			"despawn": {
+				"add": {
+					"component_groups": [
+						"tsu_nat:despawn"
+					]
+				}
+			}
+		}
+	}
+}

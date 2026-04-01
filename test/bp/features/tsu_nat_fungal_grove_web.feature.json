@@ -1,0 +1,17 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fungal_grove_web.feature"
+    },
+    "places_feature": "tsu_nat:tsu_nat_fungal_grove_web_agg.feature",
+    "distribution": {
+      "coordinate_eval_order": "xzy",
+      "scatter_chance": 100,
+      "iterations": "v.cell_size = 140; v.warp_freq = 0.01;     v.warp_strength = 300;   v.seed = 1000;\nv.wx = v.originx + q.noise((v.originx + v.seed) * v.warp_freq, v.originz * v.warp_freq) * v.warp_strength; v.wz = v.originz + q.noise((v.originx + 1000 + v.seed) * v.warp_freq, (v.originz + 1000) * v.warp_freq) * v.warp_strength;\nv.sx = math.floor(v.wx / v.cell_size); v.sz = math.floor(v.wz / v.cell_size);\nv.cx = v.sx * v.cell_size + v.cell_size * 0.5; v.cz = v.sz * v.cell_size + v.cell_size * 0.5;\nv.dx = math.abs(v.wx - v.cx); v.dz = math.abs(v.wz - v.cz);\nv.norm = math.max(v.dx, v.dz) / (v.cell_size * 0.5);\nreturn v.norm > 0.9 ;",
+      "x": 0,
+      "z": 0,
+      "y": 0
+    }
+  }
+}

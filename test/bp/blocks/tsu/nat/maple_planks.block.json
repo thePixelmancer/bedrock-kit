@@ -1,0 +1,29 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:maple_planks",
+			"menu_category": {
+				"category": "construction",
+				"group": "minecraft:itemGroup.name.planks"
+			}
+		},
+		"components": {
+			"tag:minecraft:is_axe_item_destructible": {},
+			"tag:minecraft:planks": {},
+			"tag:minecraft:wood": {},
+			"tag:planks": {},
+			"tag:wood": {},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 5
+			},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0.5
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": true,
+			"minecraft:selection_box": true,
+			"minecraft:light_dampening": 15
+		}
+	}
+}

@@ -1,0 +1,48 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_cattail_block.feature"
+    },
+    "places_block": [
+      {
+        "block": {
+          "name": "tsu_nat:cattail",
+          "states": {
+            "tsu_nat:growth": 3
+          }
+        },
+        "weight": 2
+      },
+      {
+        "block": {
+          "name": "tsu_nat:cattail",
+          "states": {
+            "tsu_nat:growth": 2
+          }
+        },
+        "weight": 2
+      },
+      {
+        "block": {
+          "name": "tsu_nat:cattail",
+          "states": {
+            "tsu_nat:growth": 1
+          }
+        },
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": true,
+    "enforce_survivability_rules": true,
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:water"
+    ],
+    "may_attach_to": {
+      "top": [
+        "minecraft:air"
+      ]
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "tsu_nat:blooshroom",
+      "min_engine_version": "1.8.0",
+      "materials": {
+        "default": "entity_emissive_alpha"
+      },
+      "textures": {
+        "default": "textures/tsu/nat/blooshroom"
+      },
+      "geometry": {
+        "default": "geometry.tsu_nat.blooshroom"
+      },
+      "animations": {
+        "setup": "animation.mooshroom.setup",
+        "walk": "animation.quadruped.walk",
+        "look_at_target": "animation.common.look_at_target",
+        "baby_transform": "animation.mooshroom.baby_transform"
+      },
+      "animation_controllers": [
+        {
+          "setup": "controller.animation.mooshroom.setup"
+        },
+        {
+          "move": "controller.animation.mooshroom.move"
+        },
+        {
+          "baby": "controller.animation.mooshroom.baby"
+        }
+      ],
+      "render_controllers": ["controller.render.default"],
+      "spawn_egg": {
+        "base_color": "#2c7fcc",
+        "overlay_color": "#b4c3d1"
+      }
+    }
+  }
+}

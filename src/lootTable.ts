@@ -37,9 +37,6 @@ export class LootTable extends Asset {
     this.pools = this._parsePools(data);
   }
 
-  /** Alias for `id` — the relative path from the BP root. */
-  get relativePath(): string { return this.id; }
-
   /**
    * A flat, deduplicated list of all item identifiers that can drop
    * from this loot table.
@@ -67,18 +64,14 @@ export class LootTable extends Asset {
    * All unified entities whose behavior definition references this loot table.
    */
   get sourceEntities(): Entity[] {
-    return this._addon.entities.all().filter(entity =>
-      entity.lootTables.some(lt => lt.id === this.id)
-    );
+    return this._addon._reverseIndex.getEntitiesForLootTable(this.id);
   }
 
   /**
    * All blocks that reference this loot table.
    */
   get sourceBlocks(): Block[] {
-    return this._addon.blocks.all().filter(block =>
-      block.lootTable?.id === this.id
-    );
+    return this._addon._reverseIndex.getBlocksForLootTable(this.id);
   }
 
   private _parsePools(data: Record<string, unknown>): LootPool[] {

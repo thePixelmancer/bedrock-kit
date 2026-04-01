@@ -1,0 +1,29 @@
+{
+  "format_version": "1.20.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "tsu_nat:turkey",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "geometry": {
+        "default": "geometry.tsu_nat.turkey"
+      },
+      "textures": {
+        "default": "textures/tsu/nat/turkey"
+      },
+      "animations": {
+        "walk": "animation.tsu_nat.turkey.walk",
+        "look_at_target": "animation.tsu_nat.turkey.look_at_target",
+        "baby": "animation.tsu_nat.turkey.baby"
+      },
+      "scripts": {
+        "animate": [{ "baby": "q.is_baby" }, { "walk": "q.modified_move_speed" }, "look_at_target"]
+      },
+      "render_controllers": ["controller.render.default"],
+      "spawn_egg": {
+        "texture": "tsu_nat.spawn_egg_turkey"
+      }
+    }
+  }
+}

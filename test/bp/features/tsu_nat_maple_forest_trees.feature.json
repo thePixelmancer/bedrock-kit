@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_maple_forest_trees.feature"
+    },
+    "features": [
+      [
+        "tsu_nat:tsu_nat_red_maple_tree.feature",
+        16
+      ],
+      [
+        "tsu_nat:tsu_nat_orange_maple_tree.feature",
+        8
+      ],
+      [
+        "tsu_nat:tsu_nat_yellow_maple_tree.feature",
+        4
+      ],
+      [
+        "tsu_nat:tsu_nat_mega_red_maple_tree.feature",
+        2
+      ]
+    ]
+  }
+}

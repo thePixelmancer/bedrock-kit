@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.110",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "tsu_nat:fungal_grove"
+    },
+    "components": {
+      "minecraft:fog_appearance": {
+        "fog_identifier": "tsu_nat:fungal_grove_fog"
+      },
+      "minecraft:sky_color": {
+        "sky_color": "#8a3b8d"
+      },
+      "minecraft:biome_music": {
+        "music_definition": "ambient.warped_forest.loop"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#5176c5"
+      },
+      "minecraft:ambient_sounds": {
+        "loop": "ambient.warped_forest.loop",
+        "mood": "ambient.warped_forest.mood"
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "tsu_nat:charred_log",
+          "weight": 10,
+          "count": 1
+        },
+        {
+          "type": "item",
+          "name": "minecraft:charcoal",
+          "weight": 1,
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

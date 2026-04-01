@@ -1,0 +1,8 @@
+{
+	"format_version": "1.16.100",
+	"minecraft:texture_set": {
+		"color": "oozing_maple_log",
+		"metalness_emissive_roughness": "oozing_maple_log_mer",
+		"heightmap": "oozing_maple_log_height"
+	}
+}

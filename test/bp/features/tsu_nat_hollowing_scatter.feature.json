@@ -1,0 +1,23 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_hollowing_scatter.feature"
+    },
+    "places_feature": "tsu_nat:tsu_nat_hollowing_block.feature",
+    "distribution": {
+      "coordinate_eval_order": "xzy",
+      "scatter_chance": 100,
+      "iterations": 30,
+      "x": 1,
+      "y": {
+        "extent": [
+          0,
+          30
+        ],
+        "distribution": "fixed_grid"
+      },
+      "z": 1
+    }
+  }
+}

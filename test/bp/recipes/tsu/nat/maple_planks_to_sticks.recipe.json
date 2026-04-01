@@ -1,0 +1,24 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:maple_planks_to_sticks"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"p",
+			"p"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:maple_planks"
+			}
+		},
+		"result": {
+			"item": "minecraft:stick",
+			"count": 2
+		}
+	}
+}

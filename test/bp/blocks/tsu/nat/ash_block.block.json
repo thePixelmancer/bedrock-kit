@@ -1,0 +1,23 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:ash_block",
+			"menu_category": {
+				"category": "nature"
+			}
+		},
+		"components": {
+			"tag:minecraft:is_shovel_item_destructible": {},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0.5
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 5
+			},
+			"minecraft:loot": "loot_tables/tsu/nat/ash_block.loot.json",
+			"minecraft:flammable": false,
+			"minecraft:light_dampening": 15
+		}
+	}
+}

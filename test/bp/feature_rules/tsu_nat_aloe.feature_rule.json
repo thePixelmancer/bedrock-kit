@@ -1,0 +1,45 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_aloe.feature_rule",
+      "places_feature": "tsu_nat:tsu_nat_aloe_block.feature"
+    },
+    "conditions": {
+      "placement_pass": "after_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "any_of": [
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "oasis"
+            }
+          ]
+        }
+      ]
+    },
+    "distribution": {
+      "scatter_chance": {
+        "numerator": 1,
+        "denominator": 50
+      },
+      "iterations": "math.random(1,4)",
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "y": "q.heightmap(v.worldx, v.worldz)",
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          0,
+          15
+        ]
+      }
+    }
+  }
+}

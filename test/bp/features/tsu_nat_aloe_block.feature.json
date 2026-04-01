@@ -1,0 +1,21 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_aloe_block.feature"
+    },
+    "places_block": "tsu_nat:aloe",
+    "enforce_placement_rules": true,
+    "enforce_survivability_rules": false,
+    "may_replace": [
+      "minecraft:air"
+    ],
+    "may_attach_to": {
+      "bottom": [
+        "minecraft:grass",
+        "minecraft:sand",
+        "minecraft:gravel"
+      ]
+    }
+  }
+}

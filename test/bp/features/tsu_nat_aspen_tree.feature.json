@@ -1,0 +1,66 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_aspen_tree.feature"
+    },
+    "mega_trunk": {
+      "trunk_decoration": {
+        "decoration_block": "minecraft:vine",
+        "decoration_chance": {
+          "numerator": 1,
+          "denominator": 10
+        },
+        "num_steps": 0,
+        "step_direction": "out"
+      },
+      "trunk_width": 1,
+      "trunk_height": {
+        "base": 10,
+        "intervals": [
+          6
+        ]
+      },
+      "trunk_block": {
+        "name": "minecraft:birch_wood"
+      },
+      "branches": {
+        "branch_length": 2,
+        "branch_slope": 0,
+        "branch_altitude_factor": {
+          "max": 0.9,
+          "min": 0.3
+        },
+        "branch_interval": [
+          1,
+          6
+        ]
+      }
+    },
+    "fancy_canopy": {
+      "leaf_block": "tsu_nat:yellow_maple_leaves",
+      "radius": 3,
+      "height": 5
+    },
+    "may_grow_on": [
+      {
+        "tags": "query.any_tag('dirt')"
+      }
+    ],
+    "base_block": [
+      "minecraft:dirt",
+      "minecraft:coarse_dirt"
+    ],
+    "may_grow_through": [
+      {
+        "tags": "query.any_tag('dirt')"
+      }
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:snow_layer",
+      "minecraft:short_grass",
+      "minecraft:tall_grass"
+    ]
+  }
+}

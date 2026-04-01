@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fungal_grove_web_offset.feature"
+    },
+    "places_feature": "tsu_nat:tsu_nat_fungal_grove_web_mold.feature",
+    "distribution": {
+      "coordinate_eval_order": "xzy",
+      "scatter_chance": 100,
+      "iterations": 4,
+      "x": {
+        "distribution": "triangle",
+        "extent": [
+          -1,
+          1
+        ]
+      },
+      "z": {
+        "distribution": "triangle",
+        "extent": [
+          -1,
+          1
+        ]
+      },
+      "y": 1
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "tsu_nat:mandrake_root",
+          "weight": 1,
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

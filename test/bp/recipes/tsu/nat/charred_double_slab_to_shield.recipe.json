@@ -1,0 +1,28 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:charred_double_slab_to_shield"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"pip",
+			"ppp",
+			" p "
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:charred_double_slab"
+			},
+			"i": {
+				"item": "minecraft:iron_ingot"
+			}
+		},
+		"result": {
+			"item": "minecraft:shield",
+			"count": 1
+		}
+	}
+}

@@ -1,0 +1,23 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:charred_double_slab_from_log"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"p"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:charred_double_slab"
+			}
+		},
+		"result": {
+			"item": "tsu_nat:charred_double_slab",
+			"count": 4
+		}
+	}
+}

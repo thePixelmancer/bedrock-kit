@@ -1,0 +1,36 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "tsu_nat:maple_forest_fog"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 0.3,
+        "fog_end": 0.9,
+        "fog_color": "#d45a21",
+        "render_distance_type": "render"
+      }
+    },
+    "volumetric": {
+      "density": {
+        "air": {
+          "max_density": 0.05,
+          "zero_density_height": 128.0,
+          "max_density_height": 64.0
+        }
+      },
+      "media_coefficients": {
+        "air": {
+          "scattering": [0.01, 0.01, 0.01],
+          "absorption": [0.042, 0.137, 0.012]
+        }
+      },
+      "henyey_greenstein_g": {
+        "air": {
+          "henyey_greenstein_g": 0.3
+        }
+      }
+    }
+  }
+}

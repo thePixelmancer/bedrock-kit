@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_cattail_patch_2.feature"
+    },
+    "places_feature": "tsu_nat:tsu_nat_cattail_block_2.feature",
+    "distribution": {
+      "coordinate_eval_order": "xzy",
+      "scatter_chance": 10,
+      "iterations": 50,
+      "x": {
+        "distribution": "triangle",
+        "extent": [
+          -8,
+          8
+        ]
+      },
+      "z": {
+        "distribution": "triangle",
+        "extent": [
+          -8,
+          8
+        ]
+      },
+      "y": "q.above_top_solid(v.originx, v.originz) - v.world_y_coord"
+    }
+  }
+}

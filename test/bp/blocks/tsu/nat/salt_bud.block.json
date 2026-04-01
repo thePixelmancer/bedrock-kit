@@ -1,0 +1,93 @@
+{
+	"format_version": "1.26.10",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:salt_bud",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.grass"
+			}
+		},
+		"components": {
+			"tsu_nat:plant": {
+				"grows_into": "tsu_nat:salt_crystal",
+				"random_growth_chance": 0,
+				"growth_item": "tsu_nat:salt",
+				"item_growth_chance": 0.5
+			},
+			"minecraft:random_offset": {
+				"x": {
+					"range": {
+						"min": -4,
+						"max": 4
+					}
+				},
+				"z": {
+					"range": {
+						"min": -4,
+						"max": 4
+					}
+				}
+			},
+			"minecraft:precipitation_interactions": {
+				"precipitation_behavior": "none"
+			},
+			"minecraft:replaceable": {},
+			"minecraft:movable": {
+				"movement_type": "popped"
+			},
+			"minecraft:placement_filter": {
+				"conditions": [
+					{
+						"allowed_faces": [
+							"up"
+						],
+						"block_filter": [
+							"tsu_nat:salt_block"
+						]
+					}
+				]
+			},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 0
+			},
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"can_contain_liquid": true,
+						"liquid_type": "water",
+						"on_liquid_touches": "broken"
+					}
+				]
+			},
+			"minecraft:loot": "loot_tables/tsu/nat/salt_bud.loot.json",
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.salt_bud",
+					"ambient_occlusion": false,
+					"face_dimming": false,
+					"render_method": "alpha_test_single_sided_to_opaque"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": false,
+			"minecraft:selection_box": {
+				"origin": [
+					-6,
+					0,
+					-6
+				],
+				"size": [
+					12,
+					12,
+					12
+				]
+			},
+			"minecraft:geometry": "minecraft:geometry.cross",
+			"minecraft:light_dampening": 0
+		}
+	}
+}

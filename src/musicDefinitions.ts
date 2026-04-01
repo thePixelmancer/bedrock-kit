@@ -1,4 +1,5 @@
 import { Asset } from "./asset.js";
+import type { DefinitionFile } from "./soundDefinitions.js";
 
 /**
  * Wraps the `sounds/music_definitions.json` file.
@@ -11,7 +12,7 @@ import { Asset } from "./asset.js";
  * console.log(entry?.eventName); // "music.overworld.bamboo_jungle"
  * ```
  */
-export class MusicDefinitionsFile extends Asset {
+export class MusicDefinitionsFile extends Asset implements DefinitionFile<MusicDefinitionEntry> {
   private _definitions: Map<string, MusicDefinitionEntry>;
 
   constructor(filePath: string, data: Record<string, unknown>, rawText: string) {

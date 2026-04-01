@@ -1,0 +1,23 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:structure_template_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_giant_red_maple_tree_1.feature"
+    },
+    "structure_name": "tsu_nat:giant_red_maple_tree_1",
+    "adjustment_radius": 4,
+    "facing_direction": "south",
+    "constraints": {
+      "grounded": {},
+      "unburied": {},
+      "block_intersection": {
+        "block_allowlist": [
+          "minecraft:air",
+          "minecraft:dirt",
+          "minecraft:leaf_litter",
+          "tsu_nat:duff"
+        ]
+      }
+    }
+  }
+}

@@ -11,13 +11,18 @@ import { BehaviorEntity, ResourceEntity, Entity } from "./entity.js";
 import { Recipe } from "./recipe.js";
 import { LootTable } from "./lootTable.js";
 import { SpawnRule } from "./spawnRule.js";
-import { Biome } from "./biome.js";
+import { BehaviorBiome, ClientBiome, Biome } from "./biome.js";
 import { Animation, AnimationController } from "./animation.js";
 import { RenderController } from "./renderController.js";
 import { Particle } from "./particle.js";
 import { Attachable } from "./attachable.js";
 import { TradingTable } from "./tradingTable.js";
 import { GeometryModel } from "./geometry.js";
+import { Feature } from "./feature.js";
+import { FeatureRule } from "./featureRule.js";
+import { Fog } from "./fogSettings.js";
+import { Texture } from "./texture.js";
+import { ReverseIndex } from "./reverseIndex.js";
 import { Asset } from "./asset.js";
 
 export type { PackData } from "./browser.js";
@@ -44,7 +49,7 @@ export type { PackData } from "./browser.js";
  * console.log(zombie?.spawnRule?.biomeTags);  // ["monster", "overworld"]
  *
  * const spear = addon.items.get("minecraft:copper_spear");
- * console.log(spear?.texturePath);            // "textures/items/copper_spear"
+ * console.log(spear?.texture?.id);            // "textures/items/copper_spear"
  * console.log(spear?.recipes.length);         // 1
  * ```
  */
@@ -66,6 +71,10 @@ export class AddOn {
   private _particles?: AssetCollection<Particle>;
   private _geometries?: AssetCollection<GeometryModel>;
   private _attachables?: AssetCollection<Attachable>;
+  private _features?: AssetCollection<Feature>;
+  private _featureRules?: AssetCollection<FeatureRule>;
+  private _fogs?: AssetCollection<Fog>;
+  private _textures?: AssetCollection<Texture>;
 
   private constructor(state: AddonState) {
     this._state = state;
@@ -146,7 +155,10 @@ export class AddOn {
     return this._trading ??= new AssetCollection(this._tradingStore);
   }
 
-  /** All biome definitions from the behavior pack. */
+  /**
+   * All biomes as unified views merging behavior pack and resource pack (client biome) data.
+   * Access the BP side via `biome.behavior`, the RP side via `biome.resource`.
+   */
   get biomes(): AssetCollection<Biome> {
     return this._biomes ??= new AssetCollection(this._biomeStore);
   }
@@ -179,6 +191,29 @@ export class AddOn {
   /** All attachable definitions from the resource pack. */
   get attachables(): AssetCollection<Attachable> {
     return this._attachables ??= new AssetCollection(this._attachableStore);
+  }
+
+  /** All world generation feature definitions from the behavior pack. */
+  get features(): AssetCollection<Feature> {
+    return this._features ??= new AssetCollection(this._featureStore);
+  }
+
+  /** All feature rule definitions from the behavior pack. */
+  get featureRules(): AssetCollection<FeatureRule> {
+    return this._featureRules ??= new AssetCollection(this._featureRuleStore);
+  }
+
+  /** All fog definitions from the resource pack. */
+  get fogs(): AssetCollection<Fog> {
+    return this._fogs ??= new AssetCollection(this._fogStore);
+  }
+
+  /**
+   * All texture files from the resource pack, keyed by relative path without extension.
+   * Only populated in Node.js (disk) mode. Empty in browser mode.
+   */
+  get textures(): AssetCollection<Texture> {
+    return this._textures ??= new AssetCollection(this._textureStore);
   }
 
   // ── Sound & Music ─────────────────────────────────────────────────────────
@@ -281,7 +316,8 @@ export class AddOn {
       this._rpEntityStore.values(),
       this._lootStore.values(),
       this._spawnStore.values(),
-      this._biomeStore.values(),
+      this._bpBiomeStore.values(),
+      this._rpBiomeStore.values(),
       this._animStore.values(),
       this._animCtrlStore.values(),
       this._renderCtrlStore.values(),
@@ -289,6 +325,9 @@ export class AddOn {
       this._attachableStore.values(),
       this._tradingStore.values(),
       this._geoStore.values(),
+      this._featureStore.values(),
+      this._featureRuleStore.values(),
+      this._fogStore.values(),
     ];
 
     let found: Asset | undefined;
@@ -339,11 +378,19 @@ export class AddOn {
   }
   /** @internal */
   get _spawnStore(): Map<string, SpawnRule> {
-    return this._state.spawnRules ??= AddonLoader.loadSpawnRules(this._state);
+    return this._state.spawnRules ??= AddonLoader.loadSpawnRules(this._state, this);
+  }
+  /** @internal */
+  get _bpBiomeStore(): Map<string, BehaviorBiome> {
+    return this._state.bpBiomes ??= AddonLoader.loadBpBiomes(this._state, this);
+  }
+  /** @internal */
+  get _rpBiomeStore(): Map<string, ClientBiome> {
+    return this._state.rpBiomes ??= AddonLoader.loadRpBiomes(this._state, this);
   }
   /** @internal */
   get _biomeStore(): Map<string, Biome> {
-    return this._state.biomes ??= AddonLoader.loadBiomes(this._state, this);
+    return this._state.biomeStore ??= AddonLoader.buildBiomeStore(this._bpBiomeStore, this._rpBiomeStore);
   }
   /** @internal */
   get _animStore(): Map<string, Animation> {
@@ -359,11 +406,11 @@ export class AddOn {
   }
   /** @internal */
   get _particleStore(): Map<string, Particle> {
-    return this._state.particles ??= AddonLoader.loadParticles(this._state);
+    return this._state.particles ??= AddonLoader.loadParticles(this._state, this);
   }
   /** @internal */
   get _attachableStore(): Map<string, Attachable> {
-    return this._state.attachables ??= AddonLoader.loadAttachables(this._state);
+    return this._state.attachables ??= AddonLoader.loadAttachables(this._state, this);
   }
   /** @internal */
   get _tradingStore(): Map<string, TradingTable> {
@@ -372,6 +419,26 @@ export class AddOn {
   /** @internal */
   get _geoStore(): Map<string, GeometryModel> {
     return this._state.geometries ??= AddonLoader.loadGeometries(this._state);
+  }
+  /** @internal */
+  get _featureStore(): Map<string, Feature> {
+    return this._state.features ??= AddonLoader.loadFeatures(this._state, this);
+  }
+  /** @internal */
+  get _featureRuleStore(): Map<string, FeatureRule> {
+    return this._state.featureRules ??= AddonLoader.loadFeatureRules(this._state, this);
+  }
+  /** @internal */
+  get _fogStore(): Map<string, Fog> {
+    return this._state.fogSettings ??= AddonLoader.loadFogSettings(this._state);
+  }
+  /** @internal */
+  get _textureStore(): Map<string, Texture> {
+    return this._state.textures ??= AddonLoader.loadTextures(this._state, this);
+  }
+  /** @internal */
+  get _reverseIndex(): ReverseIndex {
+    return this._state.reverseIndex ??= new ReverseIndex(this);
   }
 
   private _buildEntityStore(): Map<string, Entity> {

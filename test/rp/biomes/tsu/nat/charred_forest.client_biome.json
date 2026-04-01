@@ -1,0 +1,32 @@
+{
+  "format_version": "1.21.110",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "tsu_nat:charred_forest"
+    },
+    "components": {
+      "minecraft:fog_appearance": {
+        "fog_identifier": "tsu_nat:charred_forest_fog"
+      },
+      "minecraft:sky_color": {
+        "sky_color": "#745b60"
+      },
+      "minecraft:dry_foliage_color": {
+        "color": "#2b2b2b"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#2b2b2b"
+      },
+      "minecraft:precipitation": {
+        "white_ash": 2.0
+      },
+      "minecraft:ambient_sounds": {
+        "loop": "ambient.basalt_deltas.loop",
+        "mood": "tsu_nat.charred_forest.mood"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#272727"
+      }
+    }
+  }
+}

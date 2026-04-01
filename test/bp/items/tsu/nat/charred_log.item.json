@@ -1,0 +1,21 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:item": {
+		"description": {
+			"identifier": "tsu_nat:charred_log",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.log"
+			}
+		},
+		"components": {
+			"minecraft:block_placer": {
+				"block": "tsu_nat:charred_log",
+				"replace_block_item": true
+			},
+			"minecraft:fuel": {
+				"duration": 15
+			}
+		}
+	}
+}

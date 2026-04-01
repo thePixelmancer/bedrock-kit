@@ -1,0 +1,251 @@
+{
+	"format_version": "1.21.120",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:charred_door",
+			"menu_category": {
+				"category": "none"
+			},
+			"traits": {
+				"minecraft:placement_position": {
+					"enabled_states": [
+						"minecraft:vertical_half"
+					]
+				},
+				"minecraft:placement_direction": {
+					"enabled_states": [
+						"minecraft:cardinal_direction"
+					]
+				}
+			},
+			"states": {
+				"tsu_nat:facing": [
+					"north",
+					"east",
+					"south",
+					"west"
+				],
+				"tsu_nat:block_half": [
+					"bottom",
+					"top"
+				],
+				"tsu_nat:open": [
+					false,
+					true
+				],
+				"tsu_nat:door_hinge_bit": [
+					false,
+					true
+				],
+				"tsu_nat:powered": [
+					false,
+					true
+				]
+			}
+		},
+		"components": {
+			"minecraft:tick": {
+				"interval_range": [
+					4,
+					4
+				]
+			},
+			"minecraft:redstone_conductivity": {
+				"redstone_conductor": true
+			},
+			"tsu_nat:custom_door": {},
+			"minecraft:movable": {
+				"movement_type": "immovable"
+			},
+			"tag:minecraft:is_axe_item_destructible": {},
+			"tag:one_way_collidable": {},
+			"tag:doors": {},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0.5
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 4
+			},
+			"minecraft:collision_box": {
+				"origin": [
+					-8,
+					0,
+					5
+				],
+				"size": [
+					16,
+					16,
+					3
+				]
+			},
+			"minecraft:selection_box": {
+				"origin": [
+					-8,
+					0,
+					5
+				],
+				"size": [
+					16,
+					16,
+					3
+				]
+			},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.charred_door_bottom",
+					"render_method": "alpha_test_single_sided"
+				}
+			},
+			"minecraft:geometry": {
+				"identifier": "geometry.tsu_nat.door",
+				"bone_visibility": {
+					"door_open": "q.block_state('tsu_nat:open') && !q.block_state('tsu_nat:door_hinge_bit')",
+					"door_closed": "!q.block_state('tsu_nat:open') && !q.block_state('tsu_nat:door_hinge_bit')",
+					"door_open_flipped": "q.block_state('tsu_nat:open') && q.block_state('tsu_nat:door_hinge_bit')",
+					"door_closed_flipped": "!q.block_state('tsu_nat:open') && q.block_state('tsu_nat:door_hinge_bit')"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:light_dampening": 1,
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"liquid_type": "water",
+						"can_contain_liquid": true
+					}
+				]
+			}
+		},
+		"permutations": [
+			{
+				"condition": "query.block_state('minecraft:cardinal_direction') == 'north'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "query.block_state('minecraft:cardinal_direction') == 'south'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							180,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "query.block_state('minecraft:cardinal_direction') == 'east'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							270,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "query.block_state('minecraft:cardinal_direction') == 'west'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							90,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:open') && !q.block_state('tsu_nat:door_hinge_bit')",
+				"components": {
+					"minecraft:collision_box": {
+						"origin": [
+							5,
+							0,
+							-8
+						],
+						"size": [
+							3,
+							16,
+							16
+						]
+					},
+					"minecraft:selection_box": {
+						"origin": [
+							5,
+							0,
+							-8
+						],
+						"size": [
+							3,
+							16,
+							16
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:open') && q.block_state('tsu_nat:door_hinge_bit')",
+				"components": {
+					"minecraft:collision_box": {
+						"origin": [
+							-8,
+							0,
+							-8
+						],
+						"size": [
+							3,
+							16,
+							16
+						]
+					},
+					"minecraft:selection_box": {
+						"origin": [
+							-8,
+							0,
+							-8
+						],
+						"size": [
+							3,
+							16,
+							16
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:block_half') == 'bottom'",
+				"components": {
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.charred_door_bottom",
+							"render_method": "alpha_test_single_sided"
+						}
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('tsu_nat:block_half') == 'top'",
+				"components": {
+					"minecraft:loot": "loot_tables/empty.json",
+					"minecraft:material_instances": {
+						"*": {
+							"texture": "tsu_nat.charred_door_top",
+							"render_method": "alpha_test_single_sided"
+						}
+					}
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"format_version": "1.16.100",
+	"minecraft:texture_set": {
+		"color": "blooshroom",
+		"metalness_emissive_roughness": "blooshroom_mer"
+	}
+}

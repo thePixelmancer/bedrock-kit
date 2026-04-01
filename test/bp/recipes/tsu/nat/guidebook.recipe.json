@@ -1,0 +1,21 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "tsu_nat:guidebook"
+    },
+    "pattern": ["#B#"],
+    "key": {
+      "#": {
+        "item": "tsu_nat:ash"
+      },
+      "B": {
+        "item": "minecraft:book"
+      }
+    },
+    "result": {
+      "item": "tsu_nat:guidebook"
+    },
+    "tags": ["crafting_table"]
+  }
+}

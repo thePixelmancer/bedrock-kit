@@ -1,0 +1,23 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:small_maple_log"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"p"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:maple_wood_bundle"
+			}
+		},
+		"result": {
+			"item": "tsu_nat:small_maple_log",
+			"count": 4
+		}
+	}
+}

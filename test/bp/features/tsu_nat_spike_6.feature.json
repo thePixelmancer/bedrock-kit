@@ -1,0 +1,23 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:structure_template_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_spike_6.feature"
+    },
+    "structure_name": "tsu_nat:spike_6",
+    "adjustment_radius": 0,
+    "facing_direction": "south",
+    "constraints": {
+      "unburied": {},
+      "grounded": {},
+      "block_intersection": {
+        "block_allowlist": [
+          "minecraft:air",
+          "minecraft:dirt",
+          "minecraft:podzol",
+          "tsu_nat:glowing_mycelium"
+        ]
+      }
+    }
+  }
+}

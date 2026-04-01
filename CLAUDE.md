@@ -31,13 +31,17 @@ All collections on `addon` are `AssetCollection<T>` — a typed, iterable map wr
 | `addon.recipes` | `AssetCollection<Recipe>` | BP recipe files |
 | `addon.lootTables` | `AssetCollection<LootTable>` | BP loot table files |
 | `addon.trading` | `AssetCollection<TradingTable>` | BP villager trading tables |
-| `addon.biomes` | `AssetCollection<Biome>` | BP biome definitions |
+| `addon.biomes` | `AssetCollection<Biome>` | Unified BP+RP biome views |
 | `addon.animations` | `AssetCollection<Animation>` | RP animation definitions |
 | `addon.animationControllers` | `AssetCollection<AnimationController>` | RP animation controllers |
 | `addon.renderControllers` | `AssetCollection<RenderController>` | RP render controllers |
 | `addon.particles` | `AssetCollection<Particle>` | RP particle effects |
 | `addon.geometries` | `AssetCollection<GeometryModel>` | RP geometry models |
 | `addon.attachables` | `AssetCollection<Attachable>` | RP attachable definitions |
+| `addon.features` | `AssetCollection<Feature>` | BP world generation features |
+| `addon.featureRules` | `AssetCollection<FeatureRule>` | BP feature placement rules |
+| `addon.fogs` | `AssetCollection<Fog>` | RP fog definitions |
+| `addon.textures` | `AssetCollection<Texture>` | RP texture files (Node.js only) |
 | `addon.sounds` | `SoundDefinitionsFile \| undefined` | RP `sound_definitions.json` |
 | `addon.music` | `MusicDefinitionsFile \| undefined` | RP `music_definitions.json` |
 | `addon.bpManifest` | `ManifestFile \| undefined` | BP `manifest.json` |
@@ -89,7 +93,7 @@ const item = addon.items.get("minecraft:copper_spear"); // Item | undefined
 
 item.id           // "minecraft:copper_spear"
 item.displayName  // "Copper Spear" — en_US lang lookup, falls back to id
-item.texturePath  // "textures/items/copper_spear" | undefined
+item.texture      // Texture | undefined — resolved texture object
 item.attachable   // Attachable | undefined
 item.recipes      // Recipe[] — recipes whose result is this item
 item.entities     // Entity[] — entities that can drop this item via loot tables
@@ -98,6 +102,7 @@ item.droppedByBlocks // Block[] — blocks that drop this item via loot table
 // Raw JSON when needed
 item.data         // Record<string, unknown>
 item.filePath     // absolute path to the BP item file
+item.docstrings   // CommentBlock[] — JSDoc blocks parsed from the source file
 ```
 
 ---
@@ -109,12 +114,13 @@ const block = addon.blocks.get("minecraft:coal_ore"); // Block | undefined
 
 block.id          // "minecraft:coal_ore"
 block.displayName // "Coal Ore"
-block.texturePath // "textures/blocks/coal_ore" | undefined
+block.texture     // Texture | undefined — resolved texture object
 block.lootTable   // LootTable | undefined
 block.soundEvents // SoundEventBinding[]
 
 block.data        // raw JSON
 block.filePath    // absolute path
+block.docstrings  // CommentBlock[]
 ```
 
 ---
@@ -133,6 +139,7 @@ entity.resource     // ResourceEntity | undefined  (RP file)
 entity.spawnRule    // SpawnRule | undefined
 entity.lootTables   // LootTable[]
 entity.soundEvents  // SoundEventBinding[] — BP + RP merged, BP takes precedence
+entity.docstrings   // CommentBlock[] — from behavior, falls back to resource
 ```
 
 ### BehaviorEntity
@@ -143,10 +150,11 @@ entity.behavior.displayName     // "Zombie"
 entity.behavior.lootTables      // LootTable[]
 entity.behavior.spawnRule       // SpawnRule | undefined
 entity.behavior.soundEvents     // SoundEventBinding[]
+entity.behavior.entity          // Entity | undefined — back-link to unified view
 entity.behavior.resource        // ResourceEntity | undefined — cross-link
 entity.behavior.data            // raw BP entity JSON
 entity.behavior.filePath        // absolute path to BP entity file
-entity.behavior.documentation   // CommentBlock[] — parsed JSDoc from file
+entity.behavior.docstrings      // CommentBlock[] — parsed JSDoc from file
 ```
 
 ### ResourceEntity
@@ -154,6 +162,7 @@ entity.behavior.documentation   // CommentBlock[] — parsed JSDoc from file
 ```ts
 entity.resource.id                    // "minecraft:zombie"
 entity.resource.displayName           // "Zombie"
+entity.resource.textures              // Record<string, Texture> — shortname → resolved Texture
 entity.resource.animations            // Array<{ shortname: string; animation: Animation }>
 entity.resource.animationControllers  // Array<{ shortname: string; controller: AnimationController }>
 entity.resource.renderControllers     // RenderController[]
@@ -163,9 +172,11 @@ entity.resource.animationShortnames   // Record<string, string> — shortname �
 entity.resource.particleShortnames    // Record<string, string>
 entity.resource.soundShortnames       // Record<string, string>
 entity.resource.renderControllerIds   // string[]
+entity.resource.entity                // Entity | undefined — back-link to unified view
 entity.resource.behavior              // BehaviorEntity | undefined — cross-link
 entity.resource.data                  // raw RP entity JSON
 entity.resource.filePath              // absolute path to RP entity file
+entity.resource.docstrings            // CommentBlock[]
 ```
 
 ---
@@ -180,14 +191,14 @@ const recipe = addon.recipes.get("minecraft:copper_spear"); // Recipe | undefine
 recipe.id           // "minecraft:copper_spear"
 recipe.type         // "shaped" | "shapeless" | "furnace" | "brewing_mix" | "brewing_container" | "unknown"
 recipe.result       // ItemStack | undefined
+recipe.item         // Item | undefined — shortcut for recipe.result?.item
 recipe.ingredients  // (Item | Tag)[] — flat, empty slots excluded
 
-recipe.resolveShape()      // Ingredient[][] | null  — shaped only, 2D grid with nulls for empty slots
-recipe.resolveShapeless()  // ShapelessIngredient[] | null
-recipe.resolveFurnace()    // FurnaceResolved | null
-recipe.resolveBrewing()    // BrewingResolved | null
+recipe.resolveShape()      // Ingredient[][] | undefined  — shaped only, 2D grid with nulls for empty slots
+recipe.resolveShapeless()  // ShapelessIngredient[] | undefined
+recipe.resolveFurnace()    // FurnaceResolved | undefined
+recipe.resolveBrewing()    // BrewingResolved | undefined
 recipe.usesItem(id)        // boolean
-recipe.getAllIngredients()  // (Item | Tag)[]
 
 // Preferred access: item.recipes
 const spearRecipes = addon.items.get("minecraft:copper_spear")?.recipes;
@@ -212,7 +223,6 @@ Keyed by relative path from BP root (e.g. `"loot_tables/entities/zombie.json"`).
 const table = addon.lootTables.get("loot_tables/entities/zombie.json");
 
 table.id              // "loot_tables/entities/zombie.json"
-table.relativePath    // same as id
 table.pools           // LootPool[]
 table.itemIds         // string[] — all item ids that can drop
 table.items           // Item[] — resolved addon items (vanilla excluded)
@@ -228,6 +238,7 @@ table.sourceBlocks    // Block[] — blocks referencing this table
 entity.spawnRule.id                // "minecraft:zombie"
 entity.spawnRule.biomeTags         // string[]
 entity.spawnRule.populationControl // string | undefined
+entity.spawnRule.entity            // Entity | undefined — back-link to unified entity
 entity.spawnRule.data              // raw JSON
 ```
 
@@ -235,13 +246,98 @@ entity.spawnRule.data              // raw JSON
 
 ## Biome
 
+`Biome` is a logical grouping — it is not itself file-backed. Raw data lives on `.behavior` and `.resource`.
+
 ```ts
 const biome = addon.biomes.get("minecraft:desert");
 
 biome.id                // "minecraft:desert"
+biome.behavior          // BehaviorBiome | undefined  (BP file)
+biome.resource          // ClientBiome | undefined    (RP file)
 biome.entities          // Entity[] — entities with spawn rules for this biome
 biome.musicDefinition   // MusicDefinitionEntry | undefined
-biome.data              // raw JSON
+biome.fog               // Fog | undefined — shortcut for biome.resource?.fog
+biome.ambientSounds     // SoundEventBinding[] — shortcut for biome.resource?.ambientSounds
+biome.docstrings        // CommentBlock[] — from behavior, falls back to resource
+```
+
+### BehaviorBiome
+
+```ts
+biome.behavior.id               // "minecraft:desert"
+biome.behavior.entities         // Entity[] — matching spawn rules
+biome.behavior.musicDefinition  // MusicDefinitionEntry | undefined
+biome.behavior.biome            // Biome | undefined — back-link to unified view
+biome.behavior.data             // raw BP biome JSON
+biome.behavior.filePath         // absolute path to BP biome file
+biome.behavior.docstrings       // CommentBlock[]
+```
+
+### ClientBiome
+
+```ts
+biome.resource.id               // "minecraft:desert"
+biome.resource.fogIdentifier    // string | undefined
+biome.resource.fog              // Fog | undefined — resolved fog object
+biome.resource.skyColor         // string | undefined — e.g. "#FF85CCFF"
+biome.resource.foliageColor     // string | undefined
+biome.resource.waterColor       // string | undefined
+biome.resource.ambientSounds    // SoundEventBinding[]
+biome.resource.biome            // Biome | undefined — back-link to unified view
+biome.resource.data             // raw RP client biome JSON
+biome.resource.filePath         // absolute path to RP biome file
+biome.resource.docstrings       // CommentBlock[]
+```
+
+---
+
+## Texture
+
+```ts
+const tex = addon.textures.get("textures/items/copper_spear"); // Texture | undefined
+
+tex.id          // "textures/items/copper_spear" — relative path without extension
+tex.filePath    // absolute path to the PNG/TGA file
+
+tex.normal      // Texture | undefined — from .texture_set.json normal field
+tex.heightmap   // Texture | undefined — from .texture_set.json heightmap field
+tex.mer         // Texture | undefined — metalness/emissive/roughness companion
+
+tex.getPixelData()    // Buffer | undefined — raw PNG/TGA bytes (Node.js only)
+
+// Reverse lookups (lazy, cached)
+tex.usedByBlocks    // Block[]
+tex.usedByItems     // Item[]
+tex.usedByEntities  // Entity[]
+```
+
+---
+
+## Fog
+
+```ts
+const fog = addon.fogs.get("minecraft:fog_bamboo_jungle"); // Fog | undefined
+
+fog.id        // "minecraft:fog_bamboo_jungle"
+fog.data      // raw fog settings JSON
+fog.filePath  // absolute path to RP fogs file
+fog.docstrings // CommentBlock[]
+```
+
+---
+
+## Feature & FeatureRule
+
+```ts
+const feature = addon.features.get("minecraft:tree_feature");
+feature.id           // "minecraft:tree_feature"
+feature.featureType  // full JSON root key, e.g. "minecraft:tree_feature"
+feature.placedByFeatureRules  // FeatureRule[] — rules that place this feature
+
+const rule = addon.featureRules.get("minecraft:birch_trees");
+rule.id               // "minecraft:birch_trees"
+rule.placesFeatureId  // string | undefined
+rule.placesFeature    // Feature | undefined — resolved feature object
 ```
 
 ---
@@ -266,28 +362,31 @@ addon.music?.all()
 
 ### SoundEventBinding
 
-Returned by `entity.soundEvents`, `block.soundEvents`.
+Returned by `entity.soundEvents`, `block.soundEvents`, `biome.resource.ambientSounds`.
 
 ```ts
-binding.event       // string — e.g. "step", "hurt"
-binding.soundId     // string — maps to a sound_definitions.json key
+binding.event        // string — e.g. "step", "hurt"
+binding.definitionId // string — maps to a sound_definitions.json key
 ```
 
 ---
 
 ## Visuals
 
-All visual assets extend `Asset` and expose `id`, `data`, `filePath`, `documentation`.
+All visual assets extend `Asset` and expose `id`, `data`, `filePath`, `docstrings`.
 
 ```ts
 addon.animations.get("animation.zombie.walk")
-// animation.id, animation.data
-
 addon.animationControllers.get("controller.animation.zombie.general")
 addon.renderControllers.get("controller.render.zombie")
 addon.particles.get("minecraft:smoke_particle")
+// particle.texture  // Texture | undefined
+
 addon.geometries.get("geometry.zombie")
 addon.attachables.get("minecraft:copper_spear")
+// attachable.textures   // Record<string, Texture>
+// attachable.materials  // Record<string, string>
+// attachable.geometry   // Record<string, string>
 ```
 
 ---
@@ -334,15 +433,15 @@ Matching is case-insensitive. For BP entity files, the linked `ResourceEntity` i
 
 ## Asset Base Class
 
-All file-backed classes (`Item`, `Block`, `BehaviorEntity`, `ResourceEntity`, `Recipe`, `LootTable`, `Biome`, `SpawnRule`, `Animation`, `AnimationController`, `RenderController`, `Particle`, `Attachable`, `GeometryModel`, `TradingTable`) extend `Asset`:
+All file-backed classes (`Item`, `Block`, `BehaviorEntity`, `ResourceEntity`, `Recipe`, `LootTable`, `BehaviorBiome`, `ClientBiome`, `SpawnRule`, `Animation`, `AnimationController`, `RenderController`, `Particle`, `Attachable`, `GeometryModel`, `TradingTable`, `Feature`, `FeatureRule`, `Fog`) extend `Asset`:
 
 ```ts
-asset.filePath       // absolute path to the file (empty string in browser mode)
-asset.data           // Record<string, unknown> — raw parsed JSON
-asset.documentation  // CommentBlock[] — JSDoc blocks parsed from the source file
+asset.filePath    // absolute path to the file (empty string in browser mode)
+asset.data        // Record<string, unknown> — raw parsed JSON
+asset.docstrings  // CommentBlock[] — JSDoc blocks parsed from the source file
 ```
 
-`Entity` does **not** extend `Asset` — it is a logical view node with no backing file.
+`Entity` and `Biome` do **not** extend `Asset` — they are logical view nodes with no backing file.
 
 ---
 

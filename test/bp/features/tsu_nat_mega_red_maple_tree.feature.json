@@ -1,0 +1,85 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_mega_red_maple_tree.feature"
+    },
+    "mega_trunk": {
+      "trunk_decoration": {
+        "decoration_block": "tsu_nat:maple_log",
+        "decoration_chance": {
+          "numerator": 1,
+          "denominator": 10
+        },
+        "num_steps": 0,
+        "step_direction": "out"
+      },
+      "trunk_width": 2,
+      "trunk_height": {
+        "base": 30,
+        "intervals": [
+          2,
+          8
+        ]
+      },
+      "trunk_block": {
+        "name": "tsu_nat:maple_wood"
+      },
+      "branches": {
+        "branch_length": 6,
+        "branch_slope": 0.33,
+        "branch_altitude_factor": {
+          "max": 0.7,
+          "min": 0.2
+        },
+        "branch_interval": [
+          1,
+          2
+        ],
+        "branch_canopy": {
+          "fancy_canopy": {
+            "leaf_block": "tsu_nat:red_maple_leaves",
+            "radius": 3,
+            "height": 3
+          }
+        }
+      }
+    },
+    "mega_pine_canopy": {
+      "canopy_height": {
+        "range_min": 10,
+        "range_max": 20
+      },
+      "base_radius": 0,
+      "radius_step_modifier": 3,
+      "core_width": 2,
+      "leaf_block": {
+        "name": "tsu_nat:red_maple_leaves"
+      }
+    },
+    "may_grow_on": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "tsu_nat:duff"
+    ],
+    "base_block": [
+      "minecraft:dirt"
+    ],
+    "may_grow_through": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "minecraft:leaf_litter"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:snow_layer",
+      "minecraft:leaf_litter",
+      "tsu_nat:red_maple_leaves",
+      "tsu_nat:yellow_maple_leaves",
+      "tsu_nat:orange_maple_leaves",
+      "tsu_nat:maple_sapling"
+    ]
+  }
+}

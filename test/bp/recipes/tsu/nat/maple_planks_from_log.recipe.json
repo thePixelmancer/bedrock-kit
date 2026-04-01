@@ -1,0 +1,23 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:maple_planks_from_log"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"p"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:maple_log"
+			}
+		},
+		"result": {
+			"item": "tsu_nat:maple_planks",
+			"count": 4
+		}
+	}
+}

@@ -1,0 +1,28 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "tsu_nat:mandrake_root",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:max_stack_size": 16,
+      "minecraft:stacked_by_data": {
+        "value": false
+      },
+      "minecraft:block_placer": {
+        "block": "tsu_nat:mandrake_root",
+        "replace_block_item": true,
+        "use_on": ["tsu_nat:glowing_mycelium", "tsu_nat:rotting_soil"]
+      },
+      "minecraft:glint": false,
+      "minecraft:icon": {
+        "textures": {
+          "default": "tsu_nat.mandrake_root"
+        }
+      }
+    }
+  }
+}

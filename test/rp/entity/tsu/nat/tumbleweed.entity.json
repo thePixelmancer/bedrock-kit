@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.30",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "tsu_nat:tumbleweed",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/tsu/nat/tumbleweed"
+      },
+      "geometry": {
+        "default": "geometry.tsu_nat.tumbleweed"
+      },
+      "animations": {
+        "move": "animation.tsu_nat.tumbleweed.move",
+        "move_controller": "controller.animation.tsu_nat.tumbleweed.move"
+      },
+      "scripts": {
+        "animate": ["move_controller"]
+      },
+      "render_controllers": ["controller.render.default"],
+      "spawn_egg": {
+        "base_color": "#a06946",
+        "overlay_color": "#c7ad6c"
+      }
+    }
+  }
+}

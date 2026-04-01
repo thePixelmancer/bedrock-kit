@@ -1,0 +1,35 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:item": {
+		"description": {
+			"identifier": "tsu_nat:soap",
+			"menu_category": {
+				"category": "items"
+			}
+		},
+		"components": {
+			"tsu_nat:on_consume_event": {
+				"clear_negative_effects": true
+			},
+			"minecraft:use_modifiers": {
+				"movement_modifier": 0.5,
+				"use_duration": 2
+			},
+			"minecraft:use_animation": "brush",
+			"minecraft:food": {
+				"can_always_eat": true,
+				"nutrition": 0,
+				"saturation_modifier": 0
+			},
+			"minecraft:max_stack_size": 16,
+			"minecraft:stacked_by_data": {
+				"value": false
+			},
+			"minecraft:icon": {
+				"textures": {
+					"default": "tsu_nat.soap"
+				}
+			}
+		}
+	}
+}

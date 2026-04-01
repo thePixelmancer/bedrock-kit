@@ -1,0 +1,52 @@
+{
+	"format_version": "1.20.20",
+	"sound_definitions": {
+		"tsu_nat.charred_forest.mood": {
+			"category": "ambient",
+			"sounds": [
+				"sounds/tsu/nat/charred_forest/tree_fall",
+				"sounds/tsu/nat/charred_forest/tree_creak_1",
+				"sounds/tsu/nat/charred_forest/tree_creak_2",
+				"sounds/tsu/nat/charred_forest/tree_creak_3",
+				"sounds/tsu/nat/charred_forest/tree_creak_4",
+				"sounds/tsu/nat/charred_forest/tree_creak_5"
+			]
+		},
+		"tsu_nat.maple_forest.loop": {
+			"category": "ambient",
+			"max_distance": null,
+			"min_distance": null,
+			"sounds": [
+				{
+					"is3D": false,
+					"name": "sounds/tsu/nat/maple_forest/autumn_wind"
+				}
+			]
+		},
+		"tsu_nat.maple_forest.mood": {
+			"category": "ambient",
+			"sounds": [
+				"sounds/tsu/nat/maple_forest/woodpecker_1",
+				"sounds/tsu/nat/maple_forest/woodpecker_2",
+				"sounds/tsu/nat/maple_forest/woodpecker_3",
+				"sounds/tsu/nat/maple_forest/woodpecker_4"
+			]
+		},
+		"tsu_nat.fly.buzz": {
+			"category": "neutral",
+			"sounds": [
+				"sounds/tsu/nat/flies/flies_1",
+				"sounds/tsu/nat/flies/flies_2",
+				"sounds/tsu/nat/flies/flies_3"
+			]
+		},
+		"tsu_nat.mandrake_root.scream": {
+			"category": "neutral",
+			"sounds": [
+				"sounds/tsu/nat/mandrake_root/scream1",
+				"sounds/tsu/nat/mandrake_root/scream2",
+				"sounds/tsu/nat/mandrake_root/scream3"
+			]
+		}
+	}
+}

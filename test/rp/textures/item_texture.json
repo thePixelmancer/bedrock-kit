@@ -1,0 +1,115 @@
+{
+	"texture_data": {
+		"tsu_nat.guidebook": {
+			"textures": "textures/tsu/nat/items/guidebook"
+		},
+		"tsu_nat.umbral_shrub": {
+			"textures": "textures/tsu/nat/blocks/umbral_shrub"
+		},
+		"tsu_nat.burnt_shrub": {
+			"textures": "textures/tsu/nat/blocks/burnt_shrub"
+		},
+		"tsu_nat.salt_bud": {
+			"textures": "textures/tsu/nat/blocks/salt_bud"
+		},
+		"tsu_nat.salt_crystal": {
+			"textures": "textures/tsu/nat/blocks/salt_crystal"
+		},
+		"tsu_nat.omphalotus": {
+			"textures": "textures/tsu/nat/blocks/omphalotus"
+		},
+		"tsu_nat.glowshroom": {
+			"textures": "textures/tsu/nat/blocks/glowshroom"
+		},
+		"tsu_nat.sporepuff": {
+			"textures": "textures/tsu/nat/blocks/sporepuff"
+		},
+		"tsu_nat.maple_door": {
+			"textures": "textures/tsu/nat/items/maple_door"
+		},
+		"tsu_nat.charred_door": {
+			"textures": "textures/tsu/nat/items/charred_door"
+		},
+		"tsu_nat.glowing_mold": {
+			"textures": "textures/tsu/nat/blocks/glowing_mold"
+		},
+		"tsu_nat.maple_sapling": {
+			"textures": "textures/tsu/nat/blocks/maple_sapling"
+		},
+		"tsu_nat.aloe": {
+			"textures": "textures/tsu/nat/items/aloe"
+		},
+		"tsu_nat.cattail": {
+			"textures": "textures/tsu/nat/items/cattail"
+		},
+		"tsu_nat.cattail_seeds": {
+			"textures": "textures/tsu/nat/items/cattail_seeds"
+		},
+		"tsu_nat.rope": {
+			"textures": "textures/tsu/nat/items/rope"
+		},
+		"tsu_nat.salt": {
+			"textures": "textures/tsu/nat/items/salt"
+		},
+		"tsu_nat.ash": {
+			"textures": "textures/tsu/nat/items/ash"
+		},
+		"tsu_nat.gamey_meat": {
+			"textures": "textures/tsu/nat/items/gamey_meat"
+		},
+		"tsu_nat.smoked_gamey_meat": {
+			"textures": "textures/tsu/nat/items/smoked_gamey_meat"
+		},
+		"tsu_nat.cooked_gamey_meat": {
+			"textures": "textures/tsu/nat/items/cooked_gamey_meat"
+		},
+		"tsu_nat.jerky": {
+			"textures": "textures/tsu/nat/items/jerky"
+		},
+		"tsu_nat.kefir": {
+			"textures": "textures/tsu/nat/items/kefir"
+		},
+		"tsu_nat.kombucha": {
+			"textures": "textures/tsu/nat/items/kombucha"
+		},
+		"tsu_nat.kvass": {
+			"textures": "textures/tsu/nat/items/kvass"
+		},
+		"tsu_nat.mandrake_root": {
+			"textures": "textures/tsu/nat/items/mandrake_root"
+		},
+		"tsu_nat.maple_syrup": {
+			"textures": "textures/tsu/nat/items/maple_syrup"
+		},
+		"tsu_nat.niter": {
+			"textures": "textures/tsu/nat/items/niter"
+		},
+		"tsu_nat.pancake": {
+			"textures": "textures/tsu/nat/items/pancake"
+		},
+		"tsu_nat.raw_sap": {
+			"textures": "textures/tsu/nat/items/raw_sap"
+		},
+		"tsu_nat.root_brew": {
+			"textures": "textures/tsu/nat/items/root_brew"
+		},
+		"tsu_nat.soap": {
+			"textures": "textures/tsu/nat/items/soap"
+		},
+		"tsu_nat.wild_yeast": {
+			"textures": "textures/tsu/nat/items/wild_yeast"
+		},
+		"tsu_nat.spawn_egg_boar": {
+			"textures": "textures/tsu/nat/spawn_egg_boar"
+		},
+		"tsu_nat.spawn_egg_firefly": {
+			"textures": "textures/tsu/nat/spawn_egg_firefly"
+		},
+		"tsu_nat.spawn_egg_sap_slime": {
+			"textures": "textures/tsu/nat/spawn_egg_sap_slime"
+		},
+		"tsu_nat.spawn_egg_turkey": {
+			"textures": "textures/tsu/nat/spawn_egg_turkey"
+		}
+	}
+}

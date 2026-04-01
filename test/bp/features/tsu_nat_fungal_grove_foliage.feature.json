@@ -1,0 +1,57 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fungal_grove_foliage.feature"
+    },
+    "places_block": [
+      {
+        "block": {
+          "name": "tsu_nat:glowshroom"
+        },
+        "weight": 2
+      },
+      {
+        "block": {
+          "name": "tsu_nat:sporepuff"
+        },
+        "weight": 6
+      },
+      {
+        "block": {
+          "name": "tsu_nat:umbral_shrub"
+        },
+        "weight": 5
+      },
+      {
+        "block": {
+          "name": "tsu_nat:omphalotus"
+        },
+        "weight": 1
+      },
+      {
+        "block": {
+          "name": "tsu_nat:mandrake_root"
+        },
+        "weight": 1
+      },
+      {
+        "block": {
+          "name": "minecraft:firefly_bush"
+        },
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "randomize_rotation": true,
+    "may_replace": [
+      "minecraft:air"
+    ],
+    "may_attach_to": {
+      "bottom": [
+        "tsu_nat:glowing_mycelium"
+      ]
+    }
+  }
+}

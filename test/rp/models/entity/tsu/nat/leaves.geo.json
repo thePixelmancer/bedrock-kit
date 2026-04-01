@@ -1,0 +1,89 @@
+{
+	"format_version": "1.21.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.tsu_nat.leaves",
+				"texture_width": 16,
+				"texture_height": 16,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "inside",
+					"parent": "root",
+					"pivot": [0, 8, 0],
+					"cubes": [
+						{
+							"origin": [-7.75, 0.25, 7.75],
+							"size": [15.5, 15.5, 0],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [15.5, 15.5]}
+							}
+						},
+						{
+							"origin": [-7.75, 0.25, -7.75],
+							"size": [15.5, 15.5, 0],
+							"uv": {
+								"south": {"uv": [0, 0], "uv_size": [15.5, 15.5]}
+							}
+						},
+						{
+							"origin": [7.75, 0.25, -7.75],
+							"size": [0, 15.5, 15.5],
+							"uv": {
+								"east": {"uv": [0, 0], "uv_size": [16, 16]}
+							}
+						},
+						{
+							"origin": [-7.75, 0.25, -7.75],
+							"size": [0, 15.5, 15.5],
+							"uv": {
+								"west": {"uv": [0, 0], "uv_size": [16, 16]}
+							}
+						},
+						{
+							"origin": [-7.75, 0.25, -7.75],
+							"size": [15.5, 0, 15.5],
+							"uv": {
+								"up": {"uv": [16, 16], "uv_size": [-16, -16]}
+							}
+						},
+						{
+							"origin": [-7.75, 15.75, -7.75],
+							"size": [15.5, 0, 15.5],
+							"uv": {
+								"down": {"uv": [16, 16], "uv_size": [-16, -16]}
+							}
+						}
+					]
+				},
+				{
+					"name": "outside",
+					"parent": "root",
+					"pivot": [0, 8, 0],
+					"cubes": [
+						{
+							"origin": [-8, 0, -8],
+							"size": [16, 16, 16],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [16, 16]},
+								"east": {"uv": [0, 0], "uv_size": [16, 16]},
+								"south": {"uv": [0, 0], "uv_size": [16, 16]},
+								"west": {"uv": [0, 0], "uv_size": [16, 16]},
+								"up": {"uv": [16, 16], "uv_size": [-16, -16]},
+								"down": {"uv": [16, 16], "uv_size": [-16, -16]}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

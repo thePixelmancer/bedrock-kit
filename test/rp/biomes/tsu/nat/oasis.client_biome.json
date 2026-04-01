@@ -1,0 +1,13 @@
+{
+  "format_version": "1.21.110",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "tsu_nat:oasis"
+    },
+    "components": {
+      "minecraft:water_appearance": {
+        "surface_color": "#3ed3dd"
+      }
+    }
+  }
+}

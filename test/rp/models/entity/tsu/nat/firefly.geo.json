@@ -1,0 +1,59 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.tsu_nat.firefly",
+				"texture_width": 16,
+				"texture_height": 16,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 1.5,
+				"visible_bounds_offset": [0, 0.25, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 1, 0],
+					"cubes": [
+						{"origin": [-1, 0, -2], "size": [2, 2, 2], "uv": [0, 9]}
+					]
+				},
+				{
+					"name": "rightWing",
+					"parent": "root",
+					"pivot": [1, 2, 0],
+					"cubes": [
+						{"origin": [1, 2, 0], "size": [3, 0, 3], "uv": [0, 0]}
+					]
+				},
+				{
+					"name": "leftWing",
+					"parent": "root",
+					"pivot": [-1, 2, 0],
+					"cubes": [
+						{"origin": [-4, 2, 0], "size": [3, 0, 3], "uv": [0, 0], "mirror": true}
+					]
+				},
+				{
+					"name": "glow",
+					"parent": "root",
+					"pivot": [0, 1, 1],
+					"cubes": [
+						{"origin": [-1, 0, 0], "size": [2, 2, 2], "inflate": -0.2, "uv": [8, 4]}
+					],
+					"locators": {
+						"light": [0, 1, 1]
+					}
+				},
+				{
+					"name": "additive",
+					"parent": "root",
+					"pivot": [0, 1, 1],
+					"cubes": [
+						{"origin": [-1, 0, 0], "size": [2, 2, 2], "inflate": 0.1, "uv": [0, 4]}
+					]
+				}
+			]
+		}
+	]
+}

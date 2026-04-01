@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_cattail_condition.feature"
+    },
+    "places_block": "minecraft:cobblestone",
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "may_replace": [
+      "minecraft:sand"
+    ],
+    "may_attach_to": {
+      "sides": [
+        "minecraft:water"
+      ],
+      "top": [
+        "minecraft:air"
+      ],
+      "bottom": [
+        "minecraft:sand"
+      ],
+      "min_sides_must_attach": 1
+    }
+  }
+}

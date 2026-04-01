@@ -1,0 +1,14 @@
+{
+  "format_version": "1.18.0",
+  "minecraft:aggregate_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fungal_grove_trees.feature"
+    },
+    "features": [
+      "tsu_nat:tsu_nat_fungal_grove_trees_test.feature",
+      "tsu_nat:tsu_nat_fungal_grove_trees_replace.feature",
+      "tsu_nat:tsu_nat_fungal_grove_trees_select.feature"
+    ],
+    "early_out": "first_failure"
+  }
+}

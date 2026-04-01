@@ -1,0 +1,140 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "tsu_nat:rope",
+      "menu_category": {
+        "category": "equipment"
+      },
+      "traits": {
+        "minecraft:placement_position": { "enabled_states": ["minecraft:block_face"] }
+      },
+      "states": {
+        "tsu_nat:rope_section": ["knot", "rope"]
+      }
+    },
+    "components": {
+      "tag:tsu_nat:can_climb": {},
+      "tsu_nat:rope": {},
+      "minecraft:placement_filter": {
+        "conditions": [
+          {
+            "allowed_faces": ["side", "down"]
+          }
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [-1, 0, -7],
+        "size": [2, 16, 2]
+      },
+      "minecraft:liquid_detection": {
+        "detection_rules": [
+          {
+            "can_contain_liquid": true,
+            "liquid_type": "water",
+            "on_liquid_touches": "no_reaction"
+          }
+        ]
+      },
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "tsu_nat.rope",
+          "ambient_occlusion": false,
+          "face_dimming": true,
+          "render_method": "alpha_test"
+        }
+      },
+      "minecraft:flammable": true,
+      "minecraft:collision_box": false,
+      "minecraft:geometry": {
+        "identifier": "geometry.tsu_nat.rope",
+        "bone_visibility": {
+          "knot": true,
+          "rope": false
+        }
+      },
+      "minecraft:light_dampening": 0
+    },
+    "permutations": [
+      {
+        // knot
+        "condition": "q.block_state('tsu_nat:rope_section') == 'knot'",
+        "components": {
+          "minecraft:collision_box": {
+            "origin": [-2, 12, -8],
+            "size": [4, 4, 4]
+          },
+          "minecraft:placement_filter": {
+            "conditions": [
+              {
+                "allowed_faces": ["side"]
+              }
+            ]
+          },
+          "minecraft:geometry": {
+            "identifier": "geometry.tsu_nat.rope",
+            "bone_visibility": {
+              "knot": true,
+              "rope": false
+            }
+          }
+        }
+      },
+      {
+        // rope
+        "condition": "q.block_state('tsu_nat:rope_section') == 'rope'",
+        "components": {
+          "minecraft:placement_filter": {
+            "conditions": [
+              {
+                "allowed_faces": ["down"],
+                "block_filter": ["tsu_nat:rope"]
+              }
+            ]
+          },
+          "minecraft:geometry": {
+            "identifier": "geometry.tsu_nat.rope",
+            "bone_visibility": {
+              "knot": false,
+              "rope": true
+            }
+          }
+        }
+      },
+      // Facing north
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'south'",
+        "components": {
+          "minecraft:transformation": { "rotation": [0, 0, 0] }
+        }
+      },
+      // Facing west
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'east'",
+        "components": {
+          "minecraft:transformation": { "rotation": [0, 90, 0] }
+        }
+      },
+      // Facing south
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'north'",
+        "components": {
+          "minecraft:transformation": { "rotation": [0, 180, 0] }
+        }
+      },
+      // Facing east
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'west'",
+        "components": {
+          "minecraft:transformation": { "rotation": [0, -90, 0] }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'down' || q.block_state('minecraft:block_face') == 'up'",
+        "components": {
+          "minecraft:transformation": { "translation": [0, 0, 0.375] }
+        }
+      }
+    ]
+  }
+}

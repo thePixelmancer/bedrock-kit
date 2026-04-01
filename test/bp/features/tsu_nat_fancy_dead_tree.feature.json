@@ -1,0 +1,108 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fancy_dead_tree.feature"
+    },
+    "cherry_trunk": {
+      "trunk_block": "tsu_nat:charred_log",
+      "trunk_height": {
+        "base": 7,
+        "intervals": [
+          3
+        ]
+      },
+      "branches": {
+        "tree_type_weights": {
+          "one_branch": 10,
+          "two_branches": 10,
+          "two_branches_and_trunk": 10
+        },
+        "branch_horizontal_length": {
+          "range_min": 2,
+          "range_max": 4
+        },
+        "branch_start_offset_from_top": {
+          "range_min": -4,
+          "range_max": -3
+        },
+        "branch_end_offset_from_top": {
+          "range_min": -1,
+          "range_max": 0
+        }
+      }
+    },
+    "canopy": {
+      "canopy_offset": {
+        "min": -1,
+        "max": 1
+      },
+      "min_width": 0,
+      "canopy_slope": {
+        "rise": 1,
+        "run": 1
+      },
+      "variation_chance": [
+        {
+          "numerator": 1,
+          "denominator": 3
+        },
+        {
+          "numerator": 1,
+          "denominator": 3
+        },
+        {
+          "numerator": 1,
+          "denominator": 3
+        },
+        {
+          "numerator": 1,
+          "denominator": 3
+        }
+      ],
+      "leaf_block": {
+        "name": "minecraft:air"
+      }
+    },
+    "base_cluster": {
+      "may_replace": [
+        {
+          "tags": "query.any_tag('dirt')"
+        }
+      ],
+      "num_clusters": 5,
+      "cluster_radius": 2
+    },
+    "may_grow_on": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "tsu_nat:dead_grass_block"
+    ],
+    "base_block": [
+      "tsu_nat:dead_grass_block"
+    ],
+    "may_grow_through": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "tsu_nat:dead_grass_block",
+      "minecraft:grass",
+      "minecraft:tall_grass"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:snow_layer",
+      "minecraft:acacia_leaves",
+      "minecraft:azalea_leaves",
+      "minecraft:azalea_leaves_flowered",
+      "minecraft:birch_leaves",
+      "minecraft:dark_oak_leaves",
+      "minecraft:cherry_leaves",
+      "minecraft:mangrove_leaves",
+      "minecraft:oak_leaves",
+      "minecraft:pale_oak_leaves",
+      "minecraft:spruce_leaves"
+    ]
+  }
+}

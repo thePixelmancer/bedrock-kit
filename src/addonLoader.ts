@@ -4,7 +4,7 @@
  * focused on the public navigation API.
  */
 import { join, posix } from "node:path";
-import { diskEntries, browserEntries } from "./pack.js";
+import { diskEntries, diskTextureEntries, browserEntries } from "./pack.js";
 import { readJSONFromDisk, readRawFromDisk } from "./json.js";
 import { packDataFromFiles } from "./browser.js";
 import { extractIdentifier } from "./identifiers.js";
@@ -20,13 +20,18 @@ import { BehaviorEntity, ResourceEntity, Entity } from "./entity.js";
 import { Recipe } from "./recipe.js";
 import { LootTable } from "./lootTable.js";
 import { SpawnRule } from "./spawnRule.js";
-import { Biome } from "./biome.js";
+import { BehaviorBiome, ClientBiome, Biome } from "./biome.js";
 import { Animation, AnimationController } from "./animation.js";
 import { RenderController } from "./renderController.js";
 import { Particle } from "./particle.js";
 import { Attachable } from "./attachable.js";
 import { TradingTable } from "./tradingTable.js";
 import { GeometryModel } from "./geometry.js";
+import { Feature } from "./feature.js";
+import { FeatureRule } from "./featureRule.js";
+import { Fog } from "./fogSettings.js";
+import { Texture } from "./texture.js";
+import { ReverseIndex } from "./reverseIndex.js";
 
 import type { PackData } from "./browser.js";
 import type { PackEntry } from "./pack.js";
@@ -58,7 +63,9 @@ export interface AddonState {
   recipes: Recipe[] | null;
   lootTables: Map<string, LootTable> | null;
   spawnRules: Map<string, SpawnRule> | null;
-  biomes: Map<string, Biome> | null;
+  bpBiomes: Map<string, BehaviorBiome> | null;
+  rpBiomes: Map<string, ClientBiome> | null;
+  biomeStore: Map<string, Biome> | null;
   animations: Map<string, Animation> | null;
   animationControllers: Map<string, AnimationController> | null;
   renderControllers: Map<string, RenderController> | null;
@@ -66,6 +73,11 @@ export interface AddonState {
   attachables: Map<string, Attachable> | null;
   tradingTables: Map<string, TradingTable> | null;
   geometries: Map<string, GeometryModel> | null;
+  features: Map<string, Feature> | null;
+  featureRules: Map<string, FeatureRule> | null;
+  fogSettings: Map<string, Fog> | null;
+  textures: Map<string, Texture> | null;
+  reverseIndex: ReverseIndex | null;
   langFiles: Map<string, LangFile>;
 }
 
@@ -125,7 +137,9 @@ export class AddonLoader {
       recipes: null,
       lootTables: null,
       spawnRules: null,
-      biomes: null,
+      bpBiomes: null,
+      rpBiomes: null,
+      biomeStore: null,
       animations: null,
       animationControllers: null,
       renderControllers: null,
@@ -133,6 +147,11 @@ export class AddonLoader {
       attachables: null,
       tradingTables: null,
       geometries: null,
+      features: null,
+      featureRules: null,
+      fogSettings: null,
+      textures: null,
+      reverseIndex: null,
       langFiles: new Map(),
     };
   }
@@ -214,24 +233,48 @@ export class AddonLoader {
     return map;
   }
 
-  static loadSpawnRules(state: AddonState): Map<string, SpawnRule> {
+  static loadSpawnRules(state: AddonState, addon: AddOn): Map<string, SpawnRule> {
     const map = new Map<string, SpawnRule>();
     for (const { filePath, data, rawText } of AddonLoader.bpEntries(state, "spawn_rules")) {
       const inner = data["minecraft:spawn_rules"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      map.set(id, new SpawnRule(id, filePath, data, rawText));
+      map.set(id, new SpawnRule(id, filePath, data, rawText, addon));
     }
     return map;
   }
 
-  static loadBiomes(state: AddonState, addon: AddOn): Map<string, Biome> {
-    const map = new Map<string, Biome>();
+  static loadBpBiomes(state: AddonState, addon: AddOn): Map<string, BehaviorBiome> {
+    const map = new Map<string, BehaviorBiome>();
     for (const { filePath, data, rawText } of AddonLoader.bpEntries(state, "biomes")) {
       const id = extractIdentifier(data, "minecraft:biome");
       if (!id) continue;
-      map.set(id, new Biome(id, filePath, data, rawText, addon));
+      map.set(id, new BehaviorBiome(id, filePath, data, rawText, addon));
+    }
+    return map;
+  }
+
+  static loadRpBiomes(state: AddonState, addon: AddOn): Map<string, ClientBiome> {
+    const map = new Map<string, ClientBiome>();
+    for (const { filePath, data, rawText } of AddonLoader.rpEntries(state, "biomes")) {
+      const inner = data["minecraft:client_biome"] as Record<string, unknown> | undefined;
+      const desc = inner?.["description"] as Record<string, unknown> | undefined;
+      const id = desc?.["identifier"] as string | undefined;
+      if (!id) continue;
+      map.set(id, new ClientBiome(id, filePath, data, rawText, addon));
+    }
+    return map;
+  }
+
+  static buildBiomeStore(
+    bpBiomes: Map<string, BehaviorBiome>,
+    rpBiomes: Map<string, ClientBiome>,
+  ): Map<string, Biome> {
+    const map = new Map<string, Biome>();
+    const ids = new Set([...bpBiomes.keys(), ...rpBiomes.keys()]);
+    for (const id of ids) {
+      map.set(id, new Biome(id, bpBiomes.get(id), rpBiomes.get(id)));
     }
     return map;
   }
@@ -269,24 +312,24 @@ export class AddonLoader {
     return map;
   }
 
-  static loadParticles(state: AddonState): Map<string, Particle> {
+  static loadParticles(state: AddonState, addon: AddOn): Map<string, Particle> {
     const map = new Map<string, Particle>();
     for (const { filePath, data, rawText } of AddonLoader.rpEntries(state, "particles")) {
       const inner = data["particle_effect"] as Record<string, unknown> | undefined;
       const desc = inner?.["description"] as Record<string, unknown> | undefined;
       const id = desc?.["identifier"] as string | undefined;
       if (!id) continue;
-      map.set(id, new Particle(id, filePath, data, rawText));
+      map.set(id, new Particle(id, filePath, data, rawText, addon));
     }
     return map;
   }
 
-  static loadAttachables(state: AddonState): Map<string, Attachable> {
+  static loadAttachables(state: AddonState, addon: AddOn): Map<string, Attachable> {
     const map = new Map<string, Attachable>();
     for (const { filePath, data, rawText } of AddonLoader.rpEntries(state, "attachables")) {
       const id = extractIdentifier(data, "minecraft:attachable");
       if (!id) continue;
-      map.set(id, new Attachable(id, filePath, data, rawText));
+      map.set(id, new Attachable(id, filePath, data, rawText, addon));
     }
     return map;
   }
@@ -317,6 +360,68 @@ export class AddonLoader {
         if (!key.startsWith("geometry.")) continue;
         map.set(key, new GeometryModel(key, value as Record<string, unknown>, filePath, rawText));
       }
+    }
+    return map;
+  }
+
+  static loadFeatures(state: AddonState, addon: AddOn): Map<string, Feature> {
+    const map = new Map<string, Feature>();
+    for (const { filePath, data, rawText } of AddonLoader.bpEntries(state, "features")) {
+      // Features use varied root keys: minecraft:single_block_feature, minecraft:tree_feature, etc.
+      const featureKey = Object.keys(data).find(k => k.startsWith("minecraft:") && k.endsWith("_feature"));
+      if (!featureKey) continue;
+      const inner = data[featureKey] as Record<string, unknown> | undefined;
+      const desc = inner?.["description"] as Record<string, unknown> | undefined;
+      const id = desc?.["identifier"] as string | undefined;
+      if (!id) continue;
+      map.set(id, new Feature(id, filePath, data, rawText, addon));
+    }
+    return map;
+  }
+
+  static loadFeatureRules(state: AddonState, addon: AddOn): Map<string, FeatureRule> {
+    const map = new Map<string, FeatureRule>();
+    for (const { filePath, data, rawText } of AddonLoader.bpEntries(state, "feature_rules")) {
+      const inner = data["minecraft:feature_rules"] as Record<string, unknown> | undefined;
+      const desc = inner?.["description"] as Record<string, unknown> | undefined;
+      const id = desc?.["identifier"] as string | undefined;
+      if (!id) continue;
+      map.set(id, new FeatureRule(id, filePath, data, rawText, addon));
+    }
+    return map;
+  }
+
+  static loadFogSettings(state: AddonState): Map<string, Fog> {
+    const map = new Map<string, Fog>();
+    for (const { filePath, data, rawText } of AddonLoader.rpEntries(state, "fogs")) {
+      const inner = data["minecraft:fog_settings"] as Record<string, unknown> | undefined;
+      const desc = inner?.["description"] as Record<string, unknown> | undefined;
+      const id = desc?.["identifier"] as string | undefined;
+      if (!id) continue;
+      map.set(id, new Fog(id, filePath, data, rawText));
+    }
+    return map;
+  }
+
+  static loadTextures(state: AddonState, addon: AddOn): Map<string, Texture> {
+    const map = new Map<string, Texture>();
+    if (!state.resourcePackPath) return map; // browser mode — not supported
+
+    // Build a lookup of texture_set JSON data, keyed by the path without the .texture_set.json suffix
+    const textureSetMap = new Map<string, Record<string, unknown>>();
+    for (const { relativePath, data } of AddonLoader.rpEntries(state, "textures")) {
+      if (relativePath.endsWith(".texture_set.json")) {
+        const key = relativePath.slice(0, -".texture_set.json".length);
+        textureSetMap.set(key, data);
+      }
+    }
+
+    for (const { filePath, relativePath } of diskTextureEntries(state.resourcePackPath, "textures")) {
+      // Strip extension to get the id
+      const dotIdx = relativePath.lastIndexOf(".");
+      const id = dotIdx !== -1 ? relativePath.slice(0, dotIdx) : relativePath;
+      const textureSetData = textureSetMap.get(id);
+      map.set(id, new Texture(id, filePath, textureSetData, addon));
     }
     return map;
   }

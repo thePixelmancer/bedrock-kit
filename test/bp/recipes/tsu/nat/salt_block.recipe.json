@@ -1,0 +1,19 @@
+{
+  "format_version": "1.12.50",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "tsu_nat:salt_block"
+    },
+    "tags": ["crafting_table"],
+    "pattern": ["pp", "pp"],
+    "key": {
+      "p": {
+        "item": "tsu_nat:salt"
+      }
+    },
+    "result": {
+      "item": "tsu_nat:salt_block",
+      "count": 1
+    }
+  }
+}

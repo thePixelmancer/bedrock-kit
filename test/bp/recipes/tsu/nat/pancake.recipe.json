@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "tsu_nat:pancake"
+    },
+    "tags": ["crafting_table"],
+    "unlock": [
+      {
+        "item": "tsu_nat:maple_syrup"
+      }
+    ],
+    "ingredients": [
+      {
+        "item": "tsu_nat:maple_syrup"
+      },
+      {
+        "item": "minecraft:wheat"
+      },
+      {
+        "item": "minecraft:egg"
+      }
+    ],
+    "result": {
+      "item": "tsu_nat:pancake",
+      "count": 4
+    }
+  }
+}

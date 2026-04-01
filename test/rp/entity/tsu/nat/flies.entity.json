@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "tsu_nat:flies",
+      "materials": {
+        "default": "entity_alphablend",
+        "glow": "entity_emissive_alpha",
+        "additive": "tsu_nat_entity_additive_blend"
+      },
+      "geometry": {
+        "default": "geometry.tsu_nat.flies"
+      },
+      "textures": {
+        "default": "textures/tsu/nat/firefly"
+      },
+      "particle_effects": {
+        "flies": "tsu_nat:flies"
+      },
+      "animations": {
+        "base": "controller.animation.tsu_nat.flies"
+      },
+      "scripts": {
+        "animate": ["base"]
+      },
+      "render_controllers": ["controller.render.default"],
+      "spawn_egg": {
+        "base_color": "#644351",
+        "overlay_color": "#51ff00"
+      }
+    }
+  }
+}

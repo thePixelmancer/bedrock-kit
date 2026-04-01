@@ -1,0 +1,99 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_charred_forest_foliage.feature"
+    },
+    "places_block": [
+      {
+        "block": {
+          "name": "tsu_nat:small_charred_log"
+        },
+        "weight": 1
+      },
+      {
+        "block": {
+          "name": "tsu_nat:burnt_shrub"
+        },
+        "weight": 7
+      },
+      {
+        "block": {
+          "name": "tsu_nat:charred_fence"
+        },
+        "weight": 4
+      },
+      {
+        "block": {
+          "name": "tsu_nat:ash_layer"
+        },
+        "weight": 6
+      },
+      {
+        "block": {
+          "name": "minecraft:deadbush"
+        },
+        "weight": 3
+      },
+      {
+        "block": {
+          "name": "minecraft:short_dry_grass"
+        },
+        "weight": 2
+      },
+      {
+        "block": {
+          "name": "minecraft:tall_dry_grass"
+        },
+        "weight": 2
+      },
+      {
+        "block": {
+          "name": "minecraft:leaf_litter",
+          "states": {
+            "growth": 0
+          }
+        },
+        "weight": 1
+      },
+      {
+        "block": {
+          "name": "minecraft:leaf_litter",
+          "states": {
+            "growth": 1
+          }
+        },
+        "weight": 1
+      },
+      {
+        "block": {
+          "name": "minecraft:leaf_litter",
+          "states": {
+            "growth": 2
+          }
+        },
+        "weight": 1
+      },
+      {
+        "block": {
+          "name": "minecraft:leaf_litter",
+          "states": {
+            "growth": 3
+          }
+        },
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "randomize_rotation": true,
+    "may_replace": [
+      "minecraft:air"
+    ],
+    "may_attach_to": {
+      "bottom": [
+        "tsu_nat:dead_grass_block"
+      ]
+    }
+  }
+}

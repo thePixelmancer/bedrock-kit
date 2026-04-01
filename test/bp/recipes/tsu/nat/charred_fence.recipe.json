@@ -1,0 +1,27 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:charred_fence"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"psp",
+			"psp"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:charred_planks"
+			},
+			"s": {
+				"item": "minecraft:stick"
+			}
+		},
+		"result": {
+			"item": "tsu_nat:charred_fence",
+			"count": 3
+		}
+	}
+}

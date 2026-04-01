@@ -1,4 +1,6 @@
 import { Asset } from "./asset.js";
+import type { AddOn } from "./addon.js";
+import type { Texture } from "./texture.js";
 
 /**
  * Represents a particle effect definition from the resource pack's `particles/` directory.
@@ -8,16 +10,18 @@ import { Asset } from "./asset.js";
  * @example
  * ```ts
  * const particle = addon.particles.get("minecraft:stunned_emitter");
- * console.log(particle?.texturePath); // "textures/particle/particles"
+ * console.log(particle?.texture?.id);  // "textures/particle/particles"
  * ```
  */
 export class Particle extends Asset {
   /** The namespaced particle identifier, e.g. `"minecraft:stunned_emitter"`. */
   readonly id: string;
+  private readonly _addon: AddOn;
 
-  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string) {
+  constructor(id: string, filePath: string, data: Record<string, unknown>, rawText: string, addon: AddOn) {
     super(filePath, data, rawText);
     this.id = id;
+    this._addon = addon;
   }
 
   private get _description(): Record<string, unknown> {
@@ -26,12 +30,14 @@ export class Particle extends Asset {
   }
 
   /**
-   * The texture path used by this particle effect, as defined in
-   * `basic_render_parameters.texture`. `undefined` if not specified.
+   * The texture used by this particle effect, resolved from
+   * `basic_render_parameters.texture`. `undefined` if not specified or not found
+   * in the addon's texture collection.
    */
-  get texturePath(): string | undefined {
+  get texture(): Texture | undefined {
     const params = this._description["basic_render_parameters"] as Record<string, unknown> | undefined;
-    return (params?.["texture"] as string) ?? undefined;
+    const path = params?.["texture"] as string | undefined;
+    return path ? this._addon.textures.get(path) : undefined;
   }
 
   /**

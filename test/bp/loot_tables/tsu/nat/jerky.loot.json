@@ -1,0 +1,15 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "tsu_nat:jerky",
+          "weight": 1,
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

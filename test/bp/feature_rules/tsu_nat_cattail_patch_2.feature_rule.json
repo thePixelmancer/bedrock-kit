@@ -1,0 +1,40 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_cattail_patch_2.feature_rule",
+      "description": "Starts a tree of features for the cattail patches that spawn in deserts",
+      "places_feature": "tsu_nat:tsu_nat_cattail_aggregate.feature"
+    },
+    "conditions": {
+      "placement_pass": "before_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "desert"
+        }
+      ]
+    },
+    "distribution": {
+      "coordinate_eval_order": "xzy",
+      "scatter_chance": 10,
+      "iterations": 256,
+      "x": {
+        "distribution": "fixed_grid",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "z": {
+        "distribution": "fixed_grid",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "y": "v.world_y_coord = q.above_top_solid(v.worldx,v.worldz) - 1; return v.world_y_coord;"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:charred_double_slab_to_hoe"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"pp",
+			"_s",
+			"_s"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:charred_double_slab"
+			},
+			"s": {
+				"item": "minecraft:stick"
+			}
+		},
+		"result": {
+			"item": "minecraft:wooden_hoe",
+			"count": 1
+		}
+	}
+}

@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_cattail_replace.feature"
+    },
+    "places_block": "minecraft:sand",
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "may_replace": [
+      "minecraft:cobblestone"
+    ]
+  }
+}

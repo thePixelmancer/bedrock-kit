@@ -1,0 +1,33 @@
+{
+  "format_version": "1.12.90",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "tsu_nat:scarecrow"
+    },
+    "tags": ["crafting_table"],
+    "pattern": [" p ", "shs", " s "],
+    "unlock": [
+      {
+        "item": "minecraft:carved_pumpkin"
+      },
+      {
+        "item": "minecraft:hay_block"
+      }
+    ],
+    "key": {
+      "p": {
+        "item": "minecraft:carved_pumpkin"
+      },
+      "s": {
+        "item": "minecraft:stick"
+      },
+      "h": {
+        "item": "minecraft:hay_block"
+      }
+    },
+    "result": {
+      "item": "tsu_nat:scarecrow",
+      "count": 1
+    }
+  }
+}

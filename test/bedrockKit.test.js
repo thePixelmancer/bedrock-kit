@@ -5,7 +5,7 @@
 
 import { AddOn, Item, Tag, ItemStack } from "../dist/bedrockKit.js";
 
-const addon = await AddOn.fromDisk("./test/vanilla_behavior_pack", "./test/vanilla_resource_pack");
+const addon = await AddOn.fromDisk("./test/bp", "./test/rp");
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -78,13 +78,13 @@ ok("resolveShape() returns 2D grid",
 ok("grid cells are Item/Tag/null",
   grid?.every(row => row.every(c => c === null || c instanceof Item || c instanceof Tag)) ?? false
 );
-eq("resolveShape() null for non-shaped",
+eq("resolveShape() undefined for non-shaped",
   addon.recipes.all().find(r => r.type === "furnace")?.resolveShape(),
-  null
+  undefined
 );
-eq("resolveShapeless() null for non-shapeless", shapedSpear?.resolveShapeless(), null);
-eq("resolveFurnace() null for non-furnace", shapedSpear?.resolveFurnace(), null);
-eq("resolveBrewing() null for non-brewing", shapedSpear?.resolveBrewing(), null);
+eq("resolveShapeless() undefined for non-shapeless", shapedSpear?.resolveShapeless(), undefined);
+eq("resolveFurnace() undefined for non-furnace", shapedSpear?.resolveFurnace(), undefined);
+eq("resolveBrewing() undefined for non-brewing", shapedSpear?.resolveBrewing(), undefined);
 
 const stack = spear?.recipes[0]?.result;
 ok("result returns ItemStack", stack instanceof ItemStack);
@@ -339,8 +339,7 @@ ok("some() false when no match", !items.some(i => i.id === "bedrockkit:nope"));
 ok("every() true when all match", items.every(i => typeof i.id === "string"));
 ok("every() false when some don't", !items.every(i => i.id === "minecraft:copper_spear"));
 
-const spearItem = addon.items.get("minecraft:copper_spear");
-ok("Asset has documentation array", Array.isArray(spearItem?.documentation));
+ok("Asset has docstrings array", Array.isArray(addon.items.all()[0]?.docstrings));
 
 // ─── Tags ─────────────────────────────────────────────────────────────────────
 

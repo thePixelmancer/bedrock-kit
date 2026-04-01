@@ -1,0 +1,85 @@
+{
+	"format_version": "1.21.110",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:maple_sapling",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.sapling"
+			},
+			"states": {
+				"tsu_nat:variant": [
+					0,
+					1,
+					2
+				]
+			}
+		},
+		"components": {
+			"minecraft:movable": {
+				"movement_type": "popped"
+			},
+			"tsu_nat:custom_sapling": {
+				"grows_into": [
+					"tsu_nat:tsu_nat_red_maple_tree.feature",
+					"tsu_nat:tsu_nat_orange_maple_tree.feature",
+					"tsu_nat:tsu_nat_yellow_maple_tree.feature"
+				],
+				"bonemeal_grow_chance": 0.5,
+				"grow_chance": 0.2
+			},
+			"minecraft:placement_filter": {
+				"conditions": [
+					{
+						"allowed_faces": [
+							"up"
+						],
+						"block_filter": [
+							"minecraft:grass_block",
+							"minecraft:dirt",
+							"minecraft:mud",
+							"minecraft:podzol",
+							"minecraft:mycelium",
+							"minecraft:coarse_dirt",
+							"minecraft:sand",
+							"tsu_nat:glowing_mycelium",
+							"tsu_nat:rotting_soil",
+							"tsu_nat:dead_grass_block",
+							"tsu_nat:duff"
+						]
+					}
+				]
+			},
+			"tsu_nat:particle_emitter": {
+				"particles": []
+			},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 0
+			},
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"can_contain_liquid": true,
+						"liquid_type": "water",
+						"on_liquid_touches": "popped"
+					}
+				]
+			},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.maple_sapling",
+					"ambient_occlusion": false,
+					"face_dimming": true,
+					"render_method": "alpha_test_single_sided_to_opaque"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": false,
+			"minecraft:geometry": "minecraft:geometry.cross",
+			"minecraft:light_dampening": 0
+		}
+	}
+}

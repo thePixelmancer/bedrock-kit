@@ -1,0 +1,41 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "tsu_nat:gp_from_niter"
+    },
+
+    "tags": ["crafting_table"],
+    "ingredients": [
+      {
+        "item": "tsu_nat:niter"
+      },
+      {
+        "item": "tsu_nat:salt"
+      },
+      {
+        "item": "tsu_nat:ash"
+      },
+      {
+        "item": "minecraft:coal"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "tsu_nat:niter"
+      },
+      {
+        "item": "tsu_nat:salt"
+      },
+      {
+        "item": "minecraft:coal"
+      },
+      {
+        "item": "minecraft:charcoal"
+      }
+    ],
+    "result": {
+      "item": "minecraft:gunpowder"
+    }
+  }
+}

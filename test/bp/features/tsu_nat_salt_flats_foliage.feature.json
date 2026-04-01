@@ -1,0 +1,33 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_salt_flats_foliage.feature"
+    },
+    "places_block": [
+      {
+        "block": {
+          "name": "tsu_nat:salt_bud"
+        },
+        "weight": 2
+      },
+      {
+        "block": {
+          "name": "tsu_nat:salt_crystal"
+        },
+        "weight": 2
+      }
+    ],
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "randomize_rotation": true,
+    "may_replace": [
+      "minecraft:air"
+    ],
+    "may_attach_to": {
+      "bottom": [
+        "tsu_nat:salt_block"
+      ]
+    }
+  }
+}

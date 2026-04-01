@@ -6,7 +6,8 @@ import type { Animation, AnimationController } from "./animation.js";
 import type { RenderController } from "./renderController.js";
 import type { Particle } from "./particle.js";
 import type { SoundEventBinding } from "./sounds.js";
-import { shortname } from "./identifiers.js";
+import type { Texture } from "./texture.js";
+import { shortname, resolveDisplayName } from "./identifiers.js";
 
 // ─── BehaviorEntity ───────────────────────────────────────────────────────────
 
@@ -34,6 +35,11 @@ export class BehaviorEntity extends Asset {
     this._addon = addon;
   }
 
+  /** The unified entity view that contains this behavior definition. */
+  get entity(): Entity | undefined {
+    return this._addon._entityStore.get(this.id);
+  }
+
   /** The linked resource pack entity, or `undefined` if none exists. */
   get resource(): ResourceEntity | undefined {
     return this._addon._rpEntityStore.get(this.id);
@@ -41,11 +47,7 @@ export class BehaviorEntity extends Asset {
 
   /** The display name for this entity from the `en_US` language file. Falls back to the identifier. */
   get displayName(): string {
-    const lang = this._addon.getLangFile("en_US");
-    if (!lang) return this.id;
-    const [namespace, short] = this.id.includes(":")
-      ? this.id.split(":") : ["minecraft", this.id];
-    return lang.get(`entity.${namespace}.${short}.name`);
+    return resolveDisplayName(this._addon.getLangFile("en_US"), this.id, ["entity"]);
   }
 
   /** All loot tables referenced in this entity's behavior definition. */
@@ -138,6 +140,25 @@ export class ResourceEntity extends Asset {
     return (this._description["sounds"] as Record<string, string>) ?? {};
   }
 
+  /**
+   * Map of texture shortname → resolved {@link Texture}, e.g. `{ "default": Texture }`.
+   * Entries whose path cannot be found in the addon's texture collection are omitted.
+   */
+  get textures(): Record<string, Texture> {
+    const raw = (this._description["textures"] as Record<string, string>) ?? {};
+    const result: Record<string, Texture> = {};
+    for (const [shortname, path] of Object.entries(raw)) {
+      const tex = this._addon.textures.get(path);
+      if (tex) result[shortname] = tex;
+    }
+    return result;
+  }
+
+  /** The unified entity view that contains this resource definition. */
+  get entity(): Entity | undefined {
+    return this._addon._entityStore.get(this.id);
+  }
+
   /** The linked behavior pack entity, or `undefined` if none exists. */
   get behavior(): BehaviorEntity | undefined {
     return this._addon._bpEntityStore.get(this.id);
@@ -145,11 +166,7 @@ export class ResourceEntity extends Asset {
 
   /** The display name for this entity from the `en_US` language file. Falls back to the identifier. */
   get displayName(): string {
-    const lang = this._addon.getLangFile("en_US");
-    if (!lang) return this.id;
-    const [namespace, short] = this.id.includes(":")
-      ? this.id.split(":") : ["minecraft", this.id];
-    return lang.get(`entity.${namespace}.${short}.name`);
+    return resolveDisplayName(this._addon.getLangFile("en_US"), this.id, ["entity"]);
   }
 
   /** Resolved animation definitions referenced by this entity (excludes controllers). */
@@ -237,6 +254,14 @@ export class Entity {
   /** The display name from the `en_US` language file. Falls back to the identifier. */
   get displayName(): string {
     return this.behavior?.displayName ?? this.resource?.displayName ?? this.id;
+  }
+
+  /**
+   * JSDoc comment blocks parsed from the backing file.
+   * Returns behavior docstrings if present, otherwise resource docstrings.
+   */
+  get docstrings() {
+    return this.behavior?.docstrings ?? this.resource?.docstrings ?? [];
   }
 
   /** All loot tables referenced in this entity's behavior definition. */

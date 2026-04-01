@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "tsu_nat:string_from_cattail"
+    },
+    "unlock": [
+      {
+        "item": "tsu_nat:cattail"
+      },
+      {
+        "item": "tsu_nat:cattail_seeds"
+      }
+    ],
+    "pattern": ["CC", "CC"],
+    "key": {
+      "C": {
+        "item": "tsu_nat:cattail"
+      }
+    },
+    "result": {
+      "item": "minecraft:string"
+    },
+    "tags": ["crafting_table"]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_podzol_block.feature"
+    },
+    "places_block": [
+      {
+        "block": "minecraft:podzol",
+        "weight": 5
+      },
+      {
+        "block": "minecraft:mycelium",
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "may_replace": [
+      "minecraft:dirt",
+      "minecraft:grass_block",
+      "tsu_nat:glowing_mycelium"
+    ]
+  }
+}

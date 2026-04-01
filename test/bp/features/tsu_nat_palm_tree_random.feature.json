@@ -1,0 +1,38 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_palm_tree_random.feature"
+    },
+    "features": [
+      [
+        "tsu_nat:tsu_nat_palm_tree_5.feature",
+        1
+      ],
+      [
+        "tsu_nat:tsu_nat_palm_tree_6.feature",
+        1
+      ],
+      [
+        "tsu_nat:tsu_nat_palm_tree_1.feature",
+        2
+      ],
+      [
+        "tsu_nat:tsu_nat_palm_tree_2.feature",
+        2
+      ],
+      [
+        "tsu_nat:tsu_nat_palm_tree_3.feature",
+        2
+      ],
+      [
+        "tsu_nat:tsu_nat_palm_tree_4.feature",
+        4
+      ],
+      [
+        "tsu_nat:tsu_nat_palm_tree_7.feature",
+        4
+      ]
+    ]
+  }
+}

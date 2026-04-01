@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_podzol_ring.feature"
+    },
+    "places_feature": "tsu_nat:tsu_nat_podzol_block.feature",
+    "project_input_to_floor": false,
+    "distribution": {
+      "coordinate_eval_order": "yxz",
+      "scatter_chance": 100,
+      "iterations": 150,
+      "y": "v.angle = (v.angle ?? 0) + 4; v.radius = math.random(0,5); return -1;",
+      "x": "return math.round(math.sin(v.angle) * v.radius);",
+      "z": "return math.round(math.cos(v.angle) * v.radius);"
+    }
+  }
+}

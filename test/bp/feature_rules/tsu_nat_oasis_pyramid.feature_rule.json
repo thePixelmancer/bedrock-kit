@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_oasis_pyramid.feature_rule",
+      "places_feature": "tsu_nat:tsu_nat_great_pyramid.feature"
+    },
+    "conditions": {
+      "placement_pass": "before_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "oasis"
+        }
+      ]
+    },
+    "distribution": {
+      "scatter_chance": {
+        "numerator": 1,
+        "denominator": 5
+      },
+      "iterations": 1,
+      "x": -15,
+      "y": "query.heightmap(variable.worldx, variable.worldz) - 24",
+      "z": -15
+    }
+  }
+}

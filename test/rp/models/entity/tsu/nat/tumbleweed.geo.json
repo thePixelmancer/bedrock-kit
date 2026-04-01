@@ -1,0 +1,77 @@
+{
+	"format_version": "1.21.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.tsu_nat.tumbleweed",
+				"texture_width": 40,
+				"texture_height": 40,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 8, 0],
+					"cubes": [
+						{
+							"origin": [-10, -2, 8],
+							"size": [20, 20, 0],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [20, 20]}
+							}
+						},
+						{
+							"origin": [8, -2, -10],
+							"size": [0, 20, 20],
+							"uv": {
+								"east": {"uv": [20, 0], "uv_size": [20, 20]}
+							}
+						},
+						{
+							"origin": [-10, -2, -8],
+							"size": [20, 20, 0],
+							"uv": {
+								"south": {"uv": [0, 0], "uv_size": [20, 20]}
+							}
+						},
+						{
+							"origin": [-10, 16, -10],
+							"size": [20, 0, 20],
+							"uv": {
+								"down": {"uv": [40, 40], "uv_size": [-20, -20]}
+							}
+						},
+						{
+							"origin": [-10, 0, -10],
+							"size": [20, 0, 20],
+							"uv": {
+								"down": {"uv": [40, 40], "uv_size": [-20, -20]}
+							}
+						},
+						{
+							"origin": [-8, -2, -10],
+							"size": [0, 20, 20],
+							"uv": {
+								"west": {"uv": [20, 0], "uv_size": [20, 20]}
+							}
+						},
+						{
+							"origin": [-5, 3, -5],
+							"size": [10, 10, 10],
+							"uv": {
+								"north": {"uv": [3, 27], "uv_size": [10, 10]},
+								"east": {"uv": [3, 27], "uv_size": [10, 10]},
+								"south": {"uv": [3, 27], "uv_size": [10, 10]},
+								"west": {"uv": [3, 27], "uv_size": [10, 10]},
+								"up": {"uv": [13, 37], "uv_size": [-10, -10]},
+								"down": {"uv": [13, 37], "uv_size": [-10, -10]}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

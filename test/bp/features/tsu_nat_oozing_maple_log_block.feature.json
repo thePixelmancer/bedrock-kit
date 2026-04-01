@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_oozing_maple_log_block.feature"
+    },
+    "places_block": [
+      {
+        "block": {
+          "name": "tsu_nat:oozing_maple_log"
+        },
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "may_replace": [
+      "tsu_nat:maple_log",
+      "tsu_nat:maple_wood"
+    ]
+  }
+}

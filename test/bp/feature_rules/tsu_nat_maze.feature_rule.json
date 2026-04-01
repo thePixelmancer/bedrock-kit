@@ -1,0 +1,36 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_maze.feature_rule",
+      "places_feature": "tsu_nat:tsu_nat_maze.feature"
+    },
+    "conditions": {
+      "placement_pass": "after_surface_pass",
+      "minecraft:biome_filter": {
+        "any_of": [
+          {
+            "test": "has_biome_tag",
+            "operator": "==",
+            "value": "plains"
+          },
+          {
+            "test": "has_biome_tag",
+            "operator": "==",
+            "value": "savanna"
+          }
+        ]
+      }
+    },
+    "distribution": {
+      "scatter_chance": {
+        "numerator": 1,
+        "denominator": 3
+      },
+      "iterations": 1,
+      "x": -15,
+      "y": "query.heightmap(variable.worldx, variable.worldz)-6",
+      "z": -15
+    }
+  }
+}

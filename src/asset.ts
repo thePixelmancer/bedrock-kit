@@ -10,7 +10,7 @@ export type { CommentBlock };
  * (items, blocks, entities, loot tables, animations, etc.).
  *
  * JSDoc-style comment blocks written inside the backing JSON file are parsed
- * eagerly at construction time and exposed as `documentation`. This lets you
+ * eagerly at construction time and exposed as `docstrings`. This lets you
  * attach structured docs directly inside your addon JSON files:
  *
  * ```jsonc
@@ -26,7 +26,7 @@ export type { CommentBlock };
  *
  * ```ts
  * const entity = addon.entities.get("mypack:guardian");
- * console.log(entity?.behavior?.documentation[0]?.description);
+ * console.log(entity?.behavior?.docstrings[0]?.description);
  * // "The ancient guardian. Spawns in deep ocean ruins."
  * ```
  */
@@ -39,12 +39,12 @@ export abstract class Asset {
    * All JSDoc-style comment blocks parsed from this asset's source file,
    * in document order. Empty array when no `/** … *\/` blocks are present.
    */
-  readonly documentation: CommentBlock[];
+  readonly docstrings: CommentBlock[];
 
   protected constructor(filePath: string, data: Record<string, unknown>, rawText: string) {
     this.filePath = filePath;
     this.data = data;
-    this.documentation = rawText ? parse(rawText) : [];
+    this.docstrings = rawText ? parse(rawText) : [];
   }
 }
 
@@ -63,7 +63,7 @@ export abstract class Asset {
  * const spear = addon.items.get("mypack:copper_spear");
  *
  * // Array-style helpers
- * const withTexture = addon.items.filter(i => i.texturePath !== undefined);
+ * const withTexture = addon.items.filter(i => i.texture !== undefined);
  * const ids = addon.items.map(i => i.id);
  *
  * // Grouping by namespace

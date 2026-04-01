@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_fungal_grove_trees_replace.feature"
+    },
+    "places_block": "minecraft:air",
+    "enforce_placement_rules": false,
+    "enforce_survivability_rules": false,
+    "may_replace": [
+      "minecraft:cobblestone"
+    ]
+  }
+}

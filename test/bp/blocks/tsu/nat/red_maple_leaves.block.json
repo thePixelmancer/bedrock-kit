@@ -1,0 +1,45 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:red_maple_leaves",
+			"menu_category": {
+				"category": "nature",
+				"group": "minecraft:itemGroup.name.leaves"
+			},
+			"states": {
+				"tsu_nat:decay": [
+					true,
+					false
+				]
+			}
+		},
+		"components": {
+			"tsu_nat:custom_leaves": {
+				"particle": "tsu_nat:falling_red_maple_leaves"
+			},
+			"tag:minecraft:is_sword_item_destructible": {},
+			"tag:minecraft:is_shears_item_destructible": {},
+			"minecraft:loot": "loot_tables/tsu/nat/red_maple_leaves.loot.json",
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 0.3
+			},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.red_maple_leaves",
+					"render_method": "alpha_test_single_sided_to_opaque"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": true,
+			"minecraft:selection_box": true,
+			"minecraft:geometry": {
+				"identifier": "geometry.tsu_nat.leaves"
+			},
+			"minecraft:light_dampening": 7
+		}
+	}
+}

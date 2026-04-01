@@ -1,0 +1,27 @@
+{
+	"format_version": "1.12.50",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "tsu_nat:charred_double_slab_to_bed"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"www",
+			"ppp"
+		],
+		"key": {
+			"p": {
+				"item": "tsu_nat:charred_double_slab"
+			},
+			"w": {
+				"tag": "minecraft:wool"
+			}
+		},
+		"result": {
+			"item": "minecraft:bed",
+			"count": 1
+		}
+	}
+}

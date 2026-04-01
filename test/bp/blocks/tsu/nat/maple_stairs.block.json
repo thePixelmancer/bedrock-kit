@@ -1,0 +1,2051 @@
+{
+	"format_version": "1.26.0",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:maple_stairs",
+			"menu_category": {
+				"category": "construction",
+				"group": "minecraft:itemGroup.name.stairs"
+			},
+			"traits": {
+				"minecraft:placement_position": {
+					"enabled_states": [
+						"minecraft:vertical_half"
+					]
+				},
+				"minecraft:connection": {
+					"enabled_states": [
+						"minecraft:cardinal_connections"
+					]
+				},
+				"minecraft:placement_direction": {
+					"blocks_to_corner_with": [
+						{
+							"tags": "q.any_tag('minecraft:cornerable_stairs')"
+						}
+					],
+					"enabled_states": [
+						"minecraft:corner_and_cardinal_direction"
+					]
+				}
+			}
+		},
+		"components": {
+			"minecraft:flammable": {},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 1
+			},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 15
+			},
+			"tag:minecraft:is_axe_item_destructible": {},
+			"tag:minecraft:is_pickaxe_item_destructible": {},
+			"tag:minecraft:wood_tier_destructible": {},
+			"minecraft:map_color": "#ffffff",
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "tsu_nat.maple_planks"
+				}
+			},
+			"minecraft:item_visual": {
+				"geometry": {
+					"uv_lock": true,
+					"identifier": "geometry.tsu_nat.stairs",
+					"bone_visibility": {
+						"bottom_se": true,
+						"bottom_sw": true,
+						"bottom_ne": true,
+						"bottom_nw": true,
+						"top_se": false,
+						"top_sw": false,
+						"top_ne": true,
+						"top_nw": true
+					}
+				},
+				"material_instances": {
+					"*": {
+						"texture": "tsu_nat.maple_planks"
+					}
+				}
+			},
+			"minecraft:support": {
+				"shape": "stair"
+			},
+			"tag:minecraft:cornerable_stairs": {},
+			"minecraft:collision_box": [
+				{
+					"origin": [
+						-8,
+						0,
+						-8
+					],
+					"size": [
+						16,
+						8,
+						16
+					]
+				},
+				{
+					"origin": [
+						-8,
+						8,
+						0
+					],
+					"size": [
+						16,
+						8,
+						8
+					]
+				}
+			],
+			"minecraft:selection_box": true,
+			"minecraft:geometry": {
+				"uv_lock": true,
+				"identifier": "geometry.tsu_nat.stairs",
+				"bone_visibility": {
+					"bottom_se": "q.block_state('minecraft:vertical_half') == 'bottom' || q.block_state('minecraft:corner') == 'none' || q.block_state('minecraft:corner') == 'inner_right' || q.block_state('minecraft:corner') == 'inner_left' || q.block_state('minecraft:corner') == 'outer_left'",
+					"bottom_sw": "q.block_state('minecraft:vertical_half') == 'bottom' || q.block_state('minecraft:corner') == 'none' || q.block_state('minecraft:corner') == 'inner_right' || q.block_state('minecraft:corner') == 'inner_left' || q.block_state('minecraft:corner') == 'outer_right'",
+					"bottom_ne": "q.block_state('minecraft:vertical_half') == 'bottom' || q.block_state('minecraft:corner') == 'inner_right'",
+					"bottom_nw": "q.block_state('minecraft:vertical_half') == 'bottom' || q.block_state('minecraft:corner') == 'inner_left'",
+					"top_se": "q.block_state('minecraft:vertical_half') == 'top' || q.block_state('minecraft:corner') == 'none' || q.block_state('minecraft:corner') == 'inner_right' || q.block_state('minecraft:corner') == 'inner_left' || q.block_state('minecraft:corner') == 'outer_left'",
+					"top_sw": "q.block_state('minecraft:vertical_half') == 'top' || q.block_state('minecraft:corner') == 'none' || q.block_state('minecraft:corner') == 'inner_right' || q.block_state('minecraft:corner') == 'inner_left' || q.block_state('minecraft:corner') == 'outer_right'",
+					"top_ne": "q.block_state('minecraft:vertical_half') == 'top' || q.block_state('minecraft:corner') == 'inner_left'",
+					"top_nw": "q.block_state('minecraft:vertical_half') == 'top' || q.block_state('minecraft:corner') == 'inner_right'"
+				}
+			},
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"liquid_type": "water",
+						"can_contain_liquid": true,
+						"on_liquid_touches": "blocking",
+						"stops_liquid_flowing_from_direction": [
+							"east"
+						]
+					}
+				]
+			}
+		},
+		"permutations": [
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'north'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							180,
+							0
+						]
+					},
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"north",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'east'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							90,
+							0
+						]
+					},
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"east",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'south'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							0
+						]
+					},
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"south",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'west'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							-90,
+							0
+						]
+					},
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"west",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"north",
+									"east",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"east",
+									"south",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"west",
+									"south",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"west",
+									"north",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"north",
+									"west",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"east",
+									"north",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"south",
+									"east",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"west",
+									"south",
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'bottom' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"down"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'north'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							180,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"north"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'west'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							-90,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"west"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'south'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"south"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'east'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							90,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"east"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							90,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"north",
+									"east"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							180,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"west",
+									"north"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							-90,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"south",
+									"west"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'inner_right'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"east",
+									"south"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							-90,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						},
+						{
+							"origin": [
+								0,
+								0,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"north",
+									"west"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						},
+						{
+							"origin": [
+								0,
+								0,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"west",
+									"south"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							90,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						},
+						{
+							"origin": [
+								0,
+								0,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"south",
+									"east"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'inner_left'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							180,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								16,
+								8,
+								8
+							]
+						},
+						{
+							"origin": [
+								0,
+								0,
+								-8
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking",
+								"stops_liquid_flowing_from_direction": [
+									"east",
+									"north"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								0,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							-90,
+							0
+						]
+					},
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								0,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								0,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'outer_right'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								0,
+								8,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:vertical_half') == 'top' && q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('minecraft:corner') == 'outer_left'",
+				"components": {
+					"minecraft:collision_box": [
+						{
+							"origin": [
+								-8,
+								8,
+								-8
+							],
+							"size": [
+								16,
+								8,
+								16
+							]
+						},
+						{
+							"origin": [
+								-8,
+								0,
+								0
+							],
+							"size": [
+								8,
+								8,
+								8
+							]
+						}
+					],
+					"minecraft:liquid_detection": {
+						"detection_rules": [
+							{
+								"liquid_type": "water",
+								"can_contain_liquid": true,
+								"on_liquid_touches": "blocking"
+							}
+						]
+					}
+				}
+			}
+		]
+	}
+}

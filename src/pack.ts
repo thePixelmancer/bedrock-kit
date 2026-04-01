@@ -9,6 +9,11 @@ export type PackEntry = {
   rawText: string;
 };
 
+export type TextureEntry = {
+  filePath: string;
+  relativePath: string;
+};
+
 export function diskEntries(packRoot: string, subdir: string): PackEntry[] {
   return walkDir(join(packRoot, subdir), (f) => f.endsWith(".json")).flatMap((file) => {
     const rawText = readRawFromDisk(file);
@@ -18,6 +23,15 @@ export function diskEntries(packRoot: string, subdir: string): PackEntry[] {
     const relativePath = relative(packRoot, file).replace(/\\/g, "/");
     return [{ filePath: file, relativePath, data, rawText }];
   });
+}
+
+export function diskTextureEntries(packRoot: string, subdir: string): TextureEntry[] {
+  if (!packRoot) return [];
+  const exts = new Set([".png", ".tga"]);
+  return walkDir(join(packRoot, subdir), (f) => exts.has(f.slice(f.lastIndexOf(".")).toLowerCase())).map((file) => ({
+    filePath: file,
+    relativePath: relative(packRoot, file).replace(/\\/g, "/"),
+  }));
 }
 
 export function browserEntries(packData: PackData, subdir: string): PackEntry[] {

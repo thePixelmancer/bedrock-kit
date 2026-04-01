@@ -42,18 +42,18 @@ export class TextureAtlasFile extends Asset {
   }
 
   /**
-   * Returns the texture path(s) for a shortname, or `null` if not found.
+   * Returns the texture path(s) for a shortname, or `undefined` if not found.
    * When multiple frames are defined (animated textures), returns a `string[]`.
    *
    * @example
    * ```ts
-   * atlas.get("dirt")       // "textures/blocks/dirt"
-   * atlas.get("fire_0")     // ["textures/blocks/fire_0_0", "textures/blocks/fire_0_1"]
-   * atlas.get("nonexistent") // null
+   * atlas.get("dirt")        // "textures/blocks/dirt"
+   * atlas.get("fire_0")      // ["textures/blocks/fire_0_0", "textures/blocks/fire_0_1"]
+   * atlas.get("nonexistent") // undefined
    * ```
    */
-  get(shortname: string): string | string[] | null {
-    return this._textures.get(shortname) ?? null;
+  get(shortname: string): string | string[] | undefined {
+    return this._textures.get(shortname);
   }
 
   /** Returns all shortnames defined in this atlas. */

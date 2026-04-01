@@ -1,0 +1,91 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.tsu_nat.tall_crop",
+				"texture_width": 16,
+				"texture_height": 16,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 4.5,
+				"visible_bounds_offset": [0, 1.75, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 5, 0]
+				},
+				{
+					"name": "bottom",
+					"parent": "root",
+					"pivot": [0, -1, 0],
+					"cubes": [
+						{
+							"origin": [-8, -1, -4],
+							"size": [16, 16, 0],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "bottom"}
+							}
+						},
+						{
+							"origin": [-4, -1, -8],
+							"size": [0, 16, 16],
+							"uv": {
+								"east": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "bottom"}
+							}
+						},
+						{
+							"origin": [-8, -1, 4],
+							"size": [16, 16, 0],
+							"uv": {
+								"south": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "bottom"}
+							}
+						},
+						{
+							"origin": [4, -1, -8],
+							"size": [0, 16, 16],
+							"uv": {
+								"west": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "bottom"}
+							}
+						}
+					]
+				},
+				{
+					"name": "top",
+					"parent": "root",
+					"pivot": [0, 15, 0],
+					"cubes": [
+						{
+							"origin": [4, 15, -8],
+							"size": [0, 14, 16],
+							"uv": {
+								"west": {"uv": [0, 2], "uv_size": [16, 14], "material_instance": "top"}
+							}
+						},
+						{
+							"origin": [-8, 15, 4],
+							"size": [16, 14, 0],
+							"uv": {
+								"south": {"uv": [0, 2], "uv_size": [16, 14], "material_instance": "top"}
+							}
+						},
+						{
+							"origin": [-4, 15, -8],
+							"size": [0, 14, 16],
+							"uv": {
+								"east": {"uv": [0, 2], "uv_size": [16, 14], "material_instance": "top"}
+							}
+						},
+						{
+							"origin": [-8, 15, -4],
+							"size": [16, 14, 0],
+							"uv": {
+								"north": {"uv": [0, 2], "uv_size": [16, 14], "material_instance": "top"}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,6 +1,19 @@
 import { Asset } from "./asset.js";
 import type { SoundFile } from "./types.js";
 
+// ─── DefinitionFile ────────────────────────────────────────────────────────────
+
+/**
+ * Shared interface implemented by {@link SoundDefinitionsFile} and {@link MusicDefinitionsFile}.
+ * Allows generic code to work with either definition file type.
+ */
+export interface DefinitionFile<T> {
+  get(id: string): T | undefined;
+  all(): T[];
+  readonly ids: string[];
+  readonly size: number;
+}
+
 // ─── SoundDefinitionsFile ───────────────────────────────────────────────────
 
 /**
@@ -15,7 +28,7 @@ import type { SoundFile } from "./types.js";
  * console.log(entry?.files[0].name); // "sounds/mob/zombie/say1"
  * ```
  */
-export class SoundDefinitionsFile extends Asset {
+export class SoundDefinitionsFile extends Asset implements DefinitionFile<SoundDefinitionEntry> {
   private _definitions: Map<string, SoundDefinitionEntry>;
 
   constructor(filePath: string, data: Record<string, unknown>, rawText: string) {

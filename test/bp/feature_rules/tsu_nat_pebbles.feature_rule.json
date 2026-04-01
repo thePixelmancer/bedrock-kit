@@ -1,0 +1,63 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_pebbles.feature_rule",
+      "places_feature": "tsu_nat:tsu_nat_pebbles.feature"
+    },
+    "conditions": {
+      "placement_pass": "surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "any_of": [
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "extreme_hills"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "beach"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "stone_beach"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "stone"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "extreme_hills"
+            }
+          ]
+        }
+      ]
+    },
+    "distribution": {
+      "scatter_chance": 20,
+      "iterations": 2,
+      "coordinate_eval_order": "xzy",
+      "x": {
+        "extent": [
+          0,
+          15
+        ],
+        "distribution": "uniform"
+      },
+      "y": "query.heightmap(variable.worldx, variable.worldz)",
+      "z": {
+        "extent": [
+          0,
+          15
+        ],
+        "distribution": "uniform"
+      }
+    }
+  }
+}

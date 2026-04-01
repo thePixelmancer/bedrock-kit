@@ -1,0 +1,54 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_dead_tree.feature"
+    },
+    "trunk": {
+      "trunk_decoration": {
+        "decoration_block": "tsu_nat:small_charred_log",
+        "decoration_chance": {
+          "numerator": 1,
+          "denominator": 20
+        },
+        "step_direction": "away",
+        "num_steps": 0
+      },
+      "trunk_height": {
+        "range_min": 6,
+        "range_max": 12
+      },
+      "trunk_block": {
+        "name": "tsu_nat:charred_log"
+      }
+    },
+    "base_cluster": {
+      "may_replace": [
+        {
+          "tags": "query.any_tag('dirt')"
+        }
+      ],
+      "num_clusters": 6,
+      "cluster_radius": 5
+    },
+    "may_grow_on": [
+      "tsu_nat:dead_grass_block",
+      {
+        "tags": "query.any_tag('dirt')"
+      }
+    ],
+    "base_block": [
+      "tsu_nat:dead_grass_block"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:snow_layer"
+    ],
+    "may_grow_through": [
+      {
+        "tags": "query.any_tag('dirt')"
+      },
+      "tsu_nat:dead_grass_block"
+    ]
+  }
+}

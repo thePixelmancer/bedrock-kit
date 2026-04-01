@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_giant_maple_forest_trees.feature"
+    },
+    "features": [
+      [
+        "tsu_nat:tsu_nat_giant_red_maple_tree_1.feature",
+        1
+      ],
+      [
+        "tsu_nat:tsu_nat_giant_red_maple_tree_2.feature",
+        1
+      ]
+    ]
+  }
+}

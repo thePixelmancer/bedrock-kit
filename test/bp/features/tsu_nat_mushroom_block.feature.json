@@ -1,0 +1,32 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "tsu_nat:tsu_nat_mushroom_block.feature"
+    },
+    "places_block": [
+      {
+        "block": "minecraft:brown_mushroom",
+        "weight": 1
+      },
+      {
+        "block": "minecraft:red_mushroom",
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": true,
+    "enforce_survivability_rules": true,
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:short_grass",
+      "minecraft:tall_grass"
+    ],
+    "may_attach_to": {
+      "bottom": [
+        "minecraft:mycelium",
+        "minecraft:podzol",
+        "tsu_nat:glowing_mycelium"
+      ]
+    }
+  }
+}

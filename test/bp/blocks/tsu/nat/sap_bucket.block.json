@@ -1,0 +1,165 @@
+{
+	"format_version": "1.21.90",
+	"minecraft:block": {
+		"description": {
+			"identifier": "tsu_nat:sap_bucket",
+			"menu_category": {
+				"category": "items"
+			},
+			"states": {
+				"tsu_nat:filled_level": [
+					0,
+					1,
+					2,
+					3
+				]
+			},
+			"traits": {
+				"minecraft:placement_position": {
+					"enabled_states": [
+						"minecraft:block_face"
+					]
+				}
+			}
+		},
+		"components": {
+			"minecraft:liquid_detection": {
+				"detection_rules": [
+					{
+						"can_contain_liquid": true,
+						"liquid_type": "water",
+						"on_liquid_touches": "no_reaction"
+					}
+				]
+			},
+			"tsu_nat:sap_bucket": {
+				"state": "tsu_nat:filled_level",
+				"max_state_value": 3,
+				"fill_chance": 0.25,
+				"depletion_chance": 0.07
+			},
+			"minecraft:placement_filter": {
+				"conditions": [
+					{
+						"allowed_faces": [
+							"side"
+						]
+					}
+				]
+			},
+			"minecraft:destructible_by_explosion": {
+				"explosion_resistance": 0.5
+			},
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 6
+			},
+			"tag:minecraft:is_axe_item_destructible": {},
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "barrel_side",
+					"render_method": "alpha_test"
+				},
+				"metal_part": {
+					"texture": "cauldron_side",
+					"render_method": "alpha_test"
+				},
+				"bucket_bottom": {
+					"texture": "barrel_bottom",
+					"render_method": "alpha_test"
+				},
+				"bucket_opening": {
+					"texture": "cauldron_top",
+					"render_method": "alpha_test"
+				},
+				"water": {
+					"texture": "tsu_nat.sap_water",
+					"render_method": "alpha_test"
+				}
+			},
+			"minecraft:flammable": true,
+			"minecraft:collision_box": {
+				"origin": [
+					-6,
+					0,
+					-8
+				],
+				"size": [
+					12,
+					11,
+					12
+				]
+			},
+			"minecraft:selection_box": {
+				"origin": [
+					-6,
+					0,
+					-8
+				],
+				"size": [
+					12,
+					11,
+					12
+				]
+			},
+			"minecraft:geometry": {
+				"identifier": "geometry.tsu_nat.sap_bucket",
+				"bone_visibility": {
+					"sap0": "q.block_state('tsu_nat:filled_level') == 1",
+					"sap1": "q.block_state('tsu_nat:filled_level') == 2",
+					"sap2": "q.block_state('tsu_nat:filled_level') == 3"
+				}
+			},
+			"minecraft:light_dampening": 0
+		},
+		"permutations": [
+			{
+				"condition": "q.block_state('minecraft:block_face') == 'north'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							180,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:block_face') == 'east'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							90,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:block_face') == 'south'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							0,
+							0
+						]
+					}
+				}
+			},
+			{
+				"condition": "q.block_state('minecraft:block_face') == 'west'",
+				"components": {
+					"minecraft:transformation": {
+						"rotation": [
+							0,
+							-90,
+							0
+						]
+					}
+				}
+			}
+		]
+	}
+}
