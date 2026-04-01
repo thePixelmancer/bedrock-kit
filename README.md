@@ -54,9 +54,9 @@ console.log(zombie?.resource?.entity);   // back-link to unified Entity
 
 // Biomes
 const biome = addon.biomes.get("mypack:maple_forest");
-console.log(biome?.resource?.skyColor);  // "#FF85CCFF"
 console.log(biome?.fog?.id);             // "mypack:maple_forest_fog"
 console.log(biome?.resource?.biome);     // back-link to unified Biome
+console.log(biome?.resource?.data);      // raw data — access skyColor, foliageColor etc.
 
 // Textures (Node.js)
 const tex = addon.textures.get("textures/blocks/cobblestone");

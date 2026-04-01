@@ -220,7 +220,6 @@ Keyed by relative path from BP root (e.g. `"loot_tables/entities/zombie.json"`).
 const table = addon.lootTables.get("loot_tables/entities/zombie.json");
 
 table.id              // "loot_tables/entities/zombie.json"
-table.pools           // LootPool[]
 table.itemIds         // string[] — all item ids that can drop
 table.items           // Item[] — resolved addon items (vanilla excluded)
 table.sourceEntities  // Entity[] — entities referencing this table
@@ -237,14 +236,12 @@ table.docstrings      // CommentBlock[]
 ```ts
 const rule = entity.spawnRule; // SpawnRule | undefined
 
-rule.id                // "minecraft:zombie"
-rule.biomeTags         // string[] — deduplicated values from biome_filter conditions
-rule.populationControl // string | undefined — e.g. "monster", "animal"
-rule.conditions        // Record<string, unknown>[] — raw condition objects
-rule.entity            // Entity | undefined — back-link to unified entity
-rule.data              // raw JSON
-rule.filePath          // absolute path
-rule.docstrings        // CommentBlock[]
+rule.id        // "minecraft:zombie"
+rule.biomeTags // string[] — deduplicated values from biome_filter conditions
+rule.entity    // Entity | undefined — back-link to unified entity
+rule.data      // raw JSON
+rule.filePath  // absolute path
+rule.docstrings // CommentBlock[]
 ```
 
 ---
@@ -281,17 +278,13 @@ biome.behavior.docstrings       // CommentBlock[]
 ### ClientBiome
 
 ```ts
-biome.resource.id               // "mypack:maple_forest"
-biome.resource.fogIdentifier    // string | undefined — raw fog ID
-biome.resource.fog              // Fog | undefined — resolved Fog object
-biome.resource.skyColor         // string | undefined — e.g. "#FF85CCFF"
-biome.resource.foliageColor     // string | undefined
-biome.resource.waterColor       // string | undefined
-biome.resource.ambientSounds    // SoundEventBinding[]
-biome.resource.biome            // Biome | undefined — back-link to unified view
-biome.resource.data             // raw RP client biome JSON
-biome.resource.filePath         // absolute path
-biome.resource.docstrings       // CommentBlock[]
+biome.resource.id            // "mypack:maple_forest"
+biome.resource.fog           // Fog | undefined — resolved Fog object
+biome.resource.ambientSounds // SoundEventBinding[]
+biome.resource.biome         // Biome | undefined — back-link to unified view
+biome.resource.data          // raw RP client biome JSON — access skyColor, foliageColor, waterColor etc. via data
+biome.resource.filePath      // absolute path
+biome.resource.docstrings    // CommentBlock[]
 ```
 
 ---
@@ -350,13 +343,12 @@ feature.docstrings           // CommentBlock[]
 
 const rule = addon.featureRules.get("mypack:maple_tree_rule"); // FeatureRule | undefined
 
-rule.id               // "mypack:maple_tree_rule"
-rule.placesFeatureId  // string | undefined — raw feature ID
-rule.placesFeature    // Feature | undefined — resolved Feature object
-rule.placementPass    // string | undefined — e.g. "surface_pass", "after_surface_pass"
-rule.data             // raw JSON
-rule.filePath         // absolute path
-rule.docstrings       // CommentBlock[]
+rule.id              // "mypack:maple_tree_rule"
+rule.placesFeatureId // string | undefined — raw feature ID
+rule.placesFeature   // Feature | undefined — resolved Feature object
+rule.data            // raw JSON — access placementPass, conditions etc. via data
+rule.filePath        // absolute path
+rule.docstrings      // CommentBlock[]
 ```
 
 ---
@@ -367,10 +359,9 @@ rule.docstrings       // CommentBlock[]
 // sound_definitions.json
 const entry = addon.sounds?.get("mob.zombie.say"); // SoundDefinitionEntry | undefined
 
-entry.id         // "mob.zombie.say"
-entry.category   // string | undefined — e.g. "mob", "ambient", "block"
-entry.files      // SoundFile[] — parsed audio file entries
-entry.parentFile // SoundDefinitionsFile
+entry.id    // "mob.zombie.say"
+entry.files // SoundFile[] — parsed audio file entries
+entry.data  // raw entry data — access category, stream, volume etc. via data
 
 addon.sounds?.all()  // SoundDefinitionEntry[]
 addon.sounds?.ids    // string[]
@@ -388,11 +379,9 @@ file.loadOnLowMemory // boolean | undefined
 // music_definitions.json
 const music = addon.music?.get("bamboo_jungle"); // MusicDefinitionEntry | undefined
 
-music.id         // "bamboo_jungle"
-music.eventName  // string — e.g. "music.overworld.bamboo_jungle"
-music.minDelay   // number — seconds before music starts (min)
-music.maxDelay   // number — seconds before music starts (max)
-music.parentFile // MusicDefinitionsFile
+music.id        // "bamboo_jungle"
+music.eventName // string — e.g. "music.overworld.bamboo_jungle"
+music.data      // raw entry data — access min_delay, max_delay etc. via data
 
 addon.music?.all()
 addon.music?.ids   // string[]
