@@ -320,6 +320,35 @@ const lang = addon.languages.get("en_US");
 ok("languages.get() returns LangFile", lang !== undefined);
 ok("LangFile.get() returns string", typeof lang?.get("item.tsu_nat:rope") === "string");
 
+// ─── Display Names ───────────────────────────────────────────────────────────
+
+section("Display Names");
+
+// Items — obvious match
+eq("item rope displayName", addon.items.get("tsu_nat:rope")?.displayName, "Rope");
+// Items — non-obvious: key differs from display value
+eq("item kefir displayName (key: Yoghurt)", addon.items.get("tsu_nat:kefir")?.displayName, "Yoghurt");
+eq("item kombucha displayName (key: Mushroom Brew)", addon.items.get("tsu_nat:kombucha")?.displayName, "Mushroom Brew");
+
+// Blocks — tile.* key lookup
+eq("block ash_block displayName (tile.* key)", addon.blocks.get("tsu_nat:ash_block")?.displayName, "Block of Ash");
+eq("block maple_log displayName", addon.blocks.get("tsu_nat:maple_log")?.displayName, "Maple Log");
+
+// Entities — entity.* key lookup, including non-obvious name
+eq("entity boar displayName", addon.entities.get("tsu_nat:boar")?.displayName, "Boar");
+eq("entity firefly displayName (non-obvious: Fungus Gnat)", addon.entities.get("tsu_nat:firefly")?.displayName, "Fungus Gnat");
+eq("entity turkey displayName", addon.entities.get("tsu_nat:turkey")?.displayName, "Turkey");
+
+// Fallback — no lang entry, should return the id
+ok("displayName falls back to id for unknown lang key", (() => {
+  const missing = addon.items.all().find(i => {
+    const lang = addon.languages.get("en_US");
+    return lang?.get(`item.${i.id}`) === `item.${i.id}` &&
+           lang?.get(`tile.${i.id}.name`) === `tile.${i.id}.name`;
+  });
+  return missing === undefined || missing.displayName === missing.id;
+})());
+
 // ─── Edge Cases ──────────────────────────────────────────────────────────────
 
 section("Edge Cases");
