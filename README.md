@@ -1,7 +1,7 @@
 # bedrock-kit
 
 > ⚠️ **Experimental:** Version 0.x.x is under active development. APIs may change between patch releases. Pin your version if stability matters.
-
+> Latest version: 0.0.7
 A TypeScript library for reading and navigating Minecraft Bedrock Edition addon files programmatically. Works in Node.js and browsers.
 
 ## Documentation
